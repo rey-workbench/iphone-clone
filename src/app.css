@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* ============================================
+   iOS 26 — Tailwind Theme Extensions
+   ============================================ */
+
+@theme {
+  /* iOS System Colors */
+  --color-ios-blue: #007AFF;
+  --color-ios-green: #34C759;
+  --color-ios-red: #FF3B30;
+  --color-ios-orange: #FF9500;
+  --color-ios-yellow: #FFD60A;
+  --color-ios-purple: #AF52DE;
+  --color-ios-pink: #FF2D55;
+  --color-ios-teal: #5AC8FA;
+  --color-ios-indigo: #5856D6;
+  --color-ios-gray: #8E8E93;
+  --color-ios-gray2: #AEAEB2;
+  --color-ios-gray3: #C7C7CC;
+  --color-ios-gray5: #E5E5EA;
+  --color-ios-gray6: #F2F2F7;
+
+  --color-ios-bg: #000000;
+  --color-ios-bg2: #1C1C1E;
+  --color-ios-bg3: #2C2C2E;
+  --color-ios-sep: rgba(84, 84, 88, 0.65);
+  --color-ios-fill: rgba(120, 120, 128, 0.36);
+  --color-ios-label2: rgba(235, 235, 245, 0.6);
+  --color-ios-label3: rgba(235, 235, 245, 0.3);
+  --color-ios-glass: rgba(30, 30, 30, 0.72);
+  --color-ios-glass-border: rgba(255, 255, 255, 0.08);
+
+  --font-family-ios: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+}
+
+/* ============================================
+   Global Base Styles
+   ============================================ */
+
+@layer base {
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    font-family: var(--font-family-ios);
+    background: #0a0a0a;
+    color: #fff;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+/* ============================================
+   Keyframe Animations
+   ============================================ */
+
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
+@keyframes scaleIn { from { transform: scale(0.8); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.5 } }
+@keyframes bounceUp { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+@keyframes orbFloat {
+  0%,100% { transform: translate(0, 0) scale(1) }
+  25% { transform: translate(30px, -20px) scale(1.1) }
+  50% { transform: translate(-20px, 30px) scale(0.9) }
+  75% { transform: translate(20px, 20px) scale(1.05) }
+}
+@keyframes appOpen {
+  from { transform: scale(0.85) translateY(30px); opacity: 0; border-radius: 30px }
+  to { transform: scale(1) translateY(0); opacity: 1; border-radius: 0 }
+}
+@keyframes appClose {
+  from { transform: scale(1) translateY(0); opacity: 1 }
+  to { transform: scale(0.85) translateY(30px); opacity: 0 }
+}
+@keyframes dotPulse {
+  0%,100% { opacity: 0.5; transform: scale(0.8) }
+  50% { opacity: 1; transform: scale(1.1) }
+}
+
+/* Force Tailwind Rebuild */
