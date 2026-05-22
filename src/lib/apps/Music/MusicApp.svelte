@@ -15,6 +15,7 @@
     LayoutGrid,
     Radio,
     Search,
+    Loader2,
   } from "@lucide/svelte";
 
   interface Track {
@@ -27,15 +28,25 @@
 
   let tracks: Track[] = $state([]);
   let playing = $state(false);
-  let current: Track | null = $state(null);
   let showPlayer = $state(false);
   let progress = $state(0);
   let volume = $state(60);
   let currentTab = $state("listen_now");
   let searchQuery = $state("");
-  let searchResults: Track[] = $state([]);
+  let searchResults = $state([] as any[]);
+  let searchSuggestions = $state([] as string[]);
   let isSearching = $state(false);
+  let showLyrics = $state(false);
+  let lyricsText = $state("");
+  let parsedLyrics: { time: number; text: string }[] = $state([]);
+  let activeLyricIndex = $state(-1);
+  let isSynced = $state(false);
+  let isFetchingLyrics = $state(false);
+  let lyricsContainer: HTMLElement | null = $state(null);
+  
+  const lyricsCache = new Map<string, { rawText: string, isSynced: boolean, parsed: any[] }>();
 
+  let current = $state(null as any);
   let player: any = $state(null);
   let progressInterval: any;
 
@@ -72,24 +83,6 @@
       });
     }
 
-    (async () => {
-      try {
-        const r = await fetch("/api/ytsearch?q=popular");
-        const d = await r.json();
-        if (d.results) {
-          tracks = d.results.slice(0, 20).map((t: any) => ({
-            name: t.title,
-            artist: t.authorName || "YouTube",
-            art: t.thumbnail,
-            preview: t.url,
-            id: t.videoId,
-          }));
-        }
-      } catch {
-        tracks = [];
-      }
-    })();
-
     return () => {
       clearInterval(progressInterval);
       if (player && typeof player.destroy === "function") {
@@ -97,6 +90,26 @@
       }
     };
   });
+
+  $effect(() => {
+    if (currentTab === "listen_now") fetchTab("");
+    else if (currentTab === "browse") fetchTab("browse");
+    else if (currentTab === "radio") fetchTab("radio");
+    else if (currentTab === "library") fetchTab("library");
+  });
+
+  async function fetchTab(action: string) {
+    tracks = [];
+    try {
+      const r = await fetch(
+        `/api/ytsearch${action ? "?action=" + action : ""}`,
+      );
+      const d = await r.json();
+      if (d.results) tracks = d.results;
+    } catch {
+      tracks = [];
+    }
+  }
 
   function onPlayerStateChange(event: any) {
     if (event.data === (window as any).YT.PlayerState.PLAYING) {
@@ -113,9 +126,39 @@
     }
   }
 
-  function play(t: Track) {
+  async function play(t: any) {
+    if (t.type === "PLAYLIST" || t.type === "ALBUM" || t.type === "ARTIST") {
+      try {
+        const r = await fetch(
+          `/api/ytsearch?action=playlist_tracks&q=${t.id}&type=${t.type}`,
+        );
+        const d = await r.json();
+        if (d.results && d.results.length > 0) {
+          tracks = d.results;
+          current = tracks[0];
+          playTrack(current);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      return;
+    }
     current = t;
+    playTrack(current);
+    
+    // If clicked song is not in the current queue, create a new radio queue!
+    const inQueue = tracks.find((track: any) => track.id === t.id);
+    if (!inQueue) {
+      tracks = [current];
+      fetchUpNext();
+    }
+  }
+
+  function playTrack(t: any) {
+    if (!player || typeof player.loadVideoById !== "function") return;
     showPlayer = true;
+    showLyrics = false;
+    lyricsText = "";
     if (player && typeof player.loadVideoById === "function") {
       player.loadVideoById(t.id);
       player.playVideo();
@@ -129,12 +172,135 @@
     }
   }
 
+  $effect(() => {
+    if (current && !lyricsCache.has(current.id)) {
+      backgroundFetchLyrics(current);
+    }
+  });
+
+  async function backgroundFetchLyrics(song: any) {
+    if (!song) return;
+    const songId = song.id;
+    if (lyricsCache.has(songId)) return;
+    
+    try {
+      const r = await fetch(`/api/ytsearch?action=lyrics&q=${songId}&title=${encodeURIComponent(song.name)}&artist=${encodeURIComponent(song.artist)}&duration=${song.duration || 0}`);
+      const d = await r.json();
+      
+      let rawText = "";
+      if (d.results && Array.isArray(d.results)) {
+        rawText = d.results.join('\n');
+      } else if (d.results && typeof d.results === 'string') {
+        rawText = d.results;
+      } else {
+        rawText = "Lyrics not available.";
+      }
+      
+      const isSyncedRes = d.isSynced === true;
+      const parsed = isSyncedRes ? parseLRC(rawText) : [];
+      
+      lyricsCache.set(songId, { rawText, isSynced: isSyncedRes, parsed });
+      
+      if (current && current.id === songId && showLyrics) {
+        applyLyricsFromCache(songId);
+        isFetchingLyrics = false;
+      }
+    } catch {
+      lyricsCache.set(songId, { rawText: "Failed to load lyrics.", isSynced: false, parsed: [] });
+      if (current && current.id === songId && showLyrics) {
+        applyLyricsFromCache(songId);
+        isFetchingLyrics = false;
+      }
+    }
+  }
+
+  function applyLyricsFromCache(songId: string) {
+    const cached = lyricsCache.get(songId);
+    if (cached) {
+      lyricsText = cached.rawText;
+      isSynced = cached.isSynced;
+      parsedLyrics = cached.parsed;
+      activeLyricIndex = -1;
+    }
+  }
+
+  async function fetchLyrics() {
+    if (!current) return;
+    showLyrics = !showLyrics;
+    if (!showLyrics) return;
+    
+    if (lyricsCache.has(current.id)) {
+      applyLyricsFromCache(current.id);
+      isFetchingLyrics = false;
+    } else {
+      isFetchingLyrics = true;
+      lyricsText = "";
+      parsedLyrics = [];
+    }
+  }
+
+  function parseLRC(lrc: string) {
+    const lines = lrc.split("\n");
+    const parsed = [];
+    const timeReg = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+    for (const line of lines) {
+      const match = timeReg.exec(line);
+      if (match) {
+        const min = parseFloat(match[1]);
+        const sec = parseFloat(match[2]);
+        const fraction = parseFloat("0." + match[3]);
+        // Add a 0.3s delay (increase time requirement) because users feel it highlights too fast
+        const time = min * 60 + sec + fraction + 0.3;
+        const text = line.replace(timeReg, "").trim();
+        parsed.push({ time, text });
+      }
+    }
+    return parsed;
+  }
+
+  async function fetchUpNext() {
+    if (!current) return;
+    try {
+      const r = await fetch(`/api/ytsearch?action=upnext&q=${current.id}`);
+      const d = await r.json();
+      if (d.results && d.results.length > 0) {
+        tracks = d.results; // replace queue
+        // notify user maybe? UI doesn't have toast, so it just silently replaces the queue
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   function updateProgress() {
     if (player && player.getDuration) {
       const d = player.getDuration();
       const c = player.getCurrentTime();
       if (d > 0) progress = (c / d) * 100;
+
+      if (showLyrics && isSynced && parsedLyrics.length > 0) {
+        let newIndex = parsedLyrics.findIndex((p) => p.time > c) - 1;
+        if (newIndex === -2) newIndex = parsedLyrics.length - 1;
+        if (newIndex < 0 && parsedLyrics[0].time > c) newIndex = -1;
+
+        if (newIndex !== activeLyricIndex) {
+          activeLyricIndex = newIndex;
+          scrollToActiveLyric();
+        }
+      }
     }
+  }
+
+  function scrollToActiveLyric() {
+    if (!lyricsContainer) return;
+    setTimeout(() => {
+      const activeEl = lyricsContainer?.querySelector(
+        ".active-lyric",
+      ) as HTMLElement;
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 50);
   }
 
   function togglePlay() {
@@ -179,25 +345,38 @@
   async function doSearch() {
     if (!searchQuery.trim()) return;
     isSearching = true;
+    searchSuggestions = []; // hide suggestions when searching
     try {
       const r = await fetch(
         `/api/ytsearch?q=${encodeURIComponent(searchQuery)}`,
       );
       const d = await r.json();
       if (d.results) {
-        searchResults = d.results.slice(0, 20).map((t: any) => ({
-          name: t.title,
-          artist: t.authorName || "YouTube",
-          art: t.thumbnail,
-          preview: t.url,
-          id: t.videoId,
-        }));
+        searchResults = d.results;
       }
     } catch {
       searchResults = [];
     }
     isSearching = false;
   }
+
+  let searchTimeout: any;
+  $effect(() => {
+    if (searchQuery.trim().length > 1) {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(async () => {
+        try {
+          const r = await fetch(
+            `/api/ytsearch?action=suggestions&q=${encodeURIComponent(searchQuery)}`,
+          );
+          const d = await r.json();
+          if (d.results) searchSuggestions = d.results;
+        } catch {}
+      }, 300);
+    } else {
+      searchSuggestions = [];
+    }
+  });
 </script>
 
 <div class="h-full bg-black flex flex-col relative overflow-hidden">
@@ -226,11 +405,53 @@
         <div class="w-10 h-1 bg-white/40 rounded-full"></div>
       </div>
 
-      <img
-        src={current.art}
-        alt={current.name}
-        class="w-full aspect-square rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] object-cover mb-12"
-      />
+      {#if showLyrics}
+        <div
+          class="flex-1 overflow-y-auto mb-10 w-full px-6 text-white text-[24px] font-bold leading-normal hide-scrollbar scroll-smooth"
+          bind:this={lyricsContainer}
+        >
+          {#if isFetchingLyrics}
+            <div class="flex justify-center py-20">
+              <Loader2 class="animate-spin text-white/50" size={32} />
+            </div>
+          {:else if isSynced && parsedLyrics.length > 0}
+            <div class="space-y-6 py-[40vh]">
+              {#each parsedLyrics as line, i}
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                <p
+                  class="transition-all duration-300 ease-out cursor-pointer {i ===
+                  activeLyricIndex
+                    ? 'text-white opacity-100 active-lyric'
+                    : 'text-white opacity-40 blur-[0.5px]'}"
+                  onclick={() => {
+                    if (player && typeof player.seekTo === "function")
+                      player.seekTo(line.time, true);
+                  }}
+                >
+                  {line.text || "♪"}
+                </p>
+              {/each}
+            </div>
+          {:else}
+            <div
+              class="whitespace-pre-wrap py-[10vh] text-[20px] font-semibold text-white/60 text-center leading-relaxed"
+            >
+              <span
+                class="text-xs font-normal text-white/30 uppercase tracking-widest mb-6 block"
+                >Synced lyrics unavailable</span
+              >
+              {lyricsText}
+            </div>
+          {/if}
+        </div>
+      {:else}
+        <img
+          src={current.art}
+          alt={current.name}
+          class="w-full aspect-square rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] object-cover mb-12"
+        />
+      {/if}
 
       <div class="w-full flex-1 flex flex-col">
         <div class="w-full flex justify-between items-center mb-8">
@@ -253,7 +474,9 @@
           <div
             class="w-full h-1.5 bg-white/20 rounded-full relative cursor-pointer"
             onclick={handleSeek}
-            onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSeek(e as any); }}
+            onkeydown={(e) => {
+              if (e.key === "Enter" || e.key === " ") handleSeek(e as any);
+            }}
             role="slider"
             aria-valuenow={progress}
             aria-valuemin={0}
@@ -320,7 +543,9 @@
           <div
             class="flex-1 h-1.5 bg-white/20 rounded-full relative cursor-pointer"
             onclick={handleVolume}
-            onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleVolume(e as any); }}
+            onkeydown={(e) => {
+              if (e.key === "Enter" || e.key === " ") handleVolume(e as any);
+            }}
             role="slider"
             aria-valuenow={volume}
             aria-valuemin={0}
@@ -344,25 +569,29 @@
           class="flex items-center justify-evenly text-white/70 px-4 mt-auto"
         >
           <button
-            class="bg-transparent border-none text-current cursor-pointer hover:text-white"
-            ><MessageSquareQuote size={20} /></button
+            class="bg-transparent border-none cursor-pointer {showLyrics
+              ? 'text-ios-pink'
+              : 'text-current hover:text-white'}"
+            onclick={fetchLyrics}><MessageSquareQuote size={20} /></button
           >
+
           <button
             class="bg-transparent border-none text-current cursor-pointer hover:text-white"
             ><Airplay size={20} /></button
           >
+
           <button
-            class="bg-transparent border-none text-current cursor-pointer hover:text-white"
-            ><ListMusic size={22} /></button
+            class="bg-transparent border-none text-current cursor-pointer hover:text-white active:text-ios-pink"
+            onclick={fetchUpNext}><ListMusic size={22} /></button
           >
         </div>
       </div>
     </div>
   {:else}
     <div class="flex-1 overflow-y-auto px-4 pt-[54px] pb-5">
-      {#if currentTab === "listen_now"}
-        <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4">
-          Listen Now
+      {#if currentTab === "listen_now" || currentTab === "browse" || currentTab === "radio" || currentTab === "library"}
+        <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4 capitalize">
+          {currentTab.replace("_", " ")}
         </h1>
         {#if tracks.length === 0}
           <div class="flex justify-center py-20">
@@ -434,6 +663,22 @@
             class="w-full bg-[#1c1c1e] text-white placeholder-white/50 border-none rounded-xl px-4 py-3 outline-none focus:ring-1 focus:ring-ios-pink"
           />
         </div>
+        {#if searchSuggestions.length > 0 && searchResults.length === 0 && !isSearching}
+          <div class="px-2 mb-4 space-y-1">
+            {#each searchSuggestions as sug}
+              <button
+                class="w-full text-left bg-transparent border-none text-white/80 py-2 px-2 text-[15px] cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-3"
+                onclick={() => {
+                  searchQuery = sug;
+                  doSearch();
+                }}
+              >
+                <Search size={16} class="text-white/40" />
+                {sug}
+              </button>
+            {/each}
+          </div>
+        {/if}
         {#if isSearching}
           <div class="flex justify-center py-10">
             <div
@@ -508,34 +753,77 @@
         }}
         aria-label="Play/Pause"
       >
-        {#if playing}<Pause size={24} fill="white" strokeWidth={0} />{:else}<Play size={24} fill="white" strokeWidth={0} />{/if}
+        {#if playing}<Pause
+            size={24}
+            fill="white"
+            strokeWidth={0}
+          />{:else}<Play size={24} fill="white" strokeWidth={0} />{/if}
       </button>
-      <button class="bg-transparent border-none cursor-pointer text-white w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform" onclick={(e: MouseEvent) => { e.stopPropagation(); playNext(1); }} aria-label="Next">
-         <SkipForward size={24} fill="white" strokeWidth={0} />
+      <button
+        class="bg-transparent border-none cursor-pointer text-white w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform"
+        onclick={(e: MouseEvent) => {
+          e.stopPropagation();
+          playNext(1);
+        }}
+        aria-label="Next"
+      >
+        <SkipForward size={24} fill="white" strokeWidth={0} />
       </button>
     </div>
   {/if}
 
   {#if !showPlayer}
     <!-- Apple Music Bottom Navigation -->
-    <div class="flex items-center justify-between px-6 pt-3 pb-8 bg-[#1c1c1e] border-t border-white/10 w-full shrink-0 z-10">
-      <button class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab === 'listen_now' ? 'text-ios-pink' : 'text-white/50 hover:text-white/80 transition-colors'}" onclick={() => currentTab = 'listen_now'}>
+    <div
+      class="flex items-center justify-between px-6 pt-3 pb-8 bg-[#1c1c1e] border-t border-white/10 w-full shrink-0 z-10"
+    >
+      <button
+        class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab ===
+        'listen_now'
+          ? 'text-ios-pink'
+          : 'text-white/50 hover:text-white/80 transition-colors'}"
+        onclick={() => (currentTab = "listen_now")}
+      >
         <PlayCircle size={24} />
         <span class="text-[10px] font-medium">Listen Now</span>
       </button>
-      <button class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab === 'browse' ? 'text-ios-pink' : 'text-white/50 hover:text-white/80 transition-colors'}" onclick={() => currentTab = 'browse'}>
+      <button
+        class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab ===
+        'browse'
+          ? 'text-ios-pink'
+          : 'text-white/50 hover:text-white/80 transition-colors'}"
+        onclick={() => (currentTab = "browse")}
+      >
         <LayoutGrid size={24} />
         <span class="text-[10px] font-medium">Browse</span>
       </button>
-      <button class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab === 'radio' ? 'text-ios-pink' : 'text-white/50 hover:text-white/80 transition-colors'}" onclick={() => currentTab = 'radio'}>
+      <button
+        class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab ===
+        'radio'
+          ? 'text-ios-pink'
+          : 'text-white/50 hover:text-white/80 transition-colors'}"
+        onclick={() => (currentTab = "radio")}
+      >
         <Radio size={24} />
         <span class="text-[10px] font-medium">Radio</span>
       </button>
-      <button class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab === 'library' ? 'text-ios-pink' : 'text-white/50 hover:text-white/80 transition-colors'}" onclick={() => currentTab = 'library'}>
+      <button
+        class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab ===
+        'library'
+          ? 'text-ios-pink'
+          : 'text-white/50 hover:text-white/80 transition-colors'}"
+        onclick={() => (currentTab = "library")}
+      >
         <ListMusic size={24} />
         <span class="text-[10px] font-medium">Library</span>
       </button>
-      <button class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab === 'search' ? 'text-ios-pink' : 'text-white/50 hover:text-white/80 transition-colors'}" onclick={() => currentTab = 'search'}>
+      <button
+        class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab ===
+        'search'
+          ? 'text-ios-pink'
+          : 'text-white/50 hover:text-white/80 transition-colors'}"
+        onclick={() => (currentTab = "search")}
+      >
         <Search size={24} />
         <span class="text-[10px] font-medium">Search</span>
       </button>
