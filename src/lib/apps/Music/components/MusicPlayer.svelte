@@ -154,17 +154,17 @@
     <!-- Controls -->
     <div class="flex items-center justify-between px-6 mb-12">
       <button class="bg-transparent border-none cursor-pointer text-white hover:scale-110 transition-transform active:scale-95" onclick={() => state.playNext(-1)}>
-        <SkipBack size={44} fill="white" strokeWidth={0} />
+        <SkipBack size={44} fill="white" />
       </button>
       <button class="bg-transparent border-none cursor-pointer flex items-center justify-center text-white hover:scale-110 transition-transform active:scale-95" onclick={() => state.togglePlay()}>
         {#if state.isPlaying}
-          <Pause size={56} fill="white" strokeWidth={0} />
+          <Pause size={56} fill="white" />
         {:else}
-          <Play size={56} fill="white" strokeWidth={0} />
+          <Play size={56} fill="white" />
         {/if}
       </button>
       <button class="bg-transparent border-none cursor-pointer text-white hover:scale-110 transition-transform active:scale-95" onclick={() => state.playNext(1)}>
-        <SkipForward size={44} fill="white" strokeWidth={0} />
+        <SkipForward size={44} fill="white" />
       </button>
     </div>
 

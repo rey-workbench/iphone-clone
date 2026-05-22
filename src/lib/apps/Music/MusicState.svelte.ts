@@ -189,8 +189,15 @@ export class MusicState {
 
     playNext(dir: number) {
         if (!this.current || this.tracks.length === 0) return;
-        const idx = this.tracks.indexOf(this.current);
-        if (idx === -1) return;
+        
+        const idx = this.tracks.findIndex((t: any) => t.id === this.current.id);
+        if (idx === -1) {
+            // Jika track saat ini tidak ada di daftar tracks (misal karena diganti hasil fetchUpNext)
+            const nextIdx = dir > 0 ? 0 : this.tracks.length - 1;
+            const next = this.tracks[nextIdx];
+            if (next) this.play(next);
+            return;
+        }
         
         const next = this.tracks[(idx + dir + this.tracks.length) % this.tracks.length];
         if (next) this.play(next);

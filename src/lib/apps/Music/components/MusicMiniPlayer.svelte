@@ -32,9 +32,9 @@
     aria-label="Play/Pause"
   >
     {#if state.isPlaying}
-      <Pause size={24} fill="white" strokeWidth={0} />
+      <Pause size={24} fill="white" />
     {:else}
-      <Play size={24} fill="white" strokeWidth={0} />
+      <Play size={24} fill="white" />
     {/if}
   </button>
   <button
@@ -45,6 +45,6 @@
     }}
     aria-label="Next"
   >
-    <SkipForward size={24} fill="white" strokeWidth={0} />
+    <SkipForward size={24} fill="white" />
   </button>
 </div>
