@@ -1,14 +1,33 @@
 <script lang="ts">
-  import { ChevronLeft } from '@lucide/svelte';
+  import { onMount } from 'svelte';
+  import { ChevronLeft, Loader2 } from '@lucide/svelte';
   interface Email { id: string; from: string; subject: string; preview: string; date: string; read: boolean; body: string }
 
-  let emails: Email[] = $state([
-    { id: '1', from: 'Apple', subject: 'Your Apple ID Summary', preview: 'Here is your monthly summary...', date: 'Today', read: false, body: 'Dear user,\n\nHere is your monthly Apple ID activity summary. Your account remains in good standing.\n\nBest,\nApple' },
-    { id: '2', from: 'Tim Cook', subject: 'WWDC 2026 Invite', preview: 'We have exciting things to share...', date: 'Yesterday', read: false, body: 'Hi there,\n\nYou\'re invited to WWDC 2026! We have exciting new announcements to share with you.\n\nSee you in Cupertino,\nTim' },
-    { id: '3', from: 'App Store', subject: 'Your subscription renewal', preview: 'Your iCloud+ subscription...', date: '2 days ago', read: true, body: 'Hello,\n\nYour iCloud+ subscription has been renewed for another year. Thank you for being a subscriber.\n\nBest,\nApp Store Team' },
-    { id: '4', from: 'Developer', subject: 'App Review Status Update', preview: 'Your app is now in review...', date: '3 days ago', read: true, body: 'Hi Developer,\n\nYour app has been submitted for review and is currently being processed. You will be notified upon completion.\n\nApp Review Team' },
-  ]);
+  let emails: Email[] = $state([]);
+  let loading = $state(true);
   let selected: Email | null = $state(null);
+
+  onMount(async () => {
+    try {
+      const res = await fetch('https://jsonplaceholder.typicode.com/comments?_limit=15');
+      if (res.ok) {
+        const data = await res.json();
+        emails = data.map((item: any, i: number) => ({
+          id: String(item.id),
+          from: item.name.split(' ')[0] || item.email.split('@')[0], 
+          subject: item.name,
+          preview: item.body.substring(0, 50).replace(/\n/g, ' ') + '...',
+          date: i === 0 ? 'Today' : i === 1 ? 'Yesterday' : `${i} days ago`,
+          read: i > 2,
+          body: `Hi there,\n\n${item.body}\n\nBest regards,\n${item.email}`
+        }));
+      }
+    } catch(e) {
+      console.error(e);
+    } finally {
+      loading = false;
+    }
+  });
 
   function openEmail(email: Email) {
     selected = email;

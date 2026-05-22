@@ -1,27 +1,46 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { 
     Camera, Music, MessageCircle, Headphones, MonitorPlay, 
-    Gamepad2, FileText, Cpu, CalendarDays, Smartphone, Search 
+    Gamepad2, FileText, Cpu, CalendarDays, Smartphone, Search, Loader2 
   } from '@lucide/svelte';
 
   type TabId = 'today' | 'games' | 'apps' | 'search';
   let tab: TabId = $state<TabId>('today');
 
-  const featured = [
-    { name: 'Minecraft', dev: 'Mojang', img: 'https://picsum.photos/400/200?random=100', cat: 'Adventure' },
-    { name: 'GarageBand', dev: 'Apple', img: 'https://picsum.photos/400/200?random=101', cat: 'Music' },
-    { name: 'Procreate', dev: 'Savage', img: 'https://picsum.photos/400/200?random=102', cat: 'Graphics' },
-  ];
-  const topApps = [
-    { name: 'Instagram', dev: 'Meta', icon: Camera, cat: 'Social', rank: 1 },
-    { name: 'TikTok', dev: 'ByteDance', icon: Music, cat: 'Entertainment', rank: 2 },
-    { name: 'WhatsApp', dev: 'Meta', icon: MessageCircle, cat: 'Social', rank: 3 },
-    { name: 'Spotify', dev: 'Spotify AB', icon: Headphones, cat: 'Music', rank: 4 },
-    { name: 'YouTube', dev: 'Google', icon: MonitorPlay, cat: 'Entertainment', rank: 5 },
-    { name: 'Discord', dev: 'Discord Inc.', icon: Gamepad2, cat: 'Social', rank: 6 },
-    { name: 'Notion', dev: 'Notion Labs', icon: FileText, cat: 'Productivity', rank: 7 },
-    { name: 'ChatGPT', dev: 'OpenAI', icon: Cpu, cat: 'Productivity', rank: 8 },
-  ];
+  let featured: any[] = $state([]);
+  let topApps: any[] = $state([]);
+  let loading = $state(true);
+
+  onMount(async () => {
+    try {
+      const res = await fetch('https://dummyjson.com/products?limit=11&skip=10');
+      if (res.ok) {
+        const data = await res.json();
+        const products = data.products;
+        
+        featured = products.slice(0, 3).map((p: any) => ({
+          name: p.title,
+          dev: p.brand || 'Indie Dev',
+          img: p.thumbnail,
+          cat: p.category.replace('-', ' ').toUpperCase()
+        }));
+
+        topApps = products.slice(3).map((p: any, i: number) => ({
+          name: p.title,
+          dev: p.brand || 'Studio',
+          icon: Smartphone, // Generic icon for dynamic apps
+          cat: p.category.replace('-', ' '),
+          rank: i + 1,
+          img: p.images[0] || p.thumbnail
+        }));
+      }
+    } catch(e) {
+      console.error(e);
+    } finally {
+      loading = false;
+    }
+  });
 
   const tabItems: { id: TabId; label: string; icon: any }[] = [
     { id: 'today', label: 'Today', icon: CalendarDays },
@@ -46,19 +65,23 @@
       {/each}
     </div>
     <h2 class="text-[22px] font-bold text-white mb-3 px-1">Top Free Apps</h2>
-    <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-      {#each topApps as app, i}
-        <div class="flex items-center gap-3 p-2.5 px-4">
-          <span class="text-[17px] text-ios-label2 w-4 text-right font-medium">{app.rank}</span>
-          <div class="w-12 h-12 rounded-xl bg-ios-fill flex items-center justify-center shrink-0">
-            <app.icon size={24} color="white" />
+    {#if loading}
+      <div class="flex justify-center py-10"><Loader2 class="animate-spin text-ios-label2" /></div>
+    {:else}
+      <div class="bg-ios-bg2 rounded-xl overflow-hidden">
+        {#each topApps as app, i}
+          <div class="flex items-center gap-3 p-2.5 px-4">
+            <span class="text-[17px] text-ios-label2 w-4 text-right font-medium">{app.rank}</span>
+            <div class="w-12 h-12 rounded-xl overflow-hidden bg-ios-fill flex items-center justify-center shrink-0">
+              <img src={app.img} alt={app.name} class="w-full h-full object-cover" />
+            </div>
+            <div class="flex-1 min-w-0"><div class="text-[17px] text-white truncate">{app.name}</div><div class="text-[13px] text-ios-label2">{app.cat}</div></div>
+            <button class="px-4 py-1.5 rounded-full bg-ios-fill border-none text-ios-blue text-[15px] font-semibold cursor-pointer">GET</button>
           </div>
-          <div class="flex-1 min-w-0"><div class="text-[17px] text-white truncate">{app.name}</div><div class="text-[13px] text-ios-label2">{app.cat}</div></div>
-          <button class="px-4 py-1.5 rounded-full bg-ios-fill border-none text-ios-blue text-[15px] font-semibold cursor-pointer">GET</button>
-        </div>
-        {#if i < topApps.length - 1}<div class="h-px bg-ios-sep ml-[76px]"></div>{/if}
-      {/each}
-    </div>
+          {#if i < topApps.length - 1}<div class="h-px bg-ios-sep ml-[76px]"></div>{/if}
+        {/each}
+      </div>
+    {/if}
   </div>
   <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5 shrink-0 justify-around">
     {#each tabItems as t}
