@@ -8,6 +8,8 @@
     hourly: [] as any[], daily: [] as any[], tiles: [] as any[]
   });
 
+  let wRange = $state({ min: 8, range: 17 });
+
   onMount(async () => {
     try {
       let lat = 37.7749;
@@ -55,6 +57,10 @@
           daily.push({ day: dayStr, high: Math.round(data.daily.temperature_2m_max[i]), low: Math.round(data.daily.temperature_2m_min[i]), icon: getIcon(data.daily.weather_code[i]) });
         }
 
+        const absMin = Math.min(...daily.map(d => d.low));
+        const absMax = Math.max(...daily.map(d => d.high));
+        wRange = { min: absMin, range: Math.max(1, absMax - absMin) };
+
         w = {
           city,
           temp: Math.round(data.current.temperature_2m),
@@ -82,7 +88,8 @@
   });
 
   function bar(low: number, high: number) {
-    const l = Math.max(0, ((low - 8) / 17) * 100), wi = Math.min(100, ((high - low) / 17) * 100);
+    const l = Math.max(0, ((low - wRange.min) / wRange.range) * 100);
+    const wi = Math.max(0, Math.min(100 - l, ((high - low) / wRange.range) * 100));
     return `left:${l}%;width:${wi}%`;
   }
 </script>
