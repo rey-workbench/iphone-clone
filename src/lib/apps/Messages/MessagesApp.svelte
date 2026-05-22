@@ -7,15 +7,15 @@
 
 <div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">
   {#if state.chatView}
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col min-h-0">
       <div class="flex items-center justify-between px-4 py-2 border-b border-ios-sep">
         <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center" onclick={() => state.closeChat()}>
           <ChevronLeft size={20} class="mr-1" /> Messages
         </button>
-        <span class="text-[17px] font-semibold text-white">Buddy Bard</span>
+        <span class="text-[17px] font-semibold text-white">{state.currentChatName}</span>
         <span class="w-24"></span>
       </div>
-      <div class="flex-1 overflow-y-auto p-3 pb-2 flex flex-col gap-1">
+      <div class="flex-1 overflow-y-auto p-3 pb-2 flex flex-col gap-1 min-h-0">
         {#each state.messages as msg}
           <div class="flex {msg.isUser ? 'justify-end' : ''}">
             <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-[17px] leading-snug {msg.isUser ? 'bg-linear-to-b from-ios-blue to-[#0051D5] text-white rounded-br-[4px]' : 'bg-ios-bg3 text-white rounded-bl-[4px]'}">{msg.content}</div>
@@ -41,10 +41,16 @@
     </div>
   {:else}
     <div class="flex-1 overflow-y-auto px-4">
-      <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4">Messages</h1>
+      <div class="flex items-center justify-between px-1 py-2 pb-4">
+        <h1 class="text-[34px] font-bold text-white">Messages</h1>
+        <button class="w-[30px] h-[30px] rounded-full bg-ios-blue border-none text-white text-[20px] font-bold cursor-pointer flex items-center justify-center" onclick={() => {
+          const id = prompt('Enter User ID to chat with (e.g. user2):');
+          if (id) state.addContact(id);
+        }}>+</button>
+      </div>
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
         {#each state.inbox as convo}
-          <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-white text-left border-b border-ios-sep last:border-b-0" onclick={() => state.openChat(convo.name)}>
+          <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-white text-left border-b border-ios-sep last:border-b-0" onclick={() => state.openChat(convo.id, convo.name)}>
             <div class="w-[45px] h-[45px] rounded-full flex items-center justify-center text-[16px] font-semibold text-white shrink-0" style="background:{convo.color}">
               {#if convo.icon}
                 <convo.icon size={24} color="white" />
