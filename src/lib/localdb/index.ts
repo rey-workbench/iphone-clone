@@ -31,7 +31,7 @@ export async function initLocalDB() {
   const savedData = await idb.get(STORE_NAME, FILE_KEY);
 
   if (savedData && savedData.length > 0) {
-    db = new SQL.Database(savedData);
+    db= new SQL.Database(savedData);
   } else {
     db = new SQL.Database();
     db.run(`

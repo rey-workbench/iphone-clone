@@ -20,6 +20,8 @@
   import MailApp from '$lib/apps/Mail/MailApp.svelte';
   import AppStoreApp from '$lib/apps/AppStore/AppStoreApp.svelte';
 
+  import { ShellState } from './ShellState.svelte';
+
   const appComponents: Record<string, any> = {
     calculator: CalculatorApp, weather: WeatherApp, settings: SettingsApp,
     clock: ClockApp, notes: NotesApp, phone: PhoneApp, messages: MessagesApp,
@@ -27,27 +29,9 @@
     safari: SafariApp, camera: CameraApp, mail: MailApp, appstore: AppStoreApp,
   };
 
-  let currentPage = $state(0);
-  let showLockScreen = $state(true);
-  let lockScreenY = $state(0);
-  let isDragging = $state(false);
-  let startY = $state(0);
-  let appTransition = $state(false);
+  const state = new ShellState();
 
   let CurrentAppComponent = $derived($activeApp ? appComponents[$activeApp] : null);
-
-  function closeApp() {
-    appTransition = true;
-    setTimeout(() => { $activeApp = null; appTransition = false; }, 280);
-  }
-
-  function handleLockTouchStart(e: TouchEvent) { isDragging = true; startY = e.touches[0].clientY; }
-  function handleLockTouchMove(e: TouchEvent) { if (!isDragging) return; lockScreenY = Math.max(0, startY - e.touches[0].clientY); }
-  function handleLockTouchEnd() { isDragging = false; if (lockScreenY > 120) showLockScreen = false; lockScreenY = 0; }
-  function handleLockClick() { showLockScreen = false; }
-
-  function formatDate(d: Date) { return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
-  function formatLockTime(d: Date) { return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(/\s?(AM|PM)/, ''); }
 </script>
 
 <svelte:head>
@@ -60,16 +44,16 @@
     <!-- Notch -->
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[160px] h-[32px] bg-black rounded-b-[24px] z-400"></div>
 
-    {#if showLockScreen}
+    {#if state.showLockScreen}
       <!-- Lock Screen -->
       <div
         class="absolute inset-0 z-300 cursor-pointer transition-opacity duration-300"
-        style="transform: translateY(-{lockScreenY}px); opacity: {1 - lockScreenY / 400}"
-        ontouchstart={handleLockTouchStart}
-        ontouchmove={handleLockTouchMove}
-        ontouchend={handleLockTouchEnd}
-        onclick={handleLockClick}
-        onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') handleLockClick(); }}
+        style="transform: translateY(-{state.lockScreenY}px); opacity: {1 - state.lockScreenY / 400}"
+        ontouchstart={(e) => state.handleLockTouchStart(e)}
+        ontouchmove={(e) => state.handleLockTouchMove(e)}
+        ontouchend={() => state.handleLockTouchEnd()}
+        onclick={() => state.handleLockClick()}
+        onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') state.handleLockClick(); }}
         role="button"
         tabindex="0"
       >
@@ -77,8 +61,8 @@
         <div class="relative z-10 h-full flex flex-col items-center">
           <StatusBar />
           <div class="text-center" style="margin-top: 110px;">
-            <div class="text-lg font-medium text-white/85 tracking-wide">{formatDate($currentTime)}</div>
-            <div class="text-[82px] font-bold text-white leading-none mt-1 tracking-[-2px]">{formatLockTime($currentTime)}</div>
+            <div class="text-lg font-medium text-white/85 tracking-wide">{state.formatDate($currentTime)}</div>
+            <div class="text-[82px] font-bold text-white leading-none mt-1 tracking-[-2px]">{state.formatLockTime($currentTime)}</div>
           </div>
           <div class="absolute bottom-10 animate-[bounceUp_2s_ease-in-out_infinite]">
             <div class="w-[134px] h-[5px] bg-white/40 rounded-full"></div>
@@ -88,8 +72,8 @@
     {:else}
       <!-- Music App (Always mounted to keep music playing in background) -->
       <div 
-        class="absolute inset-0 bg-black flex-col {appTransition && $activeApp === 'music' ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]' : $activeApp === 'music' && !appTransition ? 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]' : ''}"
-        style="display: {$activeApp === 'music' || (appTransition && $activeApp === 'music') ? 'flex' : 'none'}; z-index: 50;"
+        class="absolute inset-0 bg-black flex-col {state.appTransition && $activeApp === 'music' ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]' : $activeApp === 'music' && !state.appTransition ? 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]' : ''}"
+        style="display: {$activeApp === 'music' || (state.appTransition && $activeApp === 'music') ? 'flex' : 'none'}; z-index: 50;"
       >
         <StatusBar />
         <div class="flex-1 overflow-hidden relative flex flex-col">
@@ -97,25 +81,25 @@
             <MusicApp />
           </div>
         </div>
-        <button class="absolute top-0 left-1/2 -translate-x-1/2 w-[140px] h-5 z-200 bg-transparent border-none cursor-pointer opacity-0" onclick={closeApp} aria-label="Close app"></button>
-        <button class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100 cursor-pointer border-none" onclick={closeApp} aria-label="Home"></button>
+        <button class="absolute top-0 left-1/2 -translate-x-1/2 w-[140px] h-5 z-200 bg-transparent border-none cursor-pointer opacity-0" onclick={() => state.closeApp()} aria-label="Close app"></button>
+        <button class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100 cursor-pointer border-none" onclick={() => state.closeApp()} aria-label="Home"></button>
       </div>
 
       {#if CurrentAppComponent && $activeApp !== 'music'}
         <!-- Other Active App -->
-        <div class="absolute inset-0 z-50 bg-black flex flex-col {appTransition ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]' : 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]'}">
+        <div class="absolute inset-0 z-50 bg-black flex flex-col {state.appTransition ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]' : 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]'}">
           <StatusBar />
           <div class="flex-1 overflow-hidden relative flex flex-col">
             <div class="flex-1 overflow-hidden relative">
               <CurrentAppComponent />
             </div>
           </div>
-          <button class="absolute top-0 left-1/2 -translate-x-1/2 w-[140px] h-5 z-200 bg-transparent border-none cursor-pointer opacity-0" onclick={closeApp} aria-label="Close app"></button>
-          <button class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100 cursor-pointer border-none" onclick={closeApp} aria-label="Home"></button>
+          <button class="absolute top-0 left-1/2 -translate-x-1/2 w-[140px] h-5 z-200 bg-transparent border-none cursor-pointer opacity-0" onclick={() => state.closeApp()} aria-label="Close app"></button>
+          <button class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100 cursor-pointer border-none" onclick={() => state.closeApp()} aria-label="Home"></button>
         </div>
       {/if}
 
-      {#if !$activeApp || appTransition}
+      {#if !$activeApp || state.appTransition}
         <!-- Home Screen -->
         <div class="absolute inset-0 flex flex-col animate-[fadeIn_0.4s_ease]">
         <!-- Wallpaper -->
@@ -130,14 +114,14 @@
 
         <div class="relative z-10 flex-1 flex flex-col px-4 overflow-hidden">
           <div class="grid grid-cols-4 justify-items-center" style="padding-top: 80px; gap: 32px 8px;">
-            {#each homeScreenApps[currentPage] as app}
+            {#each homeScreenApps[state.currentPage] as app}
               <AppIcon {app} />
             {/each}
           </div>
           <div class="flex justify-center" style="margin-top: auto; margin-bottom: 110px; gap: 6px;">
             {#each homeScreenApps as _, i}
-              <button class="p-1 border-none bg-transparent cursor-pointer flex items-center justify-center" onclick={() => currentPage = i} aria-label="Page {i + 1}">
-                <div class="w-1.5 h-1.5 rounded-full transition-all duration-300 {i === currentPage ? 'bg-white shadow-[0_0_2px_rgba(0,0,0,0.5)] scale-125' : 'bg-white/40'}"></div>
+              <button class="p-1 border-none bg-transparent cursor-pointer flex items-center justify-center" onclick={() => state.currentPage = i} aria-label="Page {i + 1}">
+                <div class="w-1.5 h-1.5 rounded-full transition-all duration-300 {i === state.currentPage ? 'bg-white shadow-[0_0_2px_rgba(0,0,0,0.5)] scale-125' : 'bg-white/40'}"></div>
               </button>
             {/each} 
           </div>

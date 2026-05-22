@@ -1,0 +1,107 @@
+<script lang="ts">
+  import type { MusicState } from "../MusicState.svelte";
+  import { Play, Search } from "@lucide/svelte";
+
+  let { state }: { state: MusicState } = $props();
+</script>
+
+<div class="flex-1 overflow-y-auto px-4 pt-[54px] pb-5">
+  {#if state.activeTab === "listen_now" || state.activeTab === "browse" || state.activeTab === "radio" || state.activeTab === "library"}
+    <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4 capitalize">
+      {state.activeTab.replace("_", " ")}
+    </h1>
+    {#if state.tracks.length === 0}
+      <div class="flex justify-center py-20">
+        <div class="w-8 h-8 border-2 border-ios-label2 border-t-white rounded-full animate-spin"></div>
+      </div>
+    {:else}
+      <div class="mb-5">
+        <h2 class="text-[22px] font-bold text-white mb-3">Top Tracks</h2>
+        <div class="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
+          {#each state.tracks.slice(0, 8) as t}
+            <button class="min-w-[150px] bg-transparent border-none cursor-pointer text-left p-0" onclick={() => state.play(t)}>
+              <img src={t.art} alt={t.name} class="w-[150px] h-[150px] rounded-xl object-cover" />
+              <div class="text-[13px] font-medium text-white mt-1.5 truncate w-[150px]">{t.name}</div>
+              <div class="text-[11px] text-ios-label2 truncate w-[150px]">{t.artist}</div>
+            </button>
+          {/each}
+        </div>
+      </div>
+      <div class="bg-ios-bg2 rounded-xl overflow-hidden mb-5">
+        {#each state.tracks as t, i}
+          <button class="flex gap-3 p-2 px-3 w-full border-none bg-transparent cursor-pointer text-left text-white items-center" onclick={() => state.play(t)}>
+            <img src={t.art} alt={t.name} class="w-12 h-12 rounded-lg object-cover shrink-0" />
+            <div class="flex-1 min-w-0">
+              <div class="text-[16px] truncate">{t.name}</div>
+              <div class="text-[13px] text-ios-label2 truncate">{t.artist}</div>
+            </div>
+            <Play size={18} class="text-ios-pink" fill="currentColor" />
+          </button>
+          {#if i < state.tracks.length - 1}
+            <div class="h-px bg-ios-sep ml-[68px]"></div>
+          {/if}
+        {/each}
+      </div>
+    {/if}
+  {:else if state.activeTab === "search"}
+    <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-2">Search</h1>
+    <div class="px-1 pb-4">
+      <input
+        type="text"
+        placeholder="Artists, Songs, Lyrics, and More"
+        bind:value={state.searchQuery}
+        oninput={() => state.handleSearchInput()}
+        onkeydown={(e) => e.key === "Enter" && state.doSearch()}
+        class="w-full bg-[#1c1c1e] text-white placeholder-white/50 border-none rounded-xl px-4 py-3 outline-none focus:ring-1 focus:ring-ios-pink"
+      />
+    </div>
+    {#if state.searchSuggestions.length > 0 && state.searchResults.length === 0 && !state.isSearching}
+      <div class="px-2 mb-4 space-y-1">
+        {#each state.searchSuggestions as sug}
+          <button
+            class="w-full text-left bg-transparent border-none text-white/80 py-2 px-2 text-[15px] cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-3"
+            onclick={() => {
+              state.searchQuery = sug;
+              state.doSearch();
+            }}
+          >
+            <Search size={16} class="text-white/40" />
+            {sug}
+          </button>
+        {/each}
+      </div>
+    {/if}
+    {#if state.isSearching}
+      <div class="flex justify-center py-10">
+        <div class="w-8 h-8 border-2 border-ios-label2 border-t-white rounded-full animate-spin"></div>
+      </div>
+    {:else if state.searchResults.length > 0}
+      <div class="bg-ios-bg2 rounded-xl overflow-hidden mb-5">
+        {#each state.searchResults as t, i}
+          <button class="flex gap-3 p-2 px-3 w-full border-none bg-transparent cursor-pointer text-left text-white items-center" onclick={() => {
+            state.tracks = state.searchResults;
+            state.play(t);
+          }}>
+            <img src={t.art} alt={t.name} class="w-12 h-12 rounded-lg object-cover shrink-0" />
+            <div class="flex-1 min-w-0">
+              <div class="text-[16px] truncate">{t.name}</div>
+              <div class="text-[13px] text-ios-label2 truncate">{t.artist}</div>
+            </div>
+            <Play size={18} class="text-ios-pink" fill="currentColor" />
+          </button>
+          {#if i < state.searchResults.length - 1}
+            <div class="h-px bg-ios-sep ml-[68px]"></div>
+          {/if}
+        {/each}
+      </div>
+    {/if}
+  {:else}
+    <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4 capitalize">
+      {state.activeTab}
+    </h1>
+    <div class="text-white/50 px-2 mt-4 text-center">
+      <div class="text-[17px] font-medium text-white mb-2">Coming Soon</div>
+      This section is currently under development.
+    </div>
+  {/if}
+</div>
