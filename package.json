@@ -19,6 +19,7 @@
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.2.2",
 		"@types/node": "^25.7.0",
+		"@types/sql.js": "^1.4.11",
 		"@types/yt-search": "^2.10.3",
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.4.6",
@@ -27,8 +28,11 @@
 		"vite": "^8.0.7"
 	},
 	"dependencies": {
+		"@libsql/client": "^0.17.3",
 		"@lucide/svelte": "^1.16.0",
+		"idb": "^8.0.3",
 		"ruhend-scraper": "^10.0.3",
+		"sql.js": "^1.14.1",
 		"yt-search": "^2.13.1"
 	}
 }

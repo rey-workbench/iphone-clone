@@ -11,19 +11,22 @@
 
   function goBack() {
     if (selectedNote) {
-      const id = selectedNote.id;
-      notesState.update(notes => notes.map(n => n.id === id ? { ...n, title: editTitle, content: editContent, date: new Date() } : n));
+      const updatedNote = { ...selectedNote, title: editTitle, content: editContent, date: new Date() };
+      notesState.updateNote(updatedNote);
     }
     selectedNote = null;
   }
 
   function addNote() {
     const n: Note = { id: String(Date.now()), title: 'New Note', content: '', date: new Date() };
-    notesState.update(ns => [n, ...ns]);
+    notesState.addNote(n);
     selectNote(n);
   }
 
-  function deleteNote(id: string) { notesState.update(n => n.filter(note => note.id !== id)); selectedNote = null; }
+  function deleteNote(id: string) { 
+    notesState.deleteNote(id); 
+    selectedNote = null; 
+  }
 
   function fmtDate(d: Date) {
     const now = new Date();
