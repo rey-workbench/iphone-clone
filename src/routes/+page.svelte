@@ -1,24 +1,24 @@
 <script lang="ts">
-  import StatusBar from '$lib/components/StatusBar.svelte';
-  import AppIcon from '$lib/components/AppIcon.svelte';
-  import Dock from '$lib/components/Dock.svelte';
+  import StatusBar from '$lib/ui/components/StatusBar.svelte';
+  import AppIcon from '$lib/ui/components/AppIcon.svelte';
+  import Dock from '$lib/ui/components/Dock.svelte';
   import { activeApp, currentTime } from '$lib/stores';
   import { homeScreenApps } from '$lib/types';
 
-  import CalculatorApp from '$lib/apps/CalculatorApp.svelte';
-  import WeatherApp from '$lib/apps/WeatherApp.svelte';
-  import SettingsApp from '$lib/apps/SettingsApp.svelte';
-  import ClockApp from '$lib/apps/ClockApp.svelte';
-  import NotesApp from '$lib/apps/NotesApp.svelte';
-  import PhoneApp from '$lib/apps/PhoneApp.svelte';
-  import MessagesApp from '$lib/apps/MessagesApp.svelte';
-  import MusicApp from '$lib/apps/MusicApp.svelte';
-  import CalendarApp from '$lib/apps/CalendarApp.svelte';
-  import PhotosApp from '$lib/apps/PhotosApp.svelte';
-  import SafariApp from '$lib/apps/SafariApp.svelte';
-  import CameraApp from '$lib/apps/CameraApp.svelte';
-  import MailApp from '$lib/apps/MailApp.svelte';
-  import AppStoreApp from '$lib/apps/AppStoreApp.svelte';
+  import CalculatorApp from '$lib/apps/Calculator/CalculatorApp.svelte';
+  import WeatherApp from '$lib/apps/Weather/WeatherApp.svelte';
+  import SettingsApp from '$lib/apps/Settings/SettingsApp.svelte';
+  import ClockApp from '$lib/apps/Clock/ClockApp.svelte';
+  import NotesApp from '$lib/apps/Notes/NotesApp.svelte';
+  import PhoneApp from '$lib/apps/Phone/PhoneApp.svelte';
+  import MessagesApp from '$lib/apps/Messages/MessagesApp.svelte';
+  import MusicApp from '$lib/apps/Music/MusicApp.svelte';
+  import CalendarApp from '$lib/apps/Calendar/CalendarApp.svelte';
+  import PhotosApp from '$lib/apps/Photos/PhotosApp.svelte';
+  import SafariApp from '$lib/apps/Safari/SafariApp.svelte';
+  import CameraApp from '$lib/apps/Camera/CameraApp.svelte';
+  import MailApp from '$lib/apps/Mail/MailApp.svelte';
+  import AppStoreApp from '$lib/apps/AppStore/AppStoreApp.svelte';
 
   const appComponents: Record<string, any> = {
     calculator: CalculatorApp, weather: WeatherApp, settings: SettingsApp,
@@ -85,21 +85,39 @@
           </div>
         </div>
       </div>
-    {:else if CurrentAppComponent}
-      <!-- Active App -->
-      <div class="absolute inset-0 z-50 bg-black flex flex-col {appTransition ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]' : 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]'}">
+    {:else}
+      <!-- Music App (Always mounted to keep music playing in background) -->
+      <div 
+        class="absolute inset-0 bg-black flex-col {appTransition && $activeApp === 'music' ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]' : $activeApp === 'music' && !appTransition ? 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]' : ''}"
+        style="display: {$activeApp === 'music' || (appTransition && $activeApp === 'music') ? 'flex' : 'none'}; z-index: 50;"
+      >
         <StatusBar />
         <div class="flex-1 overflow-hidden relative flex flex-col">
           <div class="flex-1 overflow-hidden relative">
-            <CurrentAppComponent />
+            <MusicApp />
           </div>
         </div>
         <button class="absolute top-0 left-1/2 -translate-x-1/2 w-[140px] h-5 z-200 bg-transparent border-none cursor-pointer opacity-0" onclick={closeApp} aria-label="Close app"></button>
         <button class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100 cursor-pointer border-none" onclick={closeApp} aria-label="Home"></button>
       </div>
-    {:else}
-      <!-- Home Screen -->
-      <div class="absolute inset-0 flex flex-col animate-[fadeIn_0.4s_ease]">
+
+      {#if CurrentAppComponent && $activeApp !== 'music'}
+        <!-- Other Active App -->
+        <div class="absolute inset-0 z-50 bg-black flex flex-col {appTransition ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]' : 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]'}">
+          <StatusBar />
+          <div class="flex-1 overflow-hidden relative flex flex-col">
+            <div class="flex-1 overflow-hidden relative">
+              <CurrentAppComponent />
+            </div>
+          </div>
+          <button class="absolute top-0 left-1/2 -translate-x-1/2 w-[140px] h-5 z-200 bg-transparent border-none cursor-pointer opacity-0" onclick={closeApp} aria-label="Close app"></button>
+          <button class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100 cursor-pointer border-none" onclick={closeApp} aria-label="Home"></button>
+        </div>
+      {/if}
+
+      {#if !$activeApp || appTransition}
+        <!-- Home Screen -->
+        <div class="absolute inset-0 flex flex-col animate-[fadeIn_0.4s_ease]">
         <!-- Wallpaper -->
         <div class="absolute inset-0 overflow-hidden">
           <div class="absolute inset-0 bg-linear-to-br from-[#0f0c29] via-[#302b63] via-40% to-[#16213e]"></div>
@@ -128,6 +146,7 @@
         <Dock />
         <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100"></div>
       </div>
+      {/if}
     {/if}
   </div>
 </div>

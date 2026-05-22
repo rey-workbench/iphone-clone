@@ -39,6 +39,9 @@ importers:
       '@types/node':
         specifier: ^25.7.0
         version: 25.9.1
+      '@types/yt-search':
+        specifier: ^2.10.3
+        version: 2.10.3
       svelte:
         specifier: ^5.55.2
         version: 5.55.9
@@ -367,6 +370,9 @@ packages:
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
+  '@types/yt-search@2.10.3':
+    resolution: {integrity: sha512-kH4Yzs/edH9/s/Wj58WhV73qpiRedWeNy5V202BqpXPd+xUFM8M3ASLdUMYUbzzlUDoGorDm4JpeN6iNx3sOjw==}
 
   acorn@8.16.0:
     resolution: {integrity: sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==}
@@ -1120,6 +1126,8 @@ snapshots:
       undici-types: 7.24.6
 
   '@types/trusted-types@2.0.7': {}
+
+  '@types/yt-search@2.10.3': {}
 
   acorn@8.16.0: {}
 

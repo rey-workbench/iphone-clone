@@ -14,8 +14,8 @@
     PlayCircle,
     LayoutGrid,
     Radio,
-    Search
-  } from '@lucide/svelte';
+    Search,
+  } from "@lucide/svelte";
 
   interface Track {
     name: string;
@@ -31,12 +31,12 @@
   let showPlayer = $state(false);
   let progress = $state(0);
   let volume = $state(60);
-  let currentTab = $state('listen_now');
-  let searchQuery = $state('');
+  let currentTab = $state("listen_now");
+  let searchQuery = $state("");
   let searchResults: Track[] = $state([]);
   let isSearching = $state(false);
 
-  let player: any = null;
+  let player: any = $state(null);
   let progressInterval: any;
 
   onMount(() => {
@@ -155,12 +155,12 @@
     const absSeconds = Math.abs(seconds);
     const m = Math.floor(absSeconds / 60);
     const s = Math.floor(absSeconds % 60);
-    const formatted = `${m}:${s < 10 ? '0' : ''}${s}`;
+    const formatted = `${m}:${s < 10 ? "0" : ""}${s}`;
     return isRemaining ? `-${formatted}` : formatted;
   }
 
   function handleSeek(e: MouseEvent) {
-    if (!player || typeof player.getDuration !== 'function') return;
+    if (!player || typeof player.getDuration !== "function") return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const pos = (e.clientX - rect.left) / rect.width;
     const newTime = pos * player.getDuration();
@@ -169,7 +169,7 @@
   }
 
   function handleVolume(e: MouseEvent) {
-    if (!player || typeof player.setVolume !== 'function') return;
+    if (!player || typeof player.setVolume !== "function") return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     volume = pos * 100;
@@ -180,7 +180,9 @@
     if (!searchQuery.trim()) return;
     isSearching = true;
     try {
-      const r = await fetch(`/api/ytsearch?q=${encodeURIComponent(searchQuery)}`);
+      const r = await fetch(
+        `/api/ytsearch?q=${encodeURIComponent(searchQuery)}`,
+      );
       const d = await r.json();
       if (d.results) {
         searchResults = d.results.slice(0, 20).map((t: any) => ({
@@ -202,7 +204,11 @@
   {#if showPlayer && current}
     <!-- Background Blur -->
     <div class="absolute inset-0 z-10 bg-black">
-      <img src={current.art} alt="bg" class="absolute inset-0 w-full h-full object-cover blur-[80px] opacity-70 scale-125" />
+      <img
+        src={current.art}
+        alt="bg"
+        class="absolute inset-0 w-full h-full object-cover blur-[80px] opacity-70 scale-125"
+      />
       <!-- Overlay to ensure text readability -->
       <div class="absolute inset-0 bg-black/30"></div>
     </div>
@@ -210,7 +216,13 @@
     <!-- Player Content -->
     <div class="absolute inset-0 z-20 flex flex-col px-6 pt-12 pb-8">
       <!-- Drag Handle -->
-      <div class="w-full flex justify-center mb-8" onclick={() => (showPlayer = false)} role="button" tabindex="0" onkeydown={() => {}}>
+      <div
+        class="w-full flex justify-center mb-8"
+        onclick={() => (showPlayer = false)}
+        role="button"
+        tabindex="0"
+        onkeydown={() => {}}
+      >
         <div class="w-10 h-1 bg-white/40 rounded-full"></div>
       </div>
 
@@ -226,25 +238,53 @@
             <div class="font-bold text-white text-[22px] truncate">
               {current.name}
             </div>
-            <div class="text-white/70 text-[18px] truncate mt-0.5">{current.artist}</div>
+            <div class="text-white/70 text-[18px] truncate mt-0.5">
+              {current.artist}
+            </div>
           </div>
-          <button class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0 border-none cursor-pointer">
+          <button
+            class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0 border-none cursor-pointer"
+          >
             <MoreHorizontal size={18} />
           </button>
         </div>
 
         <div class="w-full mb-10">
-          <div class="w-full h-1.5 bg-white/20 rounded-full relative cursor-pointer" onclick={handleSeek} role="slider" tabindex="0">
+          <div
+            class="w-full h-1.5 bg-white/20 rounded-full relative cursor-pointer"
+            onclick={handleSeek}
+            onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSeek(e as any); }}
+            role="slider"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            tabindex="0"
+          >
             <div
               class="absolute top-0 left-0 h-full bg-white rounded-full transition-[width] duration-200"
               style="width:{progress}%"
             ></div>
             <!-- Thumb -->
-            <div class="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-md scale-[1.5] pointer-events-none" style="left: calc({progress}% - 4px)"></div>
+            <div
+              class="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-md scale-[1.5] pointer-events-none"
+              style="left: calc({progress}% - 4px)"
+            ></div>
           </div>
-          <div class="flex justify-between mt-2.5 text-[11px] text-white/60 font-medium pointer-events-none">
-            <span>{formatTime((progress / 100) * (player?.getDuration() || 0))}</span>
-            <span>{formatTime((player?.getDuration() || 0) - ((progress / 100) * (player?.getDuration() || 0)), true)}</span>
+          <div
+            class="flex justify-between mt-2.5 text-[11px] text-white/60 font-medium pointer-events-none"
+          >
+            <span
+              >{formatTime(
+                (progress / 100) * (player?.getDuration() || 0),
+              )}</span
+            >
+            <span
+              >{formatTime(
+                (player?.getDuration() || 0) -
+                  (progress / 100) * (player?.getDuration() || 0),
+                true,
+              )}</span
+            >
           </div>
         </div>
 
@@ -252,7 +292,8 @@
           <button
             class="bg-transparent border-none cursor-pointer text-white hover:scale-110 transition-transform active:scale-95"
             onclick={() => playNext(-1)}
-            aria-label="Previous"><SkipBack size={44} fill="white" strokeWidth={0} /></button
+            aria-label="Previous"
+            ><SkipBack size={44} fill="white" strokeWidth={0} /></button
           >
           <button
             class="bg-transparent border-none cursor-pointer flex items-center justify-center text-white hover:scale-110 transition-transform active:scale-95"
@@ -268,31 +309,58 @@
           <button
             class="bg-transparent border-none cursor-pointer text-white hover:scale-110 transition-transform active:scale-95"
             onclick={() => playNext(1)}
-            aria-label="Next"><SkipForward size={44} fill="white" strokeWidth={0} /></button
+            aria-label="Next"
+            ><SkipForward size={44} fill="white" strokeWidth={0} /></button
           >
         </div>
 
         <!-- Volume Slider -->
         <div class="flex items-center gap-3 text-white/50 mb-10">
           <Volume1 size={14} />
-          <div class="flex-1 h-1.5 bg-white/20 rounded-full relative cursor-pointer" onclick={handleVolume} role="slider" tabindex="0">
-            <div class="absolute top-0 left-0 h-full bg-white rounded-full pointer-events-none" style="width: {volume}%"></div>
-            <div class="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-md scale-[1.5] pointer-events-none" style="left: calc({volume}% - 4px)"></div>
+          <div
+            class="flex-1 h-1.5 bg-white/20 rounded-full relative cursor-pointer"
+            onclick={handleVolume}
+            onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleVolume(e as any); }}
+            role="slider"
+            aria-valuenow={volume}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            tabindex="0"
+          >
+            <div
+              class="absolute top-0 left-0 h-full bg-white rounded-full pointer-events-none"
+              style="width: {volume}%"
+            ></div>
+            <div
+              class="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-md scale-[1.5] pointer-events-none"
+              style="left: calc({volume}% - 4px)"
+            ></div>
           </div>
           <Volume2 size={20} />
         </div>
-        
+
         <!-- Bottom Actions -->
-        <div class="flex items-center justify-evenly text-white/70 px-4 mt-auto">
-          <button class="bg-transparent border-none text-current cursor-pointer hover:text-white"><MessageSquareQuote size={20} /></button>
-          <button class="bg-transparent border-none text-current cursor-pointer hover:text-white"><Airplay size={20} /></button>
-          <button class="bg-transparent border-none text-current cursor-pointer hover:text-white"><ListMusic size={22} /></button>
+        <div
+          class="flex items-center justify-evenly text-white/70 px-4 mt-auto"
+        >
+          <button
+            class="bg-transparent border-none text-current cursor-pointer hover:text-white"
+            ><MessageSquareQuote size={20} /></button
+          >
+          <button
+            class="bg-transparent border-none text-current cursor-pointer hover:text-white"
+            ><Airplay size={20} /></button
+          >
+          <button
+            class="bg-transparent border-none text-current cursor-pointer hover:text-white"
+            ><ListMusic size={22} /></button
+          >
         </div>
       </div>
     </div>
   {:else}
     <div class="flex-1 overflow-y-auto px-4 pt-[54px] pb-5">
-      {#if currentTab === 'listen_now'}
+      {#if currentTab === "listen_now"}
         <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4">
           Listen Now
         </h1>
@@ -355,50 +423,102 @@
             {/each}
           </div>
         {/if}
-      {:else if currentTab === 'search'}
+      {:else if currentTab === "search"}
         <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-2">Search</h1>
         <div class="px-1 pb-4">
-          <input 
-            type="text" 
-            placeholder="Artists, Songs, Lyrics, and More" 
-            bind:value={searchQuery} 
-            onkeydown={(e) => e.key === 'Enter' && doSearch()} 
-            class="w-full bg-[#1c1c1e] text-white placeholder-white/50 border-none rounded-xl px-4 py-3 outline-none focus:ring-1 focus:ring-ios-pink" 
+          <input
+            type="text"
+            placeholder="Artists, Songs, Lyrics, and More"
+            bind:value={searchQuery}
+            onkeydown={(e) => e.key === "Enter" && doSearch()}
+            class="w-full bg-[#1c1c1e] text-white placeholder-white/50 border-none rounded-xl px-4 py-3 outline-none focus:ring-1 focus:ring-ios-pink"
           />
         </div>
         {#if isSearching}
-           <div class="flex justify-center py-10">
-             <div class="w-8 h-8 border-2 border-ios-label2 border-t-white rounded-full animate-spin"></div>
-           </div>
+          <div class="flex justify-center py-10">
+            <div
+              class="w-8 h-8 border-2 border-ios-label2 border-t-white rounded-full animate-spin"
+            ></div>
+          </div>
         {:else if searchResults.length > 0}
-           <div class="bg-ios-bg2 rounded-xl overflow-hidden mb-5">
-             {#each searchResults as t, i}
-                <button
-                  class="flex gap-3 p-2 px-3 w-full border-none bg-transparent cursor-pointer text-left text-white items-center"
-                  onclick={() => { tracks = searchResults; play(t); }}
-                >
-                  <img src={t.art} alt={t.name} class="w-12 h-12 rounded-lg object-cover shrink-0" />
-                  <div class="flex-1 min-w-0">
-                    <div class="text-[16px] truncate">{t.name}</div>
-                    <div class="text-[13px] text-ios-label2 truncate">{t.artist}</div>
+          <div class="bg-ios-bg2 rounded-xl overflow-hidden mb-5">
+            {#each searchResults as t, i}
+              <button
+                class="flex gap-3 p-2 px-3 w-full border-none bg-transparent cursor-pointer text-left text-white items-center"
+                onclick={() => {
+                  tracks = searchResults;
+                  play(t);
+                }}
+              >
+                <img
+                  src={t.art}
+                  alt={t.name}
+                  class="w-12 h-12 rounded-lg object-cover shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <div class="text-[16px] truncate">{t.name}</div>
+                  <div class="text-[13px] text-ios-label2 truncate">
+                    {t.artist}
                   </div>
-                  <Play size={18} class="text-ios-pink" fill="currentColor" />
-                </button>
-                {#if i < searchResults.length - 1}<div class="h-px bg-ios-sep ml-[68px]"></div>{/if}
-             {/each}
-           </div>
+                </div>
+                <Play size={18} class="text-ios-pink" fill="currentColor" />
+              </button>
+              {#if i < searchResults.length - 1}<div
+                  class="h-px bg-ios-sep ml-[68px]"
+                ></div>{/if}
+            {/each}
+          </div>
         {/if}
       {:else}
-        <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4 capitalize">{currentTab}</h1>
+        <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4 capitalize">
+          {currentTab}
+        </h1>
         <div class="text-white/50 px-2 mt-4 text-center">
           <div class="text-[17px] font-medium text-white mb-2">Coming Soon</div>
           This section is currently under development.
         </div>
       {/if}
     </div>
-    
+  {/if}
+
+  {#if current && !showPlayer}
+    <div
+      class="flex gap-3 items-center px-3 py-2 bg-[#2c2c2e] border-t border-white/10 cursor-pointer text-white text-left w-full shrink-0 z-20"
+      role="button"
+      tabindex="0"
+      onclick={() => (showPlayer = true)}
+      onkeydown={(e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") showPlayer = true;
+      }}
+    >
+      <img
+        src={current.art}
+        alt={current.name}
+        class="w-11 h-11 rounded-md object-cover shadow-sm"
+      />
+      <div class="flex-1 min-w-0">
+        <div class="text-[15px] truncate font-medium">{current.name}</div>
+        <div class="text-[12px] text-white/60 truncate">{current.artist}</div>
+      </div>
+      <button
+        class="bg-transparent border-none cursor-pointer text-white w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform"
+        onclick={(e: MouseEvent) => {
+          e.stopPropagation();
+          togglePlay();
+        }}
+        aria-label="Play/Pause"
+      >
+        {#if playing}<Pause size={24} fill="white" strokeWidth={0} />{:else}<Play size={24} fill="white" strokeWidth={0} />{/if}
+      </button>
+      <button class="bg-transparent border-none cursor-pointer text-white w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform" onclick={(e: MouseEvent) => { e.stopPropagation(); playNext(1); }} aria-label="Next">
+         <SkipForward size={24} fill="white" strokeWidth={0} />
+      </button>
+    </div>
+  {/if}
+
+  {#if !showPlayer}
     <!-- Apple Music Bottom Navigation -->
-    <div class="flex items-center justify-between px-6 pt-3 pb-8 bg-[#1c1c1e] border-t border-white/10 w-full shrink-0">
+    <div class="flex items-center justify-between px-6 pt-3 pb-8 bg-[#1c1c1e] border-t border-white/10 w-full shrink-0 z-10">
       <button class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab === 'listen_now' ? 'text-ios-pink' : 'text-white/50 hover:text-white/80 transition-colors'}" onclick={() => currentTab = 'listen_now'}>
         <PlayCircle size={24} />
         <span class="text-[10px] font-medium">Listen Now</span>
@@ -418,38 +538,6 @@
       <button class="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer {currentTab === 'search' ? 'text-ios-pink' : 'text-white/50 hover:text-white/80 transition-colors'}" onclick={() => currentTab = 'search'}>
         <Search size={24} />
         <span class="text-[10px] font-medium">Search</span>
-      </button>
-    </div>
-  {/if}
-
-  {#if current && !showPlayer}
-    <div
-      class="flex gap-3 items-center px-3 py-2 bg-ios-bg2 border-t border-ios-sep cursor-pointer text-white text-left w-full"
-      role="button"
-      tabindex="0"
-      onclick={() => (showPlayer = true)}
-      onkeydown={(e: KeyboardEvent) => {
-        if (e.key === "Enter" || e.key === " ") showPlayer = true;
-      }}
-    >
-      <img
-        src={current.art}
-        alt={current.name}
-        class="w-11 h-11 rounded-lg object-cover"
-      />
-      <div class="flex-1 min-w-0">
-        <div class="text-[15px] truncate">{current.name}</div>
-        <div class="text-[12px] text-ios-label2 truncate">{current.artist}</div>
-      </div>
-      <button
-        class="bg-transparent border-none cursor-pointer text-white"
-        onclick={(e: MouseEvent) => {
-          e.stopPropagation();
-          togglePlay();
-        }}
-        aria-label="Play/Pause"
-      >
-        {#if playing}<Pause size={22} />{:else}<Play size={22} />{/if}
       </button>
     </div>
   {/if}
