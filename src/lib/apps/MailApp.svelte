@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ChevronLeft } from 'lucide-svelte';
   interface Email { id: string; from: string; subject: string; preview: string; date: string; read: boolean; body: string }
 
   let emails: Email[] = $state([
@@ -19,7 +20,9 @@
   {#if selected}
     <div class="flex-1 flex flex-col">
       <div class="flex items-center px-4 py-2 border-b border-ios-sep">
-        <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer" onclick={() => selected = null}>← Inbox</button>
+        <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center" onclick={() => selected = null}>
+          <ChevronLeft size={20} class="mr-1" /> Inbox
+        </button>
       </div>
       <div class="flex-1 overflow-y-auto p-4">
         <h2 class="text-[22px] font-bold text-white mb-1">{selected.subject}</h2>

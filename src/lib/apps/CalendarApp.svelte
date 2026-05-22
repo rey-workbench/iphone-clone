@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ChevronLeft, ChevronRight } from 'lucide-svelte';
   let selectedDate = $state(new Date());
 
   let year = $derived(selectedDate.getFullYear());
@@ -25,8 +26,12 @@
     <div class="flex justify-between items-center px-1 py-2 pb-4">
       <h1 class="text-[34px] font-bold text-white">{monthName}</h1>
       <div class="flex gap-4">
-        <button class="bg-transparent border-none text-ios-blue text-lg cursor-pointer" onclick={prevMonth}>‹</button>
-        <button class="bg-transparent border-none text-ios-blue text-lg cursor-pointer" onclick={nextMonth}>›</button>
+        <button class="bg-transparent border-none text-ios-blue text-lg cursor-pointer flex items-center justify-center" onclick={prevMonth}>
+          <ChevronLeft size={24} />
+        </button>
+        <button class="bg-transparent border-none text-ios-blue text-lg cursor-pointer flex items-center justify-center" onclick={nextMonth}>
+          <ChevronRight size={24} />
+        </button>
       </div>
     </div>
     <div class="grid grid-cols-7 gap-y-1 mb-6">

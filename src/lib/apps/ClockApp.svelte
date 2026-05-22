@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { clockState } from '$lib/stores';
+  import { Globe, AlarmClock, Timer, Hourglass } from 'lucide-svelte';
 
   let tab: 'worldClock' | 'alarm' | 'stopwatch' | 'timer' = $state('worldClock');
   let swMs = $state(0);
@@ -45,11 +46,11 @@
 
   onDestroy(() => { if (swInt) clearInterval(swInt); if (timerInt) clearInterval(timerInt); });
 
-  const tabs: { id: 'worldClock' | 'alarm' | 'stopwatch' | 'timer'; label: string; icon: string }[] = [
-    { id: 'worldClock', label: 'World Clock', icon: '🌍' },
-    { id: 'alarm', label: 'Alarm', icon: '⏰' },
-    { id: 'stopwatch', label: 'Stopwatch', icon: '⏱️' },
-    { id: 'timer', label: 'Timer', icon: '⏲️' },
+  const tabs: { id: 'worldClock' | 'alarm' | 'stopwatch' | 'timer'; label: string; icon: any }[] = [
+    { id: 'worldClock', label: 'World Clock', icon: Globe },
+    { id: 'alarm', label: 'Alarm', icon: AlarmClock },
+    { id: 'stopwatch', label: 'Stopwatch', icon: Timer },
+    { id: 'timer', label: 'Timer', icon: Hourglass },
   ];
 </script>
 
@@ -95,10 +96,11 @@
       </div>
     {/if}
   </div>
-  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5  shrink-0">
+  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5 shrink-0 justify-around">
     {#each tabs as t}
-      <button class="flex-1 flex flex-col items-center gap-0.5 border-none bg-transparent cursor-pointer py-1 {tab === t.id ? 'text-[#FF9F0A]' : 'text-ios-label2'}" onclick={() => tab = t.id}>
-        <span class="text-[22px]">{t.icon}</span><span class="text-[10px] font-medium">{t.label}</span>
+      <button class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {tab === t.id ? 'text-[#FF9F0A]' : 'text-ios-label2'}" onclick={() => tab = t.id}>
+        <t.icon size={24} />
+        <span class="text-[10px] font-medium">{t.label}</span>
       </button>
     {/each}
   </div>

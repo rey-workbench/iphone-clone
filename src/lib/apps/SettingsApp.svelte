@@ -1,34 +1,38 @@
 <script lang="ts">
   import { settingsState } from '$lib/stores';
-  import { ChevronRight } from 'lucide-svelte';
+  import { 
+    ChevronRight, Plane, Wifi, Bluetooth, Antenna, Link, 
+    Bell, Volume2, Moon, Hourglass, Settings, Sun, 
+    LayoutGrid, Accessibility, Image, Battery, Lock 
+  } from 'lucide-svelte';
 
   let searchText = $state('');
 
   const profile = { name: 'John Appleseed', initials: 'JA' };
 
   let toggleItems = $derived([
-    { id: 'airplane', icon: '✈️', bg: '#FF9500', label: 'Airplane Mode', toggle: true, value: $settingsState.airplaneMode },
-    { id: 'wifi', icon: '📶', bg: '#007AFF', label: 'Wi-Fi', detail: $settingsState.wifiEnabled ? 'Home' : 'Off' },
-    { id: 'bluetooth', icon: '🔵', bg: '#007AFF', label: 'Bluetooth', detail: $settingsState.bluetoothEnabled ? 'On' : 'Off' },
-    { id: 'cellular', icon: '📱', bg: '#34C759', label: 'Cellular', detail: '' },
-    { id: 'hotspot', icon: '🔗', bg: '#34C759', label: 'Personal Hotspot', detail: 'Off' },
+    { id: 'airplane', icon: Plane, bg: '#FF9500', label: 'Airplane Mode', toggle: true, value: $settingsState.airplaneMode },
+    { id: 'wifi', icon: Wifi, bg: '#007AFF', label: 'Wi-Fi', detail: $settingsState.wifiEnabled ? 'Home' : 'Off' },
+    { id: 'bluetooth', icon: Bluetooth, bg: '#007AFF', label: 'Bluetooth', detail: $settingsState.bluetoothEnabled ? 'On' : 'Off' },
+    { id: 'cellular', icon: Antenna, bg: '#34C759', label: 'Cellular', detail: '' },
+    { id: 'hotspot', icon: Link, bg: '#34C759', label: 'Personal Hotspot', detail: 'Off' },
   ]);
 
   const general = [
-    { icon: '🔔', bg: '#FF3B30', label: 'Notifications' },
-    { icon: '🔊', bg: '#FF2D55', label: 'Sounds & Haptics' },
-    { icon: '🌙', bg: '#5856D6', label: 'Focus' },
-    { icon: '⏰', bg: '#5856D6', label: 'Screen Time' },
+    { icon: Bell, bg: '#FF3B30', label: 'Notifications' },
+    { icon: Volume2, bg: '#FF2D55', label: 'Sounds & Haptics' },
+    { icon: Moon, bg: '#5856D6', label: 'Focus' },
+    { icon: Hourglass, bg: '#5856D6', label: 'Screen Time' },
   ];
 
   const settings = [
-    { icon: '⚙️', bg: '#8E8E93', label: 'General' },
-    { icon: '🎨', bg: '#007AFF', label: 'Display & Brightness' },
-    { icon: '🏠', bg: '#007AFF', label: 'Home Screen & App Library' },
-    { icon: '♿', bg: '#007AFF', label: 'Accessibility' },
-    { icon: '🖼️', bg: '#34C759', label: 'Wallpaper' },
-    { icon: '🔋', bg: '#34C759', label: 'Battery' },
-    { icon: '🔒', bg: '#007AFF', label: 'Privacy & Security' },
+    { icon: Settings, bg: '#8E8E93', label: 'General' },
+    { icon: Sun, bg: '#007AFF', label: 'Display & Brightness' },
+    { icon: LayoutGrid, bg: '#007AFF', label: 'Home Screen & App Library' },
+    { icon: Accessibility, bg: '#007AFF', label: 'Accessibility' },
+    { icon: Image, bg: '#34C759', label: 'Wallpaper' },
+    { icon: Battery, bg: '#34C759', label: 'Battery' },
+    { icon: Lock, bg: '#007AFF', label: 'Privacy & Security' },
   ];
 
   function toggle(id: string) {
@@ -63,7 +67,9 @@
     <div class="bg-ios-bg2 rounded-xl mb-5 overflow-hidden">
       {#each toggleItems as item, i}
         <button class="flex items-center gap-3 py-[11px] px-4 w-full border-none bg-transparent cursor-pointer text-white text-left" onclick={() => item.toggle && toggle(item.id)}>
-          <div class="w-7 h-7 rounded-md flex items-center justify-center text-[16px] shrink-0" style="background:{item.bg}">{item.icon}</div>
+          <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0" style="background:{item.bg}">
+            <item.icon size={16} color="white" />
+          </div>
           <div class="flex-1 text-[17px]">{item.label}</div>
           {#if item.toggle}
             <div class="w-[51px] h-[31px] rounded-2xl relative transition-colors duration-200 shrink-0 {item.value ? 'bg-ios-green' : 'bg-[#39393D]'}">
@@ -81,7 +87,9 @@
     <div class="bg-ios-bg2 rounded-xl mb-5 overflow-hidden">
       {#each general as item, i}
         <button class="flex items-center gap-3 py-[11px] px-4 w-full border-none bg-transparent cursor-pointer text-white text-left">
-          <div class="w-7 h-7 rounded-md flex items-center justify-center text-[16px] shrink-0" style="background:{item.bg}">{item.icon}</div>
+          <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0" style="background:{item.bg}">
+            <item.icon size={16} color="white" />
+          </div>
           <div class="flex-1 text-[17px]">{item.label}</div>
           <ChevronRight size={14} color="rgba(255,255,255,0.3)" />
         </button>
@@ -92,7 +100,9 @@
     <div class="bg-ios-bg2 rounded-xl mb-5 overflow-hidden">
       {#each settings as item, i}
         <button class="flex items-center gap-3 py-[11px] px-4 w-full border-none bg-transparent cursor-pointer text-white text-left">
-          <div class="w-7 h-7 rounded-md flex items-center justify-center text-[16px] shrink-0" style="background:{item.bg}">{item.icon}</div>
+          <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0" style="background:{item.bg}">
+            <item.icon size={16} color="white" />
+          </div>
           <div class="flex-1 text-[17px]">{item.label}</div>
           <ChevronRight size={14} color="rgba(255,255,255,0.3)" />
         </button>

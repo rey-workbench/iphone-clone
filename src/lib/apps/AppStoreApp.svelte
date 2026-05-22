@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { 
+    Camera, Music, MessageCircle, Headphones, MonitorPlay, 
+    Gamepad2, FileText, Cpu, CalendarDays, Smartphone, Search 
+  } from 'lucide-svelte';
+
   type TabId = 'today' | 'games' | 'apps' | 'search';
   let tab: TabId = $state<TabId>('today');
 
@@ -8,21 +13,21 @@
     { name: 'Procreate', dev: 'Savage', img: 'https://picsum.photos/400/200?random=102', cat: 'Graphics' },
   ];
   const topApps = [
-    { name: 'Instagram', dev: 'Meta', icon: '📷', cat: 'Social', rank: 1 },
-    { name: 'TikTok', dev: 'ByteDance', icon: '🎵', cat: 'Entertainment', rank: 2 },
-    { name: 'WhatsApp', dev: 'Meta', icon: '💬', cat: 'Social', rank: 3 },
-    { name: 'Spotify', dev: 'Spotify AB', icon: '🎧', cat: 'Music', rank: 4 },
-    { name: 'YouTube', dev: 'Google', icon: '▶️', cat: 'Entertainment', rank: 5 },
-    { name: 'Discord', dev: 'Discord Inc.', icon: '🎮', cat: 'Social', rank: 6 },
-    { name: 'Notion', dev: 'Notion Labs', icon: '📝', cat: 'Productivity', rank: 7 },
-    { name: 'ChatGPT', dev: 'OpenAI', icon: '🤖', cat: 'Productivity', rank: 8 },
+    { name: 'Instagram', dev: 'Meta', icon: Camera, cat: 'Social', rank: 1 },
+    { name: 'TikTok', dev: 'ByteDance', icon: Music, cat: 'Entertainment', rank: 2 },
+    { name: 'WhatsApp', dev: 'Meta', icon: MessageCircle, cat: 'Social', rank: 3 },
+    { name: 'Spotify', dev: 'Spotify AB', icon: Headphones, cat: 'Music', rank: 4 },
+    { name: 'YouTube', dev: 'Google', icon: MonitorPlay, cat: 'Entertainment', rank: 5 },
+    { name: 'Discord', dev: 'Discord Inc.', icon: Gamepad2, cat: 'Social', rank: 6 },
+    { name: 'Notion', dev: 'Notion Labs', icon: FileText, cat: 'Productivity', rank: 7 },
+    { name: 'ChatGPT', dev: 'OpenAI', icon: Cpu, cat: 'Productivity', rank: 8 },
   ];
 
-  const tabItems: { id: TabId; label: string; icon: string }[] = [
-    { id: 'today', label: 'Today', icon: '📅' },
-    { id: 'games', label: 'Games', icon: '🎮' },
-    { id: 'apps', label: 'Apps', icon: '📱' },
-    { id: 'search', label: 'Search', icon: '🔍' },
+  const tabItems: { id: TabId; label: string; icon: any }[] = [
+    { id: 'today', label: 'Today', icon: CalendarDays },
+    { id: 'games', label: 'Games', icon: Gamepad2 },
+    { id: 'apps', label: 'Apps', icon: Smartphone },
+    { id: 'search', label: 'Search', icon: Search },
   ];
 </script>
 
@@ -45,7 +50,9 @@
       {#each topApps as app, i}
         <div class="flex items-center gap-3 p-2.5 px-4">
           <span class="text-[17px] text-ios-label2 w-4 text-right font-medium">{app.rank}</span>
-          <div class="w-12 h-12 rounded-xl bg-ios-fill flex items-center justify-center text-2xl shrink-0">{app.icon}</div>
+          <div class="w-12 h-12 rounded-xl bg-ios-fill flex items-center justify-center shrink-0">
+            <app.icon size={24} color="white" />
+          </div>
           <div class="flex-1 min-w-0"><div class="text-[17px] text-white truncate">{app.name}</div><div class="text-[13px] text-ios-label2">{app.cat}</div></div>
           <button class="px-4 py-1.5 rounded-full bg-ios-fill border-none text-ios-blue text-[15px] font-semibold cursor-pointer">GET</button>
         </div>
@@ -53,10 +60,11 @@
       {/each}
     </div>
   </div>
-  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5  shrink-0">
+  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5 shrink-0 justify-around">
     {#each tabItems as t}
-      <button class="flex-1 flex flex-col items-center gap-0.5 border-none bg-transparent cursor-pointer py-1 {tab === t.id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => tab = t.id}>
-        <span class="text-[22px]">{t.icon}</span><span class="text-[10px] font-medium">{t.label}</span>
+      <button class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {tab === t.id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => tab = t.id}>
+        <t.icon size={24} />
+        <span class="text-[10px] font-medium">{t.label}</span>
       </button>
     {/each}
   </div>

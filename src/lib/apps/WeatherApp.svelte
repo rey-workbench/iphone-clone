@@ -1,16 +1,18 @@
 <script lang="ts">
+  import { Sun, CloudSun, Cloud, CloudRain, Moon } from 'lucide-svelte';
+
   const w = {
     city: 'San Francisco', temp: 18, condition: 'Partly Cloudy', high: 21, low: 13,
     hourly: [
-      { time: 'Now', temp: 18, icon: '🌤️' }, { time: '1PM', temp: 19, icon: '☀️' }, { time: '2PM', temp: 20, icon: '☀️' },
-      { time: '3PM', temp: 21, icon: '🌤️' }, { time: '4PM', temp: 20, icon: '⛅' }, { time: '5PM', temp: 19, icon: '🌥️' },
-      { time: '6PM', temp: 18, icon: '🌥️' }, { time: '7PM', temp: 17, icon: '🌙' },
+      { time: 'Now', temp: 18, icon: CloudSun }, { time: '1PM', temp: 19, icon: Sun }, { time: '2PM', temp: 20, icon: Sun },
+      { time: '3PM', temp: 21, icon: CloudSun }, { time: '4PM', temp: 20, icon: CloudSun }, { time: '5PM', temp: Cloud },
+      { time: '6PM', temp: 18, icon: Cloud }, { time: '7PM', temp: 17, icon: Moon },
     ],
     daily: [
-      { day: 'Today', high: 21, low: 13, icon: '🌤️' }, { day: 'Mon', high: 22, low: 14, icon: '☀️' },
-      { day: 'Tue', high: 20, low: 12, icon: '⛅' }, { day: 'Wed', high: 19, low: 11, icon: '🌧️' },
-      { day: 'Thu', high: 18, low: 10, icon: '🌧️' }, { day: 'Fri', high: 21, low: 13, icon: '🌤️' },
-      { day: 'Sat', high: 23, low: 15, icon: '☀️' },
+      { day: 'Today', high: 21, low: 13, icon: CloudSun }, { day: 'Mon', high: 22, low: 14, icon: Sun },
+      { day: 'Tue', high: 20, low: 12, icon: CloudSun }, { day: 'Wed', high: 19, low: 11, icon: CloudRain },
+      { day: 'Thu', high: 18, low: 10, icon: CloudRain }, { day: 'Fri', high: 21, low: 13, icon: CloudSun },
+      { day: 'Sat', high: 23, low: 15, icon: Sun },
     ],
     tiles: [
       { title: 'UV INDEX', value: '4', desc: 'Moderate' }, { title: 'WIND', value: '15 km/h', desc: 'W Wind' },
@@ -41,7 +43,11 @@
           {#each w.hourly as h}
             <div class="flex flex-col items-center gap-1.5 min-w-[44px]">
               <span class="text-[13px] font-medium text-white">{h.time}</span>
-              <span class="text-[22px]">{h.icon}</span>
+              <div class="h-[22px] flex items-center justify-center">
+                {#if h.icon}
+                  <h.icon size={22} color="white" />
+                {/if}
+              </div>
               <span class="text-[16px] font-semibold text-white">{h.temp}°</span>
             </div>
           {/each}
@@ -52,7 +58,11 @@
         {#each w.daily as d, i}
           <div class="flex items-center py-1.5 gap-2">
             <span class="text-[16px] font-medium text-white w-11">{d.day}</span>
-            <span class="text-[20px] w-7 text-center">{d.icon}</span>
+            <div class="w-7 flex justify-center">
+              {#if d.icon}
+                <d.icon size={20} color="white" />
+              {/if}
+            </div>
             <span class="text-[16px] text-white/60 w-8 text-right">{d.low}°</span>
             <div class="flex-1 h-1 bg-white/15 rounded-sm relative"><div class="absolute h-full rounded-sm bg-linear-to-r from-[#4CD964] via-[#FFCC00] to-[#FF6B35]" style={bar(d.low,d.high)}></div></div>
             <span class="text-[16px] text-white w-8 text-right">{d.high}°</span>

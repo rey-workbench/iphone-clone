@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Play, Pause, SkipBack, SkipForward } from 'lucide-svelte';
+  import { Play, Pause, SkipBack, SkipForward, ChevronLeft } from 'lucide-svelte';
 
   interface Track { name: string; artist: string; art: string; preview: string }
 
@@ -45,7 +45,9 @@
 <div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">
   {#if showPlayer && current}
     <div class="flex-1 flex flex-col items-center px-8 pt-5">
-      <button class="text-ios-label2 text-[13px] bg-transparent border-none cursor-pointer self-start mb-3" onclick={() => showPlayer = false}>← Library</button>
+      <button class="text-ios-label2 text-[13px] bg-transparent border-none cursor-pointer self-start mb-3 flex items-center" onclick={() => showPlayer = false}>
+        <ChevronLeft size={16} class="mr-1" /> Library
+      </button>
       <img src={current.art} alt={current.name} class="w-[280px] h-[280px] rounded-2xl shadow-2xl object-cover" />
       <div class="w-full mt-7">
         <div class="font-semibold text-white text-[22px] truncate">{current.name}</div>
@@ -85,7 +87,7 @@
             <button class="flex gap-3 p-2 px-3 w-full border-none bg-transparent cursor-pointer text-left text-white items-center" onclick={() => play(t)}>
               <img src={t.art} alt={t.name} class="w-12 h-12 rounded-lg object-cover shrink-0" />
               <div class="flex-1 min-w-0"><div class="text-[16px] truncate">{t.name}</div><div class="text-[13px] text-ios-label2 truncate">{t.artist}</div></div>
-              <span class="text-ios-pink text-lg">▶</span>
+              <Play size={18} class="text-ios-pink" fill="currentColor" />
             </button>
             {#if i < tracks.length - 1}<div class="h-px bg-ios-sep ml-[68px]"></div>{/if}
           {/each}

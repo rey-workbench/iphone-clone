@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { RefreshCw } from 'lucide-svelte';
 
   let videoEl: HTMLVideoElement | undefined = $state(undefined);
   let photoTaken = $state(false);
@@ -55,7 +56,9 @@
       <div class="flex items-center justify-center gap-14">
         <span class="w-10"></span>
         <button class="w-[72px] h-[72px] rounded-full border-[5px] border-white bg-white/20 cursor-pointer active:scale-90 transition-transform" onclick={capture} aria-label="Capture"></button>
-        <button class="w-10 h-10 rounded-full bg-ios-fill border-none text-white text-lg cursor-pointer flex items-center justify-center" onclick={flipCamera} aria-label="Flip camera">🔄</button>
+        <button class="w-10 h-10 rounded-full bg-ios-fill border-none text-white text-lg cursor-pointer flex items-center justify-center" onclick={flipCamera} aria-label="Flip camera">
+          <RefreshCw size={20} color="white" />
+        </button>
       </div>
     </div>
   {/if}

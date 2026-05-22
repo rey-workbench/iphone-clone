@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Trash2, SquarePen, ChevronLeft } from 'lucide-svelte';
   import { notesState } from '$lib/stores';
   import type { Note } from '$lib/stores';
 
@@ -36,8 +37,12 @@
   {#if selectedNote}
     <div class="flex-1 flex flex-col">
       <div class="flex justify-between items-center px-4 py-2 border-b border-ios-sep">
-        <button class="bg-transparent border-none text-[#FF9F0A] text-[17px] cursor-pointer" onclick={goBack}>← Notes</button>
-        <button class="bg-transparent border-none text-[20px] cursor-pointer" onclick={() => selectedNote && deleteNote(selectedNote.id)} aria-label="Delete note">🗑️</button>
+        <button class="bg-transparent border-none text-[#FF9F0A] text-[17px] cursor-pointer flex items-center" onclick={goBack}>
+          <ChevronLeft size={20} class="mr-1" /> Notes
+        </button>
+        <button class="bg-transparent border-none text-[#FF9F0A] cursor-pointer" onclick={() => selectedNote && deleteNote(selectedNote.id)} aria-label="Delete note">
+          <Trash2 size={20} />
+        </button>
       </div>
       <div class="flex-1 p-4 flex flex-col gap-2">
         <input class="bg-transparent border-none text-white text-2xl font-bold outline-none w-full" bind:value={editTitle} placeholder="Title" />
@@ -61,10 +66,12 @@
           </button>
         {/each}
       </div>
-      <div class="flex justify-between items-center px-4 py-2  bg-[rgba(30,30,30,0.95)] border-t border-ios-sep">
+      <div class="flex justify-between items-center px-4 py-2 bg-[rgba(30,30,30,0.95)] border-t border-ios-sep">
         <span></span>
         <span class="text-[13px] text-ios-label2">{$notesState.length} Notes</span>
-        <button class="w-11 h-11 bg-transparent border-none text-[22px] cursor-pointer" onclick={addNote} aria-label="New note">✏️</button>
+        <button class="w-11 h-11 bg-transparent border-none text-[#FF9F0A] cursor-pointer flex justify-end items-center" onclick={addNote} aria-label="New note">
+          <SquarePen size={22} />
+        </button>
       </div>
     </div>
   {/if}

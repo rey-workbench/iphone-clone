@@ -57,8 +57,8 @@
 <div class="w-screen h-dvh flex items-center justify-center bg-[#0a0a0a] overflow-hidden">
   <div class="relative w-[393px] h-[852px] rounded-[48px] overflow-hidden bg-black shadow-[0_0_0_2px_#333,0_0_0_4px_#1a1a1a,0_0_60px_rgba(0,0,0,0.5),0_0_120px_rgba(0,0,0,0.3)] border border-white/5 max-[430px]:w-screen max-[430px]:h-dvh max-[430px]:rounded-none max-[430px]:shadow-none max-[430px]:border-none">
 
-    <!-- Dynamic Island -->
-    <div class="absolute top-[11px] left-1/2 -translate-x-1/2 w-[126px] h-[37px] bg-black rounded-[50px] z-400"></div>
+    <!-- Notch -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[160px] h-[32px] bg-black rounded-b-[24px] z-400"></div>
 
     {#if showLockScreen}
       <!-- Lock Screen -->
@@ -76,7 +76,7 @@
         <div class="absolute inset-0 bg-linear-to-b from-[#1a1040] via-[#4a2c8a] via-45% to-[#f0c0a0]"></div>
         <div class="relative z-10 h-full flex flex-col items-center">
           <StatusBar />
-          <div class="text-center" style="margin-top: 80px;">
+          <div class="text-center" style="margin-top: 110px;">
             <div class="text-lg font-medium text-white/85 tracking-wide">{formatDate($currentTime)}</div>
             <div class="text-[82px] font-bold text-white leading-none mt-1 tracking-[-2px]">{formatLockTime($currentTime)}</div>
           </div>

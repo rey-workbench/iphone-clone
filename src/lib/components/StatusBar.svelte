@@ -7,7 +7,7 @@
   }
 </script>
 
-<div class="absolute top-0 left-0 right-0 h-[54px] flex items-end justify-between pb-2 z-500 pointer-events-none text-white" style="padding-left: 32px; padding-right: 32px;">
+<div class="absolute top-0 left-0 right-0 h-[54px] flex items-end justify-between pb-2 z-500 pointer-events-none text-white mix-blend-difference" style="padding-left: 38px; padding-right: 38px;">
   <span class="text-[16px] font-semibold tracking-wide">{formatTime($currentTime)}</span>
   <div class="flex items-center gap-1.5">
     <Signal size={14} strokeWidth={2.5} />

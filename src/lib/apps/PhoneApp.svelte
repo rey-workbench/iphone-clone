@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Star, Clock, User, Grid3x3, Voicemail, Phone, Delete, Info } from 'lucide-svelte';
+
   type TabId = 'favorites' | 'recents' | 'contacts' | 'keypad' | 'voicemail';
   let tab: TabId = $state<TabId>('keypad');
   let dialNumber = $state('');
@@ -22,12 +24,12 @@
     [{ n: '7', s: 'PQRS' }, { n: '8', s: 'TUV' }, { n: '9', s: 'WXYZ' }],
     [{ n: '*', s: '' }, { n: '0', s: '+' }, { n: '#', s: '' }],
   ];
-  const tabItems: { id: TabId; label: string; icon: string }[] = [
-    { id: 'favorites', label: 'Favorites', icon: '⭐' },
-    { id: 'recents', label: 'Recents', icon: '🕐' },
-    { id: 'contacts', label: 'Contacts', icon: '👤' },
-    { id: 'keypad', label: 'Keypad', icon: '⌨️' },
-    { id: 'voicemail', label: 'Voicemail', icon: '📧' },
+  const tabItems: { id: TabId; label: string; icon: any }[] = [
+    { id: 'favorites', label: 'Favorites', icon: Star },
+    { id: 'recents', label: 'Recents', icon: Clock },
+    { id: 'contacts', label: 'Contacts', icon: User },
+    { id: 'keypad', label: 'Keypad', icon: Grid3x3 },
+    { id: 'voicemail', label: 'Voicemail', icon: Voicemail },
   ];
 </script>
 
@@ -50,9 +52,13 @@
         </div>
         <div class="flex items-center justify-center gap-15 py-5">
           <span class="w-6"></span>
-          <button class="w-16 h-16 rounded-full bg-ios-green border-none text-[28px] cursor-pointer flex items-center justify-center" aria-label="Call">📞</button>
+          <button class="w-16 h-16 rounded-full bg-ios-green border-none text-[28px] cursor-pointer flex items-center justify-center text-white" aria-label="Call">
+            <Phone size={28} fill="currentColor" />
+          </button>
           {#if dialNumber}
-            <button class="bg-transparent border-none text-2xl cursor-pointer text-ios-label2" onclick={() => dialNumber = dialNumber.slice(0, -1)} aria-label="Backspace">⌫</button>
+            <button class="bg-transparent border-none text-2xl cursor-pointer text-ios-label2" onclick={() => dialNumber = dialNumber.slice(0, -1)} aria-label="Backspace">
+              <Delete size={28} />
+            </button>
           {:else}
             <span class="w-6"></span>
           {/if}
@@ -68,7 +74,7 @@
                 <span class="text-[17px] font-medium {call.missed ? 'text-ios-red' : 'text-white'}">{call.name}</span>
                 <span class="text-[13px] text-ios-label2">{call.time}</span>
               </div>
-              <span class="text-lg">ℹ️</span>
+              <Info size={20} class="text-ios-blue" />
             </div>
             {#if i < recents.length - 1}<div class="h-px bg-ios-sep ml-4"></div>{/if}
           {/each}
@@ -91,16 +97,21 @@
       <div class="px-4">
         <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4">{tab === 'favorites' ? 'Favorites' : 'Voicemail'}</h1>
         <div class="flex flex-col items-center gap-2 py-20 text-ios-label2">
-          <span class="text-5xl">{tab === 'favorites' ? '⭐' : '📧'}</span>
+          {#if tab === 'favorites'}
+            <Star size={48} />
+          {:else}
+            <Voicemail size={48} />
+          {/if}
           <span class="text-[17px]">No {tab === 'favorites' ? 'Favorites' : 'Voicemail'}</span>
         </div>
       </div>
     {/if}
   </div>
-  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5  shrink-0">
+  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5 shrink-0 justify-around">
     {#each tabItems as t}
-      <button class="flex-1 flex flex-col items-center gap-0.5 border-none bg-transparent cursor-pointer py-1 {tab === t.id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => tab = t.id}>
-        <span class="text-[22px]">{t.icon}</span><span class="text-[10px] font-medium">{t.label}</span>
+      <button class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {tab === t.id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => tab = t.id}>
+        <t.icon size={24} />
+        <span class="text-[10px] font-medium">{t.label}</span>
       </button>
     {/each}
   </div>
