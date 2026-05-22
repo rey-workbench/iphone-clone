@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Bot, ArrowUp, ChevronLeft } from 'lucide-svelte';
+  import { Bot, ArrowUp, ChevronLeft } from '@lucide/svelte';
 
   let messages = $state([
     { id: '1', content: "Hey! I'm your AI assistant. Ask me anything.", isUser: false, time: '12:00 PM' }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChevronLeft, ChevronRight } from 'lucide-svelte';
+  import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   let selectedDate = $state(new Date());
 
   let year = $derived(selectedDate.getFullYear());

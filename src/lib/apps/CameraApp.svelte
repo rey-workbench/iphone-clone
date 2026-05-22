@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { RefreshCw } from 'lucide-svelte';
+  import { RefreshCw } from '@lucide/svelte';
 
   let videoEl: HTMLVideoElement | undefined = $state(undefined);
   let photoTaken = $state(false);

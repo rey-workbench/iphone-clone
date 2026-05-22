@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Sun, CloudSun, Cloud, CloudRain, Moon } from 'lucide-svelte';
+  import { Sun, CloudSun, Cloud, CloudRain, Moon } from '@lucide/svelte';
 
   const w = {
     city: 'San Francisco', temp: 18, condition: 'Partly Cloudy', high: 21, low: 13,

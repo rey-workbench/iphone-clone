@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Trash2, SquarePen, ChevronLeft } from 'lucide-svelte';
+  import { Trash2, SquarePen, ChevronLeft } from '@lucide/svelte';
   import { notesState } from '$lib/stores';
   import type { Note } from '$lib/stores';
 

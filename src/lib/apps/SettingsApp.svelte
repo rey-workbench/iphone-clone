@@ -4,7 +4,7 @@
     ChevronRight, Plane, Wifi, Bluetooth, Antenna, Link, 
     Bell, Volume2, Moon, Hourglass, Settings, Sun, 
     LayoutGrid, Accessibility, Image, Battery, Lock 
-  } from 'lucide-svelte';
+  } from '@lucide/svelte';
 
   let searchText = $state('');
 

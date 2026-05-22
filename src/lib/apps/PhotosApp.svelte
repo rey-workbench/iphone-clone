@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChevronLeft, Image, Heart, Folder, Search } from 'lucide-svelte';
+  import { ChevronLeft, Image, Heart, Folder, Search } from '@lucide/svelte';
   let selectedPhoto: string | null = $state(null);
   let tab: 'library' | 'foryou' | 'albums' | 'search' = $state('library');
 

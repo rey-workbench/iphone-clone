@@ -1,6 +1,6 @@
 <script lang="ts">
   import { currentTime, settingsState } from '$lib/stores';
-  import { Signal, Wifi } from 'lucide-svelte';
+  import { Signal, Wifi } from '@lucide/svelte';
 
   function formatTime(date: Date): string {
     return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(/\s?(AM|PM)/, '');

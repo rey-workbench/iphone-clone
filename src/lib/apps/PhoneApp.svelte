@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Star, Clock, User, Grid3x3, Voicemail, Phone, Delete, Info } from 'lucide-svelte';
+  import { Star, Clock, User, Grid3x3, Voicemail, Phone, Delete, Info } from '@lucide/svelte';
 
   type TabId = 'favorites' | 'recents' | 'contacts' | 'keypad' | 'voicemail';
   let tab: TabId = $state<TabId>('keypad');

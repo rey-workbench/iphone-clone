@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChevronLeft } from 'lucide-svelte';
+  import { ChevronLeft } from '@lucide/svelte';
   interface Email { id: string; from: string; subject: string; preview: string; date: string; read: boolean; body: string }
 
   let emails: Email[] = $state([

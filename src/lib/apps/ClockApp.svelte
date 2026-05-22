@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { clockState } from '$lib/stores';
-  import { Globe, AlarmClock, Timer, Hourglass } from 'lucide-svelte';
+  import { Globe, AlarmClock, Timer, Hourglass } from '@lucide/svelte';
 
   let tab: 'worldClock' | 'alarm' | 'stopwatch' | 'timer' = $state('worldClock');
   let swMs = $state(0);

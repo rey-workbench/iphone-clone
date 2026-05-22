@@ -2,7 +2,7 @@
   import { 
     Camera, Music, MessageCircle, Headphones, MonitorPlay, 
     Gamepad2, FileText, Cpu, CalendarDays, Smartphone, Search 
-  } from 'lucide-svelte';
+  } from '@lucide/svelte';
 
   type TabId = 'today' | 'games' | 'apps' | 'search';
   let tab: TabId = $state<TabId>('today');
