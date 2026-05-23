@@ -292,7 +292,8 @@ export class MusicState {
                 const min = parseFloat(match[1]);
                 const sec = parseFloat(match[2]);
                 const fraction = parseFloat("0." + match[3]);
-                const time = min * 60 + sec + fraction + 0.3;
+                // Highlight lyrics 400ms early so it feels synced/anticipates the beat, rather than delayed
+                const time = min * 60 + sec + fraction - 0.4;
                 const text = line.replace(timeReg, "").trim();
                 parsed.push({ time, text });
             }

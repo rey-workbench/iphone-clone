@@ -45,16 +45,19 @@
 </script>
 
 <!-- Background Blur -->
-<div class="absolute inset-0 z-10 bg-black">
+<div class="absolute inset-0 z-10 bg-black overflow-hidden">
   <img
     src={state.current?.art || state.current?.thumbnails?.[0]?.url}
     alt="bg"
     class="absolute inset-0 w-full h-full object-cover opacity-30 blur-2xl saturate-150 transform scale-110"
   />
   <div class="absolute inset-0 bg-black/40"></div>
+</div>
 
+<!-- Player Content -->
+<div class="absolute inset-0 z-20 flex flex-col px-6 pt-14 pb-6">
   <!-- Header -->
-  <div class="relative flex justify-between items-center px-6 pt-12 pb-4">
+  <div class="relative flex justify-between items-center mb-8 shrink-0">
     <button
       class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition-all cursor-pointer"
       onclick={() => (state.showPlayer = false)}
@@ -72,10 +75,7 @@
     </div>
     <div class="w-10"></div>
   </div>
-</div>
 
-<!-- Player Content -->
-<div class="absolute inset-0 z-20 flex flex-col px-6 pt-16 pb-6">
   {#if state.showLyrics}
     <div
       class="flex-1 overflow-y-auto mb-6 w-full px-6 text-white text-[24px] font-bold leading-normal hide-scrollbar scroll-smooth"
