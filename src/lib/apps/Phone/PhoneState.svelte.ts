@@ -1,23 +1,13 @@
 import type { PhoneTabId } from '$lib/types';
+import { usersState } from '$lib/states';
 
 export class PhoneState {
     tab = $state<PhoneTabId>('keypad');
     dialNumber = $state('');
 
-    recents = [
-        { name: 'Tim Cook', time: 'Today, 2:34 PM', missed: false },
-        { name: 'Craig Federighi', time: 'Today, 11:20 AM', missed: true },
-        { name: 'Jony Ive', time: 'Yesterday, 5:15 PM', missed: false },
-        { name: 'Phil Schiller', time: 'Yesterday, 3:00 PM', missed: false },
-        { name: 'Steve Jobs', time: '2 days ago', missed: true },
-    ];
+    recents: any[] = $state([]);
 
-    contacts = [
-        { name: 'Craig Federighi', phone: '+1 (555) 234-5678' },
-        { name: 'Jony Ive', phone: '+1 (555) 345-6789' },
-        { name: 'Phil Schiller', phone: '+1 (555) 456-7890' },
-        { name: 'Tim Cook', phone: '+1 (555) 567-8901' },
-    ];
+    contacts: any[] = $state([]);
 
     keys = [
         [{ n: '1', s: '' }, { n: '2', s: 'ABC' }, { n: '3', s: 'DEF' }],
@@ -26,7 +16,26 @@ export class PhoneState {
         [{ n: '*', s: '' }, { n: '0', s: '+' }, { n: '#', s: '' }],
     ];
 
-    constructor() {}
+    constructor() {
+        usersState.fetchUsers((users) => this.updateContacts(users));
+    }
+
+    updateContacts(users: any[]) {
+        this.contacts = users.map(u => ({
+            name: u.name,
+            username: u.username,
+            initials: u.name.substring(0, 2).toUpperCase(),
+        }));
+
+        // Isi recents dengan user pertama yang ada sebagai demo
+        if (this.recents.length === 0 && users.length > 0) {
+            this.recents = users.map((u, i) => ({
+                name: u.name,
+                time: i === 0 ? 'Today' : i === 1 ? 'Yesterday' : `${i} days ago`,
+                missed: i % 2 !== 0,
+            }));
+        }
+    }
 
     appendNumber(n: string) {
         this.dialNumber += n;

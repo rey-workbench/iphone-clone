@@ -1,6 +1,9 @@
 <script lang="ts">
   import { Star, Clock, User, Grid3x3, Voicemail, Phone, Delete, Info } from '@lucide/svelte';
   import { PhoneState } from './PhoneState.svelte';
+  import { callState } from './CallState.svelte';
+  import IncomingCallScreen from './components/IncomingCallScreen.svelte';
+  import ActiveCallScreen from './components/ActiveCallScreen.svelte';
 
   const state = new PhoneState();
 
@@ -32,7 +35,10 @@
         </div>
         <div class="flex items-center justify-center gap-15 py-5">
           <span class="w-6"></span>
-          <button class="w-16 h-16 rounded-full bg-ios-green border-none text-[28px] cursor-pointer flex items-center justify-center text-white" aria-label="Call">
+          <button
+            onclick={() => state.dialNumber && callState.initiateCall({ id: state.dialNumber, name: state.dialNumber })}
+            class="w-16 h-16 rounded-full bg-ios-green border-none text-[28px] cursor-pointer flex items-center justify-center text-white"
+            aria-label="Call">
             <Phone size={28} fill="currentColor" />
           </button>
           {#if state.dialNumber}
@@ -64,10 +70,19 @@
       <div class="px-4">
         <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4">Contacts</h1>
         <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-          {#each state.contacts as c, i}
+        {#each state.contacts as c, i}
             <div class="flex items-center gap-3 p-2.5 px-4">
               <div class="w-9 h-9 rounded-full bg-ios-fill flex items-center justify-center text-[16px] font-semibold text-white">{c.name[0]}</div>
-              <div class="flex flex-col gap-0.5"><span class="text-[17px] text-white">{c.name}</span><span class="text-[13px] text-ios-label2">{c.phone}</span></div>
+              <div class="flex-1 flex flex-col gap-0.5">
+                <span class="text-[17px] text-white">{c.name}</span>
+                <span class="text-[13px] text-ios-label2">{c.username}</span>
+              </div>
+              <button
+                onclick={() => callState.initiateCall(c)}
+                class="w-8 h-8 rounded-full bg-ios-green/20 flex items-center justify-center border-none cursor-pointer"
+                aria-label="Call {c.name}">
+                <Phone size={16} class="text-ios-green" />
+              </button>
             </div>
             {#if i < state.contacts.length - 1}<div class="h-px bg-ios-sep ml-4"></div>{/if}
           {/each}
@@ -96,3 +111,10 @@
     {/each}
   </div>
 </div>
+
+<!-- Call Overlays (outside the phone UI, rendered on top) -->
+{#if callState.status === 'incoming'}
+  <IncomingCallScreen />
+{:else if callState.status === 'calling' || callState.status === 'active'}
+  <ActiveCallScreen />
+{/if}

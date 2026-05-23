@@ -5,3 +5,4 @@ export * from './BaseState.svelte';
 export * from '$lib/apps/Settings/SettingsState.svelte';
 export * from '$lib/apps/Clock/ClockState.svelte';
 export * from '$lib/apps/Notes/NotesState.svelte';
+export * from '$lib/apps/Phone/CallState.svelte';
