@@ -171,7 +171,7 @@ export class WebRTCState {
         this.pc.onconnectionstatechange = () => {
             const state = this.pc?.connectionState;
             console.log('[WebRTC] Connection state changed to:', state);
-            if (state === 'failed' || state === 'disconnected' || state === 'closed') {
+            if (state === 'failed' || state === 'closed') {
                 onDisconnect();
             }
         };
