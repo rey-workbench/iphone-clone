@@ -13,13 +13,36 @@
     headerOpacity = Math.min(target.scrollTop / 100, 1);
   }
 
+  let serverSearchResults = $state<any[]>([]);
+
   let searchResults = $derived(
-    [...netflixState.movies, ...netflixState.tvShows].filter((item) =>
-      (item.title || item.name || "")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()),
-    ),
+    searchQuery.length > 0 && serverSearchResults.length > 0
+      ? serverSearchResults
+      : [...netflixState.movies, ...netflixState.tvShows].filter((item) =>
+          (item.title || item.name || "")
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()),
+        )
   );
+
+  $effect(() => {
+    if (searchQuery.trim().length > 2) {
+      const timeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/netflix/search?q=${encodeURIComponent(searchQuery)}`);
+          if (res.ok) {
+            const data = await res.json();
+            serverSearchResults = data.results || [];
+          }
+        } catch (e) {
+          console.error("Search failed", e);
+        }
+      }, 500);
+      return () => clearTimeout(timeout);
+    } else {
+      serverSearchResults = [];
+    }
+  });
 
   let top10Movies = $derived(netflixState.movies.slice(0, 10));
 </script>

@@ -15,8 +15,8 @@
   // Route through our local proxy hook so we bypass CORS and block ads!
   let iframeSrc = $derived(
     isTvShow
-      ? `/embed?tmdb=${media?.id}&type=tv&s=${selectedSeason}&e=${selectedEpisode}`
-      : `/embed?tmdb=${media?.id}&type=movie`
+      ? `/embed?tmdb=${media?.id}&type=tv&s=${selectedSeason}&e=${selectedEpisode}&lan=eng`
+      : `/embed?tmdb=${media?.id}&type=movie&lan=eng`
   );
 
   function openFullscreen() {
@@ -72,15 +72,15 @@
 
 <!-- Main Detail Page -->
 <div
-  class="w-full h-full bg-black text-white flex flex-col font-sans overflow-y-auto no-scrollbar pb-20 relative"
+  class="w-full h-full bg-black text-white flex flex-col font-sans overflow-y-auto no-scrollbar pb-20 pt-[54px]"
 >
-  <!-- Back Button -->
+  <!-- Header (Safe Area) -->
   <div
-    class="absolute top-12 left-4 right-4 z-20 flex justify-between items-center"
+    class="flex justify-between items-center px-4 mb-4 shrink-0 pointer-events-none"
   >
     <button
       aria-label="Back"
-      class="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+      class="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors pointer-events-auto"
       onclick={() => netflixState.goBack()}
     >
       <svg
@@ -95,25 +95,27 @@
         stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg
       >
     </button>
-    <button
-      aria-label="Cast"
-      class="w-8 h-8 flex items-center justify-center text-white bg-black/40 rounded-full backdrop-blur-md"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        ><rect width="20" height="15" x="2" y="7" rx="2" ry="2" /><path
-          d="M17 7V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2"
-        /></svg
+    {#if !isPlaying}
+      <button
+        aria-label="Cast"
+        class="w-8 h-8 flex items-center justify-center text-white bg-black/40 rounded-full backdrop-blur-md pointer-events-auto"
       >
-    </button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><rect width="20" height="15" x="2" y="7" rx="2" ry="2" /><path
+            d="M17 7V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2"
+          /></svg
+        >
+      </button>
+    {/if}
   </div>
 
   {#if media}
@@ -132,54 +134,6 @@
           ></iframe>
         {/key}
 
-        <!-- Overlay Controls -->
-        <div class="absolute top-2 right-2 z-10 flex gap-1.5">
-          <!-- Fullscreen -->
-          <button
-            class="text-white bg-black/70 rounded-full p-1.5 hover:bg-black/95 transition-colors"
-            onclick={openFullscreen}
-            aria-label="Fullscreen"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              width="16"
-              height="16"
-            >
-              <path
-                d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
-              />
-            </svg>
-          </button>
-          <!-- Close -->
-          <button
-            class="text-white bg-black/70 rounded-full p-1.5 hover:bg-black/95 transition-colors"
-            onclick={closePlayer}
-            aria-label="Close"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              width="16"
-              height="16"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" /><line
-                x1="6"
-                y1="6"
-                x2="18"
-                y2="18"
-              />
-            </svg>
-          </button>
-        </div>
       </div>
     {:else}
       <!-- Hero Thumbnail / Play trigger -->
