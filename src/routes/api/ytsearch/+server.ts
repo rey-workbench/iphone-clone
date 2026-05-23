@@ -1,4 +1,5 @@
 import { json } from '@sveltejs/kit';
+import { apiHandler, ApiError } from '$lib/server/api';
 import YTMusic from 'ytmusic-api';
 
 const ytmusic = new YTMusic();
@@ -138,8 +139,8 @@ async function handleSearchOrBrowse(query: string | null, action: string | null)
 // Main Endpoint Router
 // ==========================================
 
-export async function GET({ url }) {
-    try {
+export function GET({ url }) {
+    return apiHandler(async () => {
         await ensureInitialized();
 
         const query = url.searchParams.get('q');
@@ -163,8 +164,6 @@ export async function GET({ url }) {
                 return await handleSearchOrBrowse(query, action);
         }
 
-        return json({ error: 'Invalid request or missing query parameters' }, { status: 400 });
-    } catch (e) {
-        return json({ error: String(e) }, { status: 500 });
-    }
+        throw new ApiError(400, 'Invalid request or missing query parameters');
+    });
 }

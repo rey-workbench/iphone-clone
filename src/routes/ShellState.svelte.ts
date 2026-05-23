@@ -1,20 +1,20 @@
-import { get } from 'svelte/store';
-import { activeApp } from '$lib/stores';
+import { systemState } from '$lib/states';
 
 export class ShellState {
-  currentPage = $state(0);
+  showPlayer = $state(false);
   showLockScreen = $state(true);
   lockScreenY = $state(0);
   isDragging = $state(false);
   startY = $state(0);
   appTransition = $state(false);
+  currentPage = $state(0);
 
   closeApp() {
     this.appTransition = true;
     setTimeout(() => {
-      activeApp.set(null);
+      systemState.activeApp = null;
       this.appTransition = false;
-    }, 280);
+    }, 300);
   }
 
   handleLockTouchStart(e: TouchEvent) {

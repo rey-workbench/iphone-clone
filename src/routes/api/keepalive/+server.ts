@@ -1,25 +1,17 @@
-import { json } from '@sveltejs/kit';
-import { supabase } from '$lib/supabase';
+import { supabase } from '$lib/config/supabase';
+import { apiHandler, ApiError } from '$lib/server/api';
 
-export async function GET() {
-    try {
-        // Ping database: insert a temp row
-        const { error: insertError } = await supabase
+export function GET() {
+    return apiHandler(async () => {
+        const { error: upsertError } = await supabase
             .from('temp')
-            .insert([{ note: 'keepalive ping', pinged_at: new Date().toISOString() }]);
+            .upsert([{ id: 1, note: 'keepalive ping', pinged_at: new Date().toISOString() }]);
         
-        if (insertError) {
-            console.error('Keepalive insert error:', insertError);
-            return json({ success: false, error: insertError.message }, { status: 500 });
+        if (upsertError) {
+            console.error('Keepalive upsert error:', upsertError);
+            throw new ApiError(500, upsertError.message);
         }
 
-        // Cleanup old pings (Optional, but good to avoid infinite growth)
-        // E.g. delete records older than 1 day
-        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        await supabase.from('temp').delete().lt('pinged_at', oneDayAgo);
-
-        return json({ success: true, timestamp: new Date().toISOString() });
-    } catch (e: any) {
-        return json({ success: false, error: e.message }, { status: 500 });
-    }
+        return { timestamp: new Date().toISOString(), status: 'Database is alive & cleaned' };
+    });
 }

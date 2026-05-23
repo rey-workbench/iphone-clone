@@ -2,8 +2,8 @@
   import StatusBar from "$lib/ui/components/StatusBar.svelte";
   import AppIcon from "$lib/ui/components/AppIcon.svelte";
   import Dock from "$lib/ui/components/Dock.svelte";
-  import { activeApp, currentTime, currentUser } from "$lib/stores";
-  import { homeScreenApps } from "$lib/types";
+  import { systemState } from "$lib/states";
+  import { homeScreenApps } from "$lib/config/apps";
   import LoginScreen from "$lib/ui/components/LoginScreen.svelte";
 
   import CalculatorApp from "$lib/apps/Calculator/CalculatorApp.svelte";
@@ -43,7 +43,7 @@
   const state = new ShellState();
 
   let CurrentAppComponent = $derived(
-    $activeApp ? appComponents[$activeApp] : null,
+    systemState.activeApp ? appComponents[systemState.activeApp] : null,
   );
 </script>
 
@@ -62,7 +62,7 @@
       class="absolute top-0 left-1/2 -translate-x-1/2 w-[160px] h-[32px] bg-black rounded-b-[24px] z-400"
     ></div>
 
-    {#if !$currentUser}
+    {#if !systemState.currentUser}
       <LoginScreen />
     {:else if state.showLockScreen}
       <!-- Lock Screen -->
@@ -87,12 +87,12 @@
           <StatusBar />
           <div class="text-center" style="margin-top: 110px;">
             <div class="text-lg font-medium text-white/85 tracking-wide">
-              {state.formatDate($currentTime)}
+              {state.formatDate(systemState.currentTime)}
             </div>
             <div
               class="text-[82px] font-bold text-white leading-none mt-1 tracking-[-2px]"
             >
-              {state.formatLockTime($currentTime)}
+              {state.formatLockTime(systemState.currentTime)}
             </div>
           </div>
           <div
@@ -106,13 +106,13 @@
       <!-- Music App (Always mounted to keep music playing in background) -->
       <div
         class="absolute inset-0 bg-black flex-col {state.appTransition &&
-        $activeApp === 'music'
+        systemState.activeApp === 'music'
           ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]'
-          : $activeApp === 'music' && !state.appTransition
+          : systemState.activeApp === 'music' && !state.appTransition
             ? 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]'
             : ''}"
-        style="display: {$activeApp === 'music' ||
-        (state.appTransition && $activeApp === 'music')
+        style="display: {systemState.activeApp === 'music' ||
+        (state.appTransition && systemState.activeApp === 'music')
           ? 'flex'
           : 'none'}; z-index: 50;"
       >
@@ -134,7 +134,7 @@
         ></button>
       </div>
 
-      {#if CurrentAppComponent && $activeApp !== "music"}
+      {#if CurrentAppComponent && systemState.activeApp !== "music"}
         <!-- Other Active App -->
         <div
           class="absolute inset-0 z-50 bg-black flex flex-col {state.appTransition
@@ -160,7 +160,7 @@
         </div>
       {/if}
 
-      {#if !$activeApp || state.appTransition}
+      {#if !systemState.activeApp || state.appTransition}
         <!-- Home Screen -->
         <div class="absolute inset-0 flex flex-col animate-[fadeIn_0.4s_ease]">
           <!-- Wallpaper -->

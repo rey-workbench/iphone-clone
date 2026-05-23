@@ -1,9 +1,10 @@
 import { Smartphone } from '@lucide/svelte';
-
-export type TabId = 'today' | 'games' | 'apps' | 'search';
+import { fetchWithCache } from '$lib/utils/fetchWithCache';
+import { ApiConfig } from '$lib/config/api';
+import type { AppStoreTabId } from '$lib/types';
 
 export class AppStoreState {
-    tab = $state<TabId>('today');
+    tab = $state<AppStoreTabId>('today');
     featured: any[] = $state([]);
     topApps: any[] = $state([]);
     loading = $state(true);
@@ -13,9 +14,8 @@ export class AppStoreState {
     async init() {
         this.loading = true;
         try {
-            const res = await fetch('https://dummyjson.com/products?limit=11&skip=10');
-            if (res.ok) {
-                const data = await res.json();
+            const data = await fetchWithCache(ApiConfig.getAppStoreProducts());
+            if (data) {
                 const products = data.products;
                 
                 this.featured = products.slice(0, 3).map((p: any) => ({

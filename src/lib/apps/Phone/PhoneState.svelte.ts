@@ -1,7 +1,7 @@
-export type TabId = 'favorites' | 'recents' | 'contacts' | 'keypad' | 'voicemail';
+import type { PhoneTabId } from '$lib/types';
 
 export class PhoneState {
-    tab = $state<TabId>('keypad');
+    tab = $state<PhoneTabId>('keypad');
     dialNumber = $state('');
 
     recents = [

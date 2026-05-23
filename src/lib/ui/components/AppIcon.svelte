@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { AppConfig } from '$lib/types';
-  import { implementedApps } from '$lib/types';
-  import { activeApp } from '$lib/stores';
+  import { implementedApps } from '$lib/config/apps';
+  import { systemState } from '$lib/states';
 
   let { app }: { app: AppConfig } = $props();
 
   function openApp() {
     if (implementedApps.has(app.id)) {
-      $activeApp = app.id;
+      systemState.activeApp = app.id;
     }
   }
 </script>

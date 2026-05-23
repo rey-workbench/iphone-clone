@@ -15,13 +15,13 @@
   }}
 >
   <img
-    src={state.current.art}
-    alt={state.current.name}
+    src={state.current?.art || state.current?.thumbnails?.[0]?.url}
+    alt={state.current?.name}
     class="w-11 h-11 rounded-md object-cover shadow-sm"
   />
   <div class="flex-1 min-w-0">
-    <div class="text-[15px] truncate font-medium">{state.current.name}</div>
-    <div class="text-[12px] text-white/60 truncate">{state.current.artist}</div>
+    <div class="text-[15px] truncate font-medium">{state.current?.name}</div>
+    <div class="text-[12px] text-white/60 truncate">{state.current?.artist}</div>
   </div>
   <button
     class="bg-transparent border-none cursor-pointer text-white w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform"

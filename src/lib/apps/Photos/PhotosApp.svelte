@@ -1,37 +1,26 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { ChevronLeft, Image, Heart, Folder, Search, Loader2 } from '@lucide/svelte';
-  let selectedPhoto: any | null = $state(null);
-  let tab: 'library' | 'foryou' | 'albums' | 'search' = $state('library');
+  import { AppPhotosState } from './PhotosState.svelte';
 
-  let photos: any[] = $state([]);
-  let loading = $state(true);
+  const state = new AppPhotosState();
 
-  onMount(async () => {
-    try {
-      const res = await fetch('https://picsum.photos/v2/list?page=1&limit=30');
-      if (res.ok) {
-        photos = await res.json();
-      }
-    } catch(e) {
-      console.error(e);
-    } finally {
-      loading = false;
-    }
+  onMount(() => {
+    state.fetchPhotos();
   });
 </script>
 
 <div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">
-  {#if selectedPhoto}
+  {#if state.selectedPhoto}
     <div class="flex-1 flex flex-col">
       <div class="flex items-center px-4 py-2 border-b border-ios-sep">
-        <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center" onclick={() => selectedPhoto = null}>
+        <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center" onclick={() => state.closePhoto()}>
           <ChevronLeft size={20} class="mr-1" /> Photos
         </button>
       </div>
       <div class="flex-1 flex flex-col items-center justify-center bg-black p-4 gap-2">
-        <img src={selectedPhoto.download_url} alt="Full view" class="max-w-full max-h-full rounded-xl object-contain" />
-        <div class="text-white text-sm opacity-50">Photo by {selectedPhoto.author}</div>
+        <img src={state.selectedPhoto.download_url} alt="Full view" class="max-w-full max-h-full rounded-xl object-contain" />
+        <div class="text-white text-sm opacity-50">Photo by {state.selectedPhoto.author}</div>
       </div>
     </div>
   {:else}
@@ -39,12 +28,12 @@
       <div class="px-4 pt-2 pb-3">
         <h1 class="text-[34px] font-bold text-white">Library</h1>
       </div>
-      {#if loading}
+      {#if state.loading}
         <div class="flex justify-center py-10"><Loader2 class="animate-spin text-ios-label2" /></div>
       {:else}
         <div class="grid grid-cols-3 gap-0.5 px-0.5">
-          {#each photos as photo}
-            <button class="aspect-square overflow-hidden border-none p-0 cursor-pointer bg-ios-bg3" onclick={() => selectedPhoto = photo}>
+          {#each state.photos as photo}
+            <button class="aspect-square overflow-hidden border-none p-0 cursor-pointer bg-ios-bg3" onclick={() => state.selectPhoto(photo)}>
               <img src={photo.download_url} alt="" class="w-full h-full object-cover" loading="lazy" />
             </button>
           {/each}
@@ -58,8 +47,8 @@
         { id: 'albums', icon: Folder, label: 'Albums' },
         { id: 'search', icon: Search, label: 'Search' }
       ] as { id, icon: IconComponent, label }}
-        <button class="flex-1 flex flex-col items-center gap-0.5 border-none bg-transparent cursor-pointer py-1 {tab === id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => tab = id as typeof tab}>
-          <IconComponent size={22} color={tab === id ? '#007AFF' : '#8E8E93'} />
+        <button class="flex-1 flex flex-col items-center gap-0.5 border-none bg-transparent cursor-pointer py-1 {state.tab === id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => state.setTab(id as any)}>
+          <IconComponent size={22} color={state.tab === id ? '#007AFF' : '#8E8E93'} />
           <span class="text-[10px] font-medium">{label}</span>
         </button>
       {/each}

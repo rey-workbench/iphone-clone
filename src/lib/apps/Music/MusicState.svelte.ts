@@ -1,7 +1,11 @@
+import { ApiConfig } from "$lib/config/api";
+import { fetchWithCache } from "$lib/utils/fetchWithCache";
+import { MusicItemType, type IMusicTrack, MusicAction } from "$lib/types/music";
+
 export class MusicState {
     activeTab = $state("listen_now");
     searchQuery = $state("");
-    searchResults = $state<any[]>([]);
+    searchResults = $state<IMusicTrack[]>([]);
     searchSuggestions = $state<string[]>([]);
     isSearching = $state(false);
     
@@ -14,13 +18,13 @@ export class MusicState {
     
     lyricsCache = new Map<string, { rawText: string, isSynced: boolean, parsed: any[] }>();
     
-    current = $state<any>(null);
+    current = $state<IMusicTrack | null>(null);
     player = $state<any>(null);
     isPlaying = $state(false);
     progress = $state(0);
     isReady = $state(false);
     showPlayer = $state(false);
-    tracks = $state<any[]>([]);
+    tracks = $state<IMusicTrack[]>([]);
     volume = $state(60);
     
     progressInterval: any;
@@ -99,9 +103,8 @@ export class MusicState {
     async fetchTab(action: string) {
         this.tracks = [];
         try {
-            const r = await fetch(`/api/ytsearch${action ? "?action=" + action : ""}`);
-            const d = await r.json();
-            if (d.results) this.tracks = d.results;
+            const r = await fetchWithCache(ApiConfig.getMusicSearch({ action: action as MusicAction }));
+            if (r && r.results) this.tracks = r.results;
         } catch {
             this.tracks = [];
         }
@@ -112,9 +115,8 @@ export class MusicState {
         this.isSearching = true;
         this.searchSuggestions = [];
         try {
-            const r = await fetch(`/api/ytsearch?q=${encodeURIComponent(this.searchQuery)}`);
-            const d = await r.json();
-            if (d.results) this.searchResults = d.results;
+            const r = await fetchWithCache(ApiConfig.getMusicSearch({ q: this.searchQuery }));
+            if (r && r.results) this.searchResults = r.results;
         } catch {
             this.searchResults = [];
         }
@@ -126,9 +128,8 @@ export class MusicState {
             clearTimeout(this.searchTimeout);
             this.searchTimeout = setTimeout(async () => {
                 try {
-                    const r = await fetch(`/api/ytsearch?action=suggestions&q=${encodeURIComponent(this.searchQuery)}`);
-                    const d = await r.json();
-                    if (d.results) this.searchSuggestions = d.results;
+                    const r = await fetchWithCache(ApiConfig.getMusicSearch({ action: MusicAction.SUGGESTIONS, q: this.searchQuery }));
+                    if (r && r.results) this.searchSuggestions = r.results;
                 } catch {}
             }, 300);
         } else {
@@ -136,13 +137,12 @@ export class MusicState {
         }
     }
 
-    async play(t: any) {
-        if (t.type === "PLAYLIST" || t.type === "ALBUM" || t.type === "ARTIST") {
+    async play(t: IMusicTrack) {
+        if (t.type === MusicItemType.PLAYLIST || t.type === MusicItemType.ALBUM || t.type === MusicItemType.ARTIST) {
             try {
-                const r = await fetch(`/api/ytsearch?action=playlist_tracks&q=${t.id}&type=${t.type}`);
-                const d = await r.json();
-                if (d.results && d.results.length > 0) {
-                    this.tracks = d.results;
+                const r = await fetchWithCache(ApiConfig.getMusicSearch({ action: MusicAction.PLAYLIST_TRACKS, q: t.id, type: t.type }));
+                if (r && r.results && r.results.length > 0) {
+                    this.tracks = r.results;
                     this.current = this.tracks[0];
                     this.playTrack(this.current);
                 }
@@ -155,21 +155,23 @@ export class MusicState {
         this.current = t;
         this.playTrack(this.current);
         
-        const inQueue = this.tracks.find((track: any) => track.id === t.id);
+        const inQueue = this.tracks.find((track: IMusicTrack) => track.id === t.id);
         if (!inQueue) {
             this.tracks = [this.current];
             this.fetchUpNext();
         }
     }
 
-    playTrack(t: any) {
+    playTrack(t: IMusicTrack) {
+        if (!t.videoId) return;
+        this.current = t;
         if (!this.player || typeof this.player.loadVideoById !== "function") return;
         this.showPlayer = true;
         this.showLyrics = false;
         this.lyricsText = "";
         
         if (this.player && typeof this.player.loadVideoById === "function") {
-            this.player.loadVideoById(t.id);
+            this.player.loadVideoById(t.videoId);
             this.player.playVideo();
         } else {
             setTimeout(() => {
@@ -189,8 +191,8 @@ export class MusicState {
 
     playNext(dir: number) {
         if (!this.current || this.tracks.length === 0) return;
-        
-        const idx = this.tracks.findIndex((t: any) => t.id === this.current.id);
+        if (!this.current) return;
+        const idx = this.tracks.findIndex((t: IMusicTrack) => t.id === this.current?.id);
         if (idx === -1) {
             // Jika track saat ini tidak ada di daftar tracks (misal karena diganti hasil fetchUpNext)
             const nextIdx = dir > 0 ? 0 : this.tracks.length - 1;
@@ -206,10 +208,9 @@ export class MusicState {
     async fetchUpNext() {
         if (!this.current) return;
         try {
-            const r = await fetch(`/api/ytsearch?action=upnext&q=${this.current.id}`);
-            const d = await r.json();
-            if (d.results && d.results.length > 0) {
-                this.tracks = d.results;
+            const r = await fetchWithCache(ApiConfig.getMusicSearch({ action: MusicAction.UPNEXT, q: this.current.id }));
+            if (r && r.results && r.results.length > 0) {
+                this.tracks = r.results;
             }
         } catch (e) {
             console.error(e);
@@ -222,8 +223,13 @@ export class MusicState {
         if (this.lyricsCache.has(songId)) return;
         
         try {
-            const r = await fetch(`/api/ytsearch?action=lyrics&q=${songId}&title=${encodeURIComponent(song.name)}&artist=${encodeURIComponent(song.artist)}&duration=${song.duration || 0}`);
-            const d = await r.json();
+            const d = await fetchWithCache(ApiConfig.getMusicSearch({ 
+                action: MusicAction.LYRICS, 
+                q: songId, 
+                title: song.name, 
+                artist: song.artist, 
+                duration: song.duration || 0 
+            }));
             
             let rawText = "";
             if (d.results && Array.isArray(d.results)) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { MusicState } from "./MusicState.svelte";
   import MusicPlayer from "./components/MusicPlayer.svelte";
   import MusicLibrary from "./components/MusicLibrary.svelte";
@@ -29,20 +29,29 @@
   });
 
   $effect(() => {
-    if (state.activeTab === "listen_now") state.fetchTab("");
-    else if (state.activeTab === "browse") state.fetchTab("browse");
-    else if (state.activeTab === "radio") state.fetchTab("radio");
-    else if (state.activeTab === "library") state.fetchTab("library");
+    const tab = state.activeTab;
+    untrack(() => {
+      if (tab === "listen_now") state.fetchTab("");
+      else if (tab === "browse") state.fetchTab("browse");
+      else if (tab === "radio") state.fetchTab("radio");
+      else if (tab === "library") state.fetchTab("library");
+    });
   });
 
   $effect(() => {
-    if (state.current && !state.lyricsCache.has(state.current.id)) {
-      state.backgroundFetchLyrics(state.current);
-    }
+    const current = state.current;
+    untrack(() => {
+      if (current && !state.lyricsCache.has(current.id)) {
+        state.backgroundFetchLyrics(current);
+      }
+    });
   });
 
   $effect(() => {
-    state.handleSearchInput();
+    const q = state.searchQuery;
+    untrack(() => {
+      state.handleSearchInput();
+    });
   });
 </script>
 
@@ -62,5 +71,5 @@
   {/if}
 
   <!-- HIDDEN YOUTUBE PLAYER -->
-  <div id="youtube-player" class="hidden"></div>
+  <div id="youtube-player" class="absolute opacity-0 pointer-events-none w-0 h-0"></div>
 </div>

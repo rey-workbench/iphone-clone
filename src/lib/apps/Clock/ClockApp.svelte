@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { clockState } from '$lib/stores';
+  import { clockState } from '$lib/states';
   import { Globe, AlarmClock, Timer, Hourglass } from '@lucide/svelte';
 
   let tab: 'worldClock' | 'alarm' | 'stopwatch' | 'timer' = $state('worldClock');
@@ -19,7 +19,7 @@
     { city: 'Sydney', offset: 11, label: 'Tomorrow, +15HRS' },
   ];
 
-  let alarms = $derived($clockState.alarms);
+  let alarms = $derived(clockState.alarms);
 
   function getTime(offset: number) {
     const d = new Date(), utc = d.getTime() + d.getTimezoneOffset() * 60000;
@@ -42,7 +42,7 @@
   }
   function resetTimer() { timerRunning = false; if (timerInt) clearInterval(timerInt); timerSec = 300; }
 
-  function toggleAlarm(id: string) { clockState.update(s => { const a = s.alarms.find(a => a.id === id); if (a) a.enabled = !a.enabled; return s; }); }
+  function toggleAlarm(id: string) { clockState.toggleAlarm(id); }
 
   onDestroy(() => { if (swInt) clearInterval(swInt); if (timerInt) clearInterval(timerInt); });
 

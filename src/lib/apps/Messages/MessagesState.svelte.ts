@@ -1,8 +1,9 @@
 import { Bot } from '@lucide/svelte';
-import { supabase } from '$lib/supabase';
-import { currentUser } from '$lib/stores/systemStore';
-import { get } from 'svelte/store';
-import { getSetting, setSetting } from '$lib/localdb';
+import { supabase } from '$lib/config/supabase';
+import { systemState } from '$lib/states';
+import { getSetting, setSetting } from '$lib/config/localdb';
+import { fetchWithCache } from '$lib/utils/fetchWithCache';
+import { ApiConfig } from '$lib/config/api';
 
 export class MessagesState {
     messages = $state<any[]>([]);
@@ -29,7 +30,7 @@ export class MessagesState {
     }
 
     async loadMessages() {
-        const user = get(currentUser);
+        const user = systemState.currentUser;
         if (!user || !this.currentChatId) return;
 
         if (this.currentChatId === 'ai-bot') {
@@ -78,7 +79,7 @@ export class MessagesState {
 
     async send() {
         if (!this.inputText.trim() || !this.currentChatId) return;
-        const user = get(currentUser);
+        const user = systemState.currentUser;
         if (!user) return;
 
         const prompt = this.inputText; 
@@ -98,7 +99,7 @@ export class MessagesState {
                 content: m.content
             }));
 
-            fetch('https://free.oaibest.com/api/openai/v1/chat/completions', {
+            fetch(ApiConfig.CHAT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -111,7 +112,7 @@ export class MessagesState {
                     top_p: 1
                 })
             })
-            .then(r => r.json())
+            .then(res => res.json())
             .then(async data => { 
                 this.isTyping = false; 
                 let aiText = "Sorry, couldn't get a response.";

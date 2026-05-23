@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { settingsState } from '$lib/stores';
+  import { settingsState } from '$lib/states';
   import { ChevronRight } from '@lucide/svelte';
   import { AppSettingsState } from './SettingsState.svelte';
 
   const state = new AppSettingsState();
-  let toggleItems = $derived(state.getToggleItems($settingsState));
+  let toggleItems = $derived(state.getToggleItems(settingsState));
 </script>
 
 <div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">

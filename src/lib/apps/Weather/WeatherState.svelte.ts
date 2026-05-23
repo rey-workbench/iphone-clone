@@ -1,12 +1,15 @@
 import { Sun, CloudSun, Cloud, CloudRain, Moon } from '@lucide/svelte';
+import { fetchWithCache } from '$lib/utils/fetchWithCache';
+import { ApiConfig } from '$lib/config/api';
+import type { WeatherData, WeatherRange, WeatherHourly, WeatherDaily, WeatherTile } from '$lib/types';
 
 export class WeatherState {
     loading = $state(true);
-    w = $state({
+    w = $state<WeatherData>({
         city: 'San Francisco', temp: 18, condition: 'Partly Cloudy', high: 21, low: 13,
-        hourly: [] as any[], daily: [] as any[], tiles: [] as any[]
+        hourly: [], daily: [], tiles: []
     });
-    wRange = $state({ min: 8, range: 17 });
+    wRange = $state<WeatherRange>({ min: 8, range: 17 });
 
     constructor() {}
 
@@ -17,27 +20,25 @@ export class WeatherState {
             let lon = -122.4194;
             let city = 'San Francisco';
             try {
-                const geoRes = await fetch('https://ipapi.co/json/');
-                if (geoRes.ok) {
-                    const geoData = await geoRes.json();
+                const geoData = await fetchWithCache(ApiConfig.WEATHER_IP);
+                if (geoData) {
                     lat = geoData.latitude;
                     lon = geoData.longitude;
                     city = geoData.city;
                 }
             } catch (e) { console.warn('Geolocation failed', e); }
 
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,relative_humidity_2m,surface_pressure,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto`);
-            if (res.ok) {
-                const data = await res.json();
+            const data = await fetchWithCache(ApiConfig.getWeatherForecast(lat, lon));
+            if (data) {
                 
-                let hourly = [];
+                let hourly: WeatherHourly[] = [];
                 for (let i = 0; i < 8; i++) {
                     const timeStr = i === 0 ? 'Now' : new Date(data.hourly.time[i]).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }).replace(' ', '');
                     const isNight = new Date(data.hourly.time[i]).getHours() < 6 || new Date(data.hourly.time[i]).getHours() > 18;
                     hourly.push({ time: timeStr, temp: Math.round(data.hourly.temperature_2m[i]), icon: this.getIcon(data.hourly.weather_code[i], isNight) });
                 }
 
-                let daily = [];
+                let daily: WeatherDaily[] = [];
                 for (let i = 0; i < 7; i++) {
                     const dateObj = new Date(data.daily.time[i]);
                     const dayStr = i === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });

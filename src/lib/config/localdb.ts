@@ -34,12 +34,8 @@ export async function initLocalDB() {
     db= new SQL.Database(savedData);
   } else {
     db = new SQL.Database();
-    db.run(`
+    db!.run(`
       CREATE TABLE IF NOT EXISTS settings (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL
-      );
-      CREATE TABLE IF NOT EXISTS clocks (
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       );
@@ -68,23 +64,6 @@ export async function getSetting(key: string, defaultValue: any) {
   const d = await initLocalDB();
   if (!d) return defaultValue;
   const res = d.exec('SELECT value FROM settings WHERE key = ?', [key]);
-  if (res.length > 0 && res[0].values.length > 0) {
-    return JSON.parse(res[0].values[0][0] as string);
-  }
-  return defaultValue;
-}
-
-export async function setClockState(key: string, value: any) {
-  const d = await initLocalDB();
-  if (!d) return;
-  d.run('INSERT OR REPLACE INTO clocks (key, value) VALUES (?, ?)', [key, JSON.stringify(value)]);
-  await saveLocalDB();
-}
-
-export async function getClockState(key: string, defaultValue: any) {
-  const d = await initLocalDB();
-  if (!d) return defaultValue;
-  const res = d.exec('SELECT value FROM clocks WHERE key = ?', [key]);
   if (res.length > 0 && res[0].values.length > 0) {
     return JSON.parse(res[0].values[0][0] as string);
   }

@@ -1,15 +1,15 @@
-import { json } from '@sveltejs/kit';
-import { db, setupDatabase } from '$lib/server/db';
+import { db, setupDatabase } from '$lib/config/turso';
+import { apiHandler, ApiError } from '$lib/server/api';
 
-export async function POST({ request }) {
-    try {
+export function POST({ request }) {
+    return apiHandler(async () => {
         // Ensure database is setup
         await setupDatabase();
 
         const { username, password } = await request.json();
 
         if (!username || !password) {
-            return json({ success: false, error: 'Username and password required' }, { status: 400 });
+            throw new ApiError(400, 'Username and password required');
         }
 
         const result = await db.execute({
@@ -19,12 +19,9 @@ export async function POST({ request }) {
 
         if (result.rows.length > 0) {
             const user = result.rows[0];
-            return json({ success: true, user });
+            return { user };
         } else {
-            return json({ success: false, error: 'Invalid credentials' }, { status: 401 });
+            throw new ApiError(401, 'Invalid credentials');
         }
-
-    } catch (e: any) {
-        return json({ success: false, error: e.message }, { status: 500 });
-    }
+    });
 }

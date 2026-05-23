@@ -1,18 +1,17 @@
 import { json } from '@sveltejs/kit';
-import { db, setupDatabase } from '$lib/server/db';
+import { db, setupDatabase } from '$lib/config/turso';
+import { apiHandler } from '$lib/server/api';
 
-export async function GET() {
-  try {
+export function GET() {
+  return apiHandler(async () => {
     await setupDatabase();
     const result = await db.execute('SELECT * FROM notes ORDER BY date DESC');
-    return json({ success: true, notes: result.rows });
-  } catch (error) {
-    return json({ success: false, error: String(error) }, { status: 500 });
-  }
+    return { notes: result.rows };
+  });
 }
 
-export async function POST({ request }) {
-  try {
+export function POST({ request }) {
+  return apiHandler(async () => {
     const { id, title, content, date } = await request.json();
     await setupDatabase();
     
@@ -24,21 +23,17 @@ export async function POST({ request }) {
       args: [id, title, content, date]
     });
     
-    return json({ success: true });
-  } catch (error) {
-    return json({ success: false, error: String(error) }, { status: 500 });
-  }
+    return {};
+  });
 }
 
-export async function DELETE({ request }) {
-  try {
+export function DELETE({ request }) {
+  return apiHandler(async () => {
     const { id } = await request.json();
     await db.execute({
       sql: 'DELETE FROM notes WHERE id = ?',
       args: [id]
     });
-    return json({ success: true });
-  } catch (error) {
-    return json({ success: false, error: String(error) }, { status: 500 });
-  }
+    return {};
+  });
 }
