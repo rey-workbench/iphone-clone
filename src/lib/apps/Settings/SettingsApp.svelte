@@ -3,7 +3,9 @@
   import { ChevronRight } from '@lucide/svelte';
   import { AppSettingsState } from './SettingsState.svelte';
   import LinkedDevices from './LinkedDevices.svelte';
+  import { AuthState } from '$lib/states/authState.svelte';
 
+  const authState = new AuthState();
   const appState = new AppSettingsState();
   let toggleItems = $derived(appState.getToggleItems(settingsState));
   
@@ -76,6 +78,13 @@
         </button>
         {#if i < appState.settings.length - 1}<div class="h-px bg-ios-sep ml-[52px]"></div>{/if}
       {/each}
+    </div>
+    
+    <!-- Sign Out -->
+    <div class="bg-ios-bg2 rounded-xl mb-10 overflow-hidden">
+        <button class="flex items-center gap-3 py-[11px] px-4 w-full border-none bg-transparent cursor-pointer text-[#FF3B30] font-semibold justify-center text-[17px]" onclick={() => authState.logout()}>
+          Sign Out
+        </button>
     </div>
   </div>
 </div>

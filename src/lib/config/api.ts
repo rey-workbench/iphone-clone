@@ -4,7 +4,9 @@ export class ApiConfig {
     // External APIs
     static readonly WEATHER_IP = 'https://ipapi.co/json/';
     static readonly AUTH_LOGIN = '/api/auth/login';
+    static readonly AUTH_DEVICES = '/api/auth/devices';
     static readonly SYSTEM_KEEPALIVE = '/api/keepalive';
+    static readonly USERS = '/api/users';
     static readonly NOTES = '/api/notes';
     static readonly CHAT = '/api/chat';
     static readonly LLM_CHAT_COMPLETION = 'https://api.llm7.io/v1/chat/completions';
@@ -36,5 +38,38 @@ export class ApiConfig {
         
         const queryString = params.toString();
         return `/api/ytsearch${queryString ? '?' + queryString : ''}`;
+    }
+
+    // Fetch Request Configurations
+    static getRevokeDeviceRequest(userId: string | undefined, deviceId: string | undefined): RequestInit {
+        return {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, deviceId })
+        };
+    }
+
+    static getLoginRequest(username: string, password: string, deviceId: string | undefined, deviceName: string | undefined): RequestInit {
+        return {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, deviceId, deviceName })
+        };
+    }
+
+    static getNotesRequest(method: 'POST' | 'PUT' | 'DELETE', payload: any): RequestInit {
+        return {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        };
+    }
+
+    static getChatRequest(payload: any): RequestInit {
+        return {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        };
     }
 }

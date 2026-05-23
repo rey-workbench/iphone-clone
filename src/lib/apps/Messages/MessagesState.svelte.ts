@@ -124,19 +124,15 @@ export class MessagesState {
                 content: m.content
             }));
 
-            fetch(ApiConfig.CHAT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    messages: apiMessages,
-                    model: 'gpt-5.4-nano',
-                    frequency_penalty: 0,
-                    presence_penalty: 0,
-                    stream: false,
-                    temperature: 0.5,
-                    top_p: 1
-                })
-            })
+            fetch(ApiConfig.CHAT, ApiConfig.getChatRequest({
+                messages: apiMessages,
+                model: 'gpt-5.4-nano',
+                frequency_penalty: 0,
+                presence_penalty: 0,
+                stream: false,
+                temperature: 0.5,
+                top_p: 1
+            }))
             .then(res => res.json())
             .then(async data => { 
                 this.isTyping = false; 

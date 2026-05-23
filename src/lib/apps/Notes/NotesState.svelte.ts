@@ -23,26 +23,17 @@ export class NotesState {
 
   async addNote(note: Note) {
     this.notes = [note, ...this.notes];
-    await fetch(ApiConfig.NOTES, {
-      method: 'POST',
-      body: JSON.stringify(note)
-    }).catch(console.error);
+    await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('POST', note)).catch(console.error);
   }
 
   async updateNote(note: Note) {
     this.notes = this.notes.map(n => n.id === note.id ? note : n);
-    await fetch(ApiConfig.NOTES, {
-      method: 'POST',
-      body: JSON.stringify(note)
-    }).catch(console.error);
+    await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('POST', note)).catch(console.error);
   }
 
   async deleteNote(id: string) {
     this.notes = this.notes.filter(n => n.id !== id);
-    await fetch(ApiConfig.NOTES, {
-      method: 'DELETE',
-      body: JSON.stringify({ id })
-    }).catch(console.error);
+    await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('DELETE', { id })).catch(console.error);
   }
 }
 

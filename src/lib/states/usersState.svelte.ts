@@ -1,3 +1,4 @@
+import { ApiConfig } from '$lib/config/api';
 import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
 
 export class UsersState {
@@ -13,7 +14,7 @@ export class UsersState {
             }
 
             // 2. Fetch data terbaru dari server (Turso) di background
-            const res = await fetch('/api/users');
+            const res = await fetch(ApiConfig.USERS);
             if (res.ok) {
                 const data = await res.json();
                 if (data.users) {

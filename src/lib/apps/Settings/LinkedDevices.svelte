@@ -3,6 +3,7 @@
   import { systemState } from "$lib/states/systemState.svelte";
   import { webrtcState } from "$lib/states/webrtcState.svelte";
   import { onMount } from "svelte";
+  import { ApiConfig } from "$lib/config/api";
 
   let { onBack } = $props<{ onBack: () => void }>();
 
@@ -17,7 +18,7 @@
     isLoading = true;
     try {
       const res = await fetch(
-        `/api/auth/devices?userId=${systemState.currentUser?.id}`,
+        `${ApiConfig.AUTH_DEVICES}?userId=${systemState.currentUser?.id}`,
       );
       const data = await res.json();
       if (data.devices) {
@@ -35,11 +36,13 @@
       // Optimitic update
       devices = devices.filter((d) => d.device_id !== deviceId);
 
-      await fetch("/api/auth/devices", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: systemState.currentUser?.id, deviceId }),
-      });
+      await fetch(
+        ApiConfig.AUTH_DEVICES, 
+        ApiConfig.getRevokeDeviceRequest(
+          systemState.currentUser?.id, 
+          deviceId
+        )
+      );
 
       // Send force_logout broadcast so the other tab logs out immediately
       webrtcState.sendSignal(
