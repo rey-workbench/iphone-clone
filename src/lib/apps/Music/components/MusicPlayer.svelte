@@ -246,14 +246,30 @@
 
     <!-- Bottom Actions -->
     <div class="flex items-center justify-evenly text-white/70 px-4 mt-2 mb-2">
-      <button
-        class="bg-transparent border-none cursor-pointer {state.showLyrics
-          ? 'text-ios-pink'
-          : 'text-current hover:text-white'}"
-        onclick={() => state.fetchLyrics()}
-      >
-        <MessageSquareQuote size={20} />
-      </button>
+      <div class="flex items-center gap-2">
+        {#if state.showLyrics && state.isSynced}
+          <button
+            class="text-[10px] font-bold border border-white/20 px-2 py-1 rounded bg-black/20 hover:bg-white/10 text-white/70 transition-colors"
+            onclick={() => state.adjustLyricsOffset(-0.5)}
+            title="Mundurkan lirik 0.5 detik"
+          >-0.5s</button>
+        {/if}
+        <button
+          class="bg-transparent border-none cursor-pointer {state.showLyrics
+            ? 'text-ios-pink'
+            : 'text-current hover:text-white'}"
+          onclick={() => state.fetchLyrics()}
+        >
+          <MessageSquareQuote size={20} />
+        </button>
+        {#if state.showLyrics && state.isSynced}
+          <button
+            class="text-[10px] font-bold border border-white/20 px-2 py-1 rounded bg-black/20 hover:bg-white/10 text-white/70 transition-colors"
+            onclick={() => state.adjustLyricsOffset(0.5)}
+            title="Majukan lirik 0.5 detik"
+          >+0.5s</button>
+        {/if}
+      </div>
       <button
         class="bg-transparent border-none text-current cursor-pointer hover:text-white"
         ><Airplay size={20} /></button

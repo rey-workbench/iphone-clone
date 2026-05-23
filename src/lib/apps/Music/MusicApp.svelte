@@ -56,6 +56,9 @@
 </script>
 
 <div class="h-full bg-black flex flex-col relative overflow-hidden">
+  <!-- HIDDEN YOUTUBE PLAYER -->
+  <div id="youtube-player" class="absolute opacity-0 pointer-events-none w-0 h-0"></div>
+
   {#if state.showPlayer && state.current}
     <MusicPlayer {state} />
   {:else}
@@ -69,7 +72,4 @@
   {#if !state.showPlayer}
     <MusicBottomNav {state} />
   {/if}
-
-  <!-- HIDDEN YOUTUBE PLAYER -->
-  <div id="youtube-player" class="absolute opacity-0 pointer-events-none w-0 h-0"></div>
 </div>

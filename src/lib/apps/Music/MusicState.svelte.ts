@@ -15,7 +15,7 @@ export class MusicState {
     isSynced = $state(false);
     isFetchingLyrics = $state(false);
     
-    lyricsCache = new Map<string, { rawText: string, isSynced: boolean, parsed: any[] }>();
+    lyricsCache = new Map<string, { rawText: string, isSynced: boolean, parsed: any[], offset?: number }>();
     
     current = $state<IMusicTrack | null>(null);
     player = $state<any>(null);
@@ -282,7 +282,18 @@ export class MusicState {
         }
     }
 
-    parseLRC(lrc: string) {
+    adjustLyricsOffset(delta: number) {
+        if (!this.current || !this.lyricsCache.has(this.current.id)) return;
+        const cached = this.lyricsCache.get(this.current.id);
+        if (cached && cached.isSynced) {
+            cached.offset = (cached.offset || 0) + delta;
+            // Reparse with new offset
+            cached.parsed = this.parseLRC(cached.rawText, cached.offset);
+            this.parsedLyrics = cached.parsed;
+        }
+    }
+
+    parseLRC(lrc: string, offset: number = 0) {
         const lines = lrc.split("\n");
         const parsed = [];
         const timeReg = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
@@ -292,8 +303,8 @@ export class MusicState {
                 const min = parseFloat(match[1]);
                 const sec = parseFloat(match[2]);
                 const fraction = parseFloat("0." + match[3]);
-                // Highlight lyrics 400ms early so it feels synced/anticipates the beat, rather than delayed
-                const time = min * 60 + sec + fraction - 0.4;
+                // Highlight lyrics 400ms early (+ user offset) so it feels synced/anticipates the beat
+                const time = min * 60 + sec + fraction - 0.4 + offset;
                 const text = line.replace(timeReg, "").trim();
                 parsed.push({ time, text });
             }
