@@ -1,4 +1,3 @@
-import { fetchWithCache } from '$lib/utils/fetchWithCache';
 import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
 import type { Email } from '$lib/types';
@@ -21,7 +20,7 @@ export class AppMailState {
       }
 
       // 2. Fetch terbaru di background
-      const data = await fetchWithCache(ApiConfig.getMailComments());
+      const data = await ApiConfig.fetchMailComments();
       if (data) {
         const mapped = data.map((item: any, i: number) => ({
           id: String(item.id),

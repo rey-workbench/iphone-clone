@@ -1,5 +1,4 @@
 import { Sun, CloudSun, Cloud, CloudRain, Moon } from '@lucide/svelte';
-import { fetchWithCache } from '$lib/utils/fetchWithCache';
 import { ApiConfig } from '$lib/config/api';
 import type { WeatherData, WeatherRange, WeatherHourly, WeatherDaily, WeatherTile } from '$lib/types';
 
@@ -20,7 +19,7 @@ export class WeatherState {
             let lon = -122.4194;
             let city = 'San Francisco';
             try {
-                const geoData = await fetchWithCache(ApiConfig.WEATHER_IP);
+                const geoData = await ApiConfig.fetchWeatherIP();
                 if (geoData) {
                     lat = geoData.latitude;
                     lon = geoData.longitude;
@@ -28,7 +27,7 @@ export class WeatherState {
                 }
             } catch (e) { console.warn('Geolocation failed', e); }
 
-            const data = await fetchWithCache(ApiConfig.getWeatherForecast(lat, lon));
+            const data = await ApiConfig.fetchWeatherForecast(lat, lon);
             if (data) {
                 
                 let hourly: WeatherHourly[] = [];

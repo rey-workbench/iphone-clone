@@ -1,4 +1,3 @@
-import { fetchWithCache } from '$lib/utils/fetchWithCache';
 import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
 
@@ -21,7 +20,7 @@ export class AppPhotosState {
       }
 
       // 2. Fetch terbaru di background
-      const data = await fetchWithCache(ApiConfig.getPhotosList());
+      const data = await ApiConfig.fetchPhotosList();
       if (data) {
         await setSetting(LocalDBKey.PHOTOS, data);
         this.photos = data;

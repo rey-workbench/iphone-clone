@@ -1,23 +1,9 @@
 import { supabase } from '$lib/config/supabase';
 import { systemState } from '$lib/states/systemState.svelte';
 import { Permissions } from '$lib/utils/permissions';
+import { ApiConfig } from '$lib/config/api';
 
 export type CallStatus = 'idle' | 'calling' | 'incoming' | 'active';
-
-const ICE_SERVERS: RTCConfiguration = {
-    iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun.l.google.com:5349' },
-        { urls: 'stun:stun1.l.google.com:3478' },
-        { urls: 'stun:stun1.l.google.com:5349' },
-        { urls: 'stun:stun2.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:5349' },
-        { urls: 'stun:stun3.l.google.com:3478' },
-        { urls: 'stun:stun3.l.google.com:5349' },
-        { urls: 'stun:stun4.l.google.com:19302' },
-        { urls: 'stun:stun4.l.google.com:5349' }
-    ]
-};
 
 type SignalCallback = {
     onOffer: (payload: any) => void;
@@ -152,7 +138,8 @@ export class WebRTCState {
     // ============================================================================
 
     async createPeerConnection(onDisconnect: () => void): Promise<RTCPeerConnection> {
-        this.pc = new RTCPeerConnection(ICE_SERVERS);
+        const config = await ApiConfig.fetchTurnCredentials();
+        this.pc = new RTCPeerConnection(config);
 
         this.pc.onicecandidate = async (event) => {
             if (event.candidate) {

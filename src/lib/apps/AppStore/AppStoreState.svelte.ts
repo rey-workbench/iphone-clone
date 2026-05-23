@@ -1,5 +1,4 @@
 import { Smartphone } from '@lucide/svelte';
-import { fetchWithCache } from '$lib/utils/fetchWithCache';
 import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
 import type { AppStoreTabId } from '$lib/types';
@@ -23,7 +22,7 @@ export class AppStoreState {
             }
 
             // 2. Fetch terbaru di background
-            const data = await fetchWithCache(ApiConfig.getAppStoreProducts());
+            const data = await ApiConfig.fetchAppStoreProducts();
             if (data) {
                 await setSetting(LocalDBKey.APP_STORE, data);
                 this.applyData(data);

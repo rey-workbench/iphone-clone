@@ -1,5 +1,4 @@
 import { ApiConfig } from "$lib/config/api";
-import { fetchWithCache } from "$lib/utils/fetchWithCache";
 import { MusicItemType, type IMusicTrack, MusicAction } from "$lib/types/music";
 
 export class MusicState {
@@ -103,7 +102,7 @@ export class MusicState {
     async fetchTab(action: string) {
         this.tracks = [];
         try {
-            const r = await fetchWithCache(ApiConfig.getMusicSearch({ action: action as MusicAction }));
+            const r = await ApiConfig.fetchMusicSearch({ action: action as MusicAction });
             if (r && r.results) this.tracks = r.results;
         } catch {
             this.tracks = [];
@@ -115,7 +114,7 @@ export class MusicState {
         this.isSearching = true;
         this.searchSuggestions = [];
         try {
-            const r = await fetchWithCache(ApiConfig.getMusicSearch({ q: this.searchQuery }));
+            const r = await ApiConfig.fetchMusicSearch({ q: this.searchQuery });
             if (r && r.results) this.searchResults = r.results;
         } catch {
             this.searchResults = [];
@@ -128,7 +127,7 @@ export class MusicState {
             clearTimeout(this.searchTimeout);
             this.searchTimeout = setTimeout(async () => {
                 try {
-                    const r = await fetchWithCache(ApiConfig.getMusicSearch({ action: MusicAction.SUGGESTIONS, q: this.searchQuery }));
+                    const r = await ApiConfig.fetchMusicSearch({ action: MusicAction.SUGGESTIONS, q: this.searchQuery });
                     if (r && r.results) this.searchSuggestions = r.results;
                 } catch {}
             }, 300);
@@ -140,7 +139,7 @@ export class MusicState {
     async play(t: IMusicTrack) {
         if (t.type === MusicItemType.PLAYLIST || t.type === MusicItemType.ALBUM || t.type === MusicItemType.ARTIST) {
             try {
-                const r = await fetchWithCache(ApiConfig.getMusicSearch({ action: MusicAction.PLAYLIST_TRACKS, q: t.id, type: t.type }));
+                const r = await ApiConfig.fetchMusicSearch({ action: MusicAction.PLAYLIST_TRACKS, q: t.id, type: t.type });
                 if (r && r.results && r.results.length > 0) {
                     this.tracks = r.results;
                     this.current = this.tracks[0];
@@ -208,7 +207,7 @@ export class MusicState {
     async fetchUpNext() {
         if (!this.current) return;
         try {
-            const r = await fetchWithCache(ApiConfig.getMusicSearch({ action: MusicAction.UPNEXT, q: this.current.id }));
+            const r = await ApiConfig.fetchMusicSearch({ action: MusicAction.UPNEXT, q: this.current.id });
             if (r && r.results && r.results.length > 0) {
                 this.tracks = r.results;
             }
@@ -223,13 +222,13 @@ export class MusicState {
         if (this.lyricsCache.has(songId)) return;
         
         try {
-            const d = await fetchWithCache(ApiConfig.getMusicSearch({ 
+            const d = await ApiConfig.fetchMusicSearch({ 
                 action: MusicAction.LYRICS, 
                 q: songId, 
                 title: song.name, 
                 artist: song.artist, 
                 duration: song.duration || 0 
-            }));
+            });
             
             let rawText = "";
             if (d.results && Array.isArray(d.results)) {
