@@ -12,11 +12,11 @@
   let selectedSeason = $state(1);
   let selectedEpisode = $state(1);
 
-  // Route through our local proxy hook so we bypass CORS and block ads!
+  // Bypassing our proxy entirely so the browser can natively solve Cloudflare Turnstile!
   let iframeSrc = $derived(
     isTvShow
-      ? `/embed?tmdb=${media?.id}&type=tv&s=${selectedSeason}&e=${selectedEpisode}&lan=eng`
-      : `/embed?tmdb=${media?.id}&type=movie&lan=eng`
+      ? `https://screenscape.me/embed?tmdb=${media?.id}&type=tv&s=${selectedSeason}&e=${selectedEpisode}&lan=eng`
+      : `https://screenscape.me/embed?tmdb=${media?.id}&type=movie&lan=eng`
   );
 
   function openFullscreen() {
@@ -129,7 +129,8 @@
             src={iframeSrc}
             class="w-full h-full pointer-events-auto"
             frameborder="0"
-            allow="autoplay; picture-in-picture"
+            allow="autoplay; picture-in-picture; fullscreen"
+            allowfullscreen
             title="Stream Player"
           ></iframe>
         {/key}
