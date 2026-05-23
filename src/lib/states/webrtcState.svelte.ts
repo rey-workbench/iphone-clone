@@ -45,16 +45,27 @@ export class WebRTCState {
             return;
         }
 
-        this.channel = supabase.channel(`call:${user.id}`)
-            .on('broadcast', { event: 'call_offer' },     ({ payload }: any) => callbacks.onOffer(payload))
-            .on('broadcast', { event: 'call_answer' },    ({ payload }: any) => callbacks.onAnswer(payload))
-            .on('broadcast', { event: 'ice_candidate' },  ({ payload }: any) => callbacks.onIceCandidate(payload))
-            .on('broadcast', { event: 'call_end' },       () => callbacks.onEnd())
+        const handleIfForMe = (payload: any, cb: (p: any) => void) => {
+            if (payload.to === systemState.currentUser?.id) {
+                cb(payload);
+            }
+        };
+
+        this.channel = supabase.channel('global-call-signaling')
+            .on('broadcast', { event: 'call_offer' },     ({ payload }: any) => handleIfForMe(payload, callbacks.onOffer))
+            .on('broadcast', { event: 'call_answer' },    ({ payload }: any) => handleIfForMe(payload, callbacks.onAnswer))
+            .on('broadcast', { event: 'ice_candidate' },  ({ payload }: any) => handleIfForMe(payload, callbacks.onIceCandidate))
+            .on('broadcast', { event: 'call_end' },       ({ payload }: any) => handleIfForMe(payload, callbacks.onEnd))
             .subscribe();
     }
 
     async sendSignal(toUserId: string, event: string, payload: any = {}) {
-        await supabase.channel(`call:${toUserId}`).send({ type: 'broadcast', event, payload });
+        if (!this.channel) return;
+        await this.channel.send({
+            type: 'broadcast',
+            event,
+            payload: { ...payload, to: toUserId }
+        });
     }
 
     // ─── Peer Connection ──────────────────────────────────────────────────────
