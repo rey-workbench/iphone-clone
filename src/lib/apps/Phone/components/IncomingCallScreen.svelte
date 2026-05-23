@@ -16,7 +16,7 @@
 <audio bind:this={audioEl} src="/assets/ringtone/incoming-call.mp3" loop style="display:none"></audio>
 <!-- Full-screen overlay -->
 <div
-  class="absolute inset-0 z-[9999] bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"
+  class="absolute inset-0 z-9999 bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"
   style="background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);"
 >
   <!-- Top spacer -->

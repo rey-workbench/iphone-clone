@@ -82,7 +82,7 @@
     
     <!-- Sign Out -->
     <div class="bg-ios-bg2 rounded-xl mb-10 overflow-hidden">
-        <button class="flex items-center gap-3 py-[11px] px-4 w-full border-none bg-transparent cursor-pointer text-[#FF3B30] font-semibold justify-center text-[17px]" onclick={() => authState.logout()}>
+        <button class="flex items-center gap-3 py-[11px] px-4 w-full border-none bg-transparent cursor-pointer text-ios-red font-semibold justify-center text-[17px]" onclick={() => authState.logout()}>
           Sign Out
         </button>
     </div>

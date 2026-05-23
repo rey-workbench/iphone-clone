@@ -20,6 +20,7 @@
   import CameraApp from "$lib/apps/Camera/CameraApp.svelte";
   import MailApp from "$lib/apps/Mail/MailApp.svelte";
   import AppStoreApp from "$lib/apps/AppStore/AppStoreApp.svelte";
+  import NetflixApp from "$lib/apps/Netflix/NetflixApp.svelte";
 
   import { callState } from "$lib/apps/Phone/CallState.svelte";
   import IncomingCallScreen from "$lib/apps/Phone/components/IncomingCallScreen.svelte";
@@ -43,6 +44,7 @@
     camera: CameraApp,
     mail: MailApp,
     appstore: AppStoreApp,
+    netflix: NetflixApp,
   };
 
   const state = new ShellState();
@@ -53,7 +55,7 @@
 </script>
 
 <svelte:head>
-  <title>iOS 26 — SvelteKit</title>
+  <title>IPhone</title>
 </svelte:head>
 
 <div
@@ -217,13 +219,20 @@
           </div>
 
           <Dock />
-          <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100"></div>
+          <div
+            class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100"
+          ></div>
         </div>
       {/if}
     {/if}
 
     <!-- Global WebRTC Audio Element -->
-    <audio id="remote-audio" autoplay playsinline style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></audio>
+    <audio
+      id="remote-audio"
+      autoplay
+      playsinline
+      style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"
+    ></audio>
 
     <!-- Global Call Overlays (Always accessible) -->
     {#if callState.status === "incoming"}

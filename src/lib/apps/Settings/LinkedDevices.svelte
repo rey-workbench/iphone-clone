@@ -127,7 +127,7 @@
             </div>
             {#if !isCurrent}
               <button
-                class="px-3 py-1.5 rounded-full bg-[#FF3B30]/20 text-[#FF3B30] text-[14px] font-medium active:bg-[#FF3B30]/30 border-none cursor-pointer"
+                class="px-3 py-1.5 rounded-full bg-ios-red/20 text-ios-red text-[14px] font-medium active:bg-ios-red/30 border-none cursor-pointer"
                 onclick={() => revokeDevice(device.device_id)}
               >
                 Log Out
