@@ -30,6 +30,8 @@ export class WebRTCState {
 
     // ─── Setup ────────────────────────────────────────────────────────────────
 
+    private isSubscribed = false;
+
     setupSignaling(callbacks: SignalCallback) {
         this.callbacks = callbacks;
         const user = systemState.currentUser;
@@ -46,26 +48,62 @@ export class WebRTCState {
         }
 
         const handleIfForMe = (payload: any, cb: (p: any) => void) => {
+            console.log('[WebRTC] Received broadcast:', payload);
             if (payload.to === systemState.currentUser?.id) {
                 cb(payload);
             }
         };
 
-        this.channel = supabase.channel('global-call-signaling')
+        this.channel = supabase.channel('global-call-signaling', {
+            config: {
+                broadcast: { ack: true }
+            }
+        })
             .on('broadcast', { event: 'call_offer' },     ({ payload }: any) => handleIfForMe(payload, callbacks.onOffer))
             .on('broadcast', { event: 'call_answer' },    ({ payload }: any) => handleIfForMe(payload, callbacks.onAnswer))
             .on('broadcast', { event: 'ice_candidate' },  ({ payload }: any) => handleIfForMe(payload, callbacks.onIceCandidate))
             .on('broadcast', { event: 'call_end' },       ({ payload }: any) => handleIfForMe(payload, callbacks.onEnd))
-            .subscribe();
+            .subscribe((status: string) => {
+                console.log('[WebRTC] Supabase channel status:', status);
+                if (status === 'SUBSCRIBED') {
+                    this.isSubscribed = true;
+                } else {
+                    this.isSubscribed = false;
+                }
+            });
+    }
+
+    async waitForSubscription(timeout = 5000): Promise<boolean> {
+        if (this.isSubscribed) return true;
+        return new Promise((resolve) => {
+            let elapsed = 0;
+            const interval = setInterval(() => {
+                if (this.isSubscribed) {
+                    clearInterval(interval);
+                    resolve(true);
+                }
+                elapsed += 100;
+                if (elapsed >= timeout) {
+                    clearInterval(interval);
+                    resolve(false);
+                }
+            }, 100);
+        });
     }
 
     async sendSignal(toUserId: string, event: string, payload: any = {}) {
-        if (!this.channel) return;
-        await this.channel.send({
+        const ready = await this.waitForSubscription();
+        if (!this.channel || !ready) {
+            console.warn('[WebRTC] Cannot send signal, channel not subscribed yet');
+            return;
+        }
+        console.log(`[WebRTC] Sending ${event} to ${toUserId}`);
+        const resp = await this.channel.send({
             type: 'broadcast',
             event,
             payload: { ...payload, to: toUserId }
         });
+        console.log('[WebRTC] Send response:', resp);
     }
 
     // ─── Peer Connection ──────────────────────────────────────────────────────

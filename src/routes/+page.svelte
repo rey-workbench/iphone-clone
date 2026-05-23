@@ -21,6 +21,10 @@
   import MailApp from "$lib/apps/Mail/MailApp.svelte";
   import AppStoreApp from "$lib/apps/AppStore/AppStoreApp.svelte";
 
+  import { callState } from "$lib/apps/Phone/CallState.svelte";
+  import IncomingCallScreen from "$lib/apps/Phone/components/IncomingCallScreen.svelte";
+  import ActiveCallScreen from "$lib/apps/Phone/components/ActiveCallScreen.svelte";
+
   import { ShellState } from "./ShellState.svelte";
 
   const appComponents: Record<string, any> = {
@@ -212,11 +216,19 @@
           </div>
 
           <Dock />
-          <div
-            class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100"
-          ></div>
+          <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100"></div>
         </div>
       {/if}
+    {/if}
+
+    <!-- Global WebRTC Audio Element -->
+    <audio id="remote-audio" autoplay playsinline style="display:none"></audio>
+
+    <!-- Global Call Overlays (Always accessible) -->
+    {#if callState.status === "incoming"}
+      <IncomingCallScreen />
+    {:else if callState.status === "calling" || callState.status === "active"}
+      <ActiveCallScreen />
     {/if}
   </div>
 </div>

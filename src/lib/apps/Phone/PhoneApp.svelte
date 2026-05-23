@@ -111,10 +111,3 @@
     {/each}
   </div>
 </div>
-
-<!-- Call Overlays (outside the phone UI, rendered on top) -->
-{#if callState.status === 'incoming'}
-  <IncomingCallScreen />
-{:else if callState.status === 'calling' || callState.status === 'active'}
-  <ActiveCallScreen />
-{/if}

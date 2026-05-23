@@ -22,6 +22,7 @@ export class PhoneState {
 
     updateContacts(users: any[]) {
         this.contacts = users.map(u => ({
+            id: u.id,
             name: u.name,
             username: u.username,
             initials: u.name.substring(0, 2).toUpperCase(),

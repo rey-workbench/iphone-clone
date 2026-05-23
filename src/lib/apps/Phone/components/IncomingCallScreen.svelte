@@ -4,7 +4,7 @@
 </script>
 
 <!-- Hidden audio element for remote stream -->
-<audio id="remote-audio" autoplay playsinline style="display:none"></audio>
+
 
 <!-- Full-screen overlay -->
 <div

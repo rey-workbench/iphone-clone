@@ -57,7 +57,7 @@
 </script>
 
 <!-- Hidden audio element -->
-<audio id="remote-audio" autoplay playsinline style="display:none"></audio>
+
 
 <!-- Full-screen overlay -->
 <div class="absolute inset-0 z-[9999] bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"
