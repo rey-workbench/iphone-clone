@@ -24,6 +24,7 @@
   import { callState } from "$lib/apps/Phone/CallState.svelte";
   import IncomingCallScreen from "$lib/apps/Phone/components/IncomingCallScreen.svelte";
   import ActiveCallScreen from "$lib/apps/Phone/components/ActiveCallScreen.svelte";
+  import DialogModal from "$lib/ui/components/DialogModal.svelte";
 
   import { ShellState } from "./ShellState.svelte";
 
@@ -230,5 +231,8 @@
     {:else if callState.status === "calling" || callState.status === "active"}
       <ActiveCallScreen />
     {/if}
+
+    <!-- Global Dialog Overlays -->
+    <DialogModal />
   </div>
 </div>

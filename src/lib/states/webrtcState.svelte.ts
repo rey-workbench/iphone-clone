@@ -1,5 +1,6 @@
 import { supabase } from '$lib/config/supabase';
 import { systemState } from '$lib/states/systemState.svelte';
+import { Permissions } from '$lib/utils/permissions';
 
 export type CallStatus = 'idle' | 'calling' | 'incoming' | 'active';
 
@@ -18,19 +19,24 @@ type SignalCallback = {
 };
 
 /**
- * WebRTCState — pure WebRTC + Supabase signaling layer.
- * Has no UI state (no status, contact, timer).
- * CallState sits above this and drives the UI.
+ * WebRTCState — Pure WebRTC & Supabase signaling layer.
+ * Focuses only on connection logic, devoid of UI states.
  */
 export class WebRTCState {
+    // ─── Core WebRTC ──────────────────────────────────────────────────────────
     private pc: RTCPeerConnection | null = null;
     private localStream: MediaStream | null = null;
+    private iceQueue: RTCIceCandidateInit[] = [];
+    private pendingIceCallback: ((c: RTCIceCandidate) => void) | null = null;
+
+    // ─── Signaling (Supabase) ─────────────────────────────────────────────────
     private channel: any = null;
     private callbacks: SignalCallback | null = null;
-
-    // ─── Setup ────────────────────────────────────────────────────────────────
-
     private isSubscribed = false;
+
+    // ============================================================================
+    // 1. SIGNALING SETUP
+    // ============================================================================
 
     setupSignaling(callbacks: SignalCallback) {
         this.callbacks = callbacks;
@@ -55,9 +61,7 @@ export class WebRTCState {
         };
 
         this.channel = supabase.channel('global-call-signaling', {
-            config: {
-                broadcast: { ack: true }
-            }
+            config: { broadcast: { ack: true } }
         })
             .on('broadcast', { event: 'call_offer' },     ({ payload }: any) => handleIfForMe(payload, callbacks.onOffer))
             .on('broadcast', { event: 'call_answer' },    ({ payload }: any) => handleIfForMe(payload, callbacks.onAnswer))
@@ -65,11 +69,7 @@ export class WebRTCState {
             .on('broadcast', { event: 'call_end' },       ({ payload }: any) => handleIfForMe(payload, callbacks.onEnd))
             .subscribe((status: string) => {
                 console.log('[WebRTC] Supabase channel status:', status);
-                if (status === 'SUBSCRIBED') {
-                    this.isSubscribed = true;
-                } else {
-                    this.isSubscribed = false;
-                }
+                this.isSubscribed = status === 'SUBSCRIBED';
             });
     }
 
@@ -98,22 +98,36 @@ export class WebRTCState {
             return;
         }
         console.log(`[WebRTC] Sending ${event} to ${toUserId}`);
-        const resp = await this.channel.send({
+        await this.channel.send({
             type: 'broadcast',
             event,
             payload: { ...payload, to: toUserId }
         });
-        console.log('[WebRTC] Send response:', resp);
     }
 
-    // ─── Peer Connection ──────────────────────────────────────────────────────
+    // ============================================================================
+    // 2. MEDIA DEVICE SETUP
+    // ============================================================================
+
+    async getLocalStream(): Promise<MediaStream> {
+        if (!this.localStream) {
+            const hasPerm = await Permissions.requestMicrophone();
+            if (!hasPerm) {
+                throw new Error("Microphone permission denied by user.");
+            }
+            this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        }
+        return this.localStream;
+    }
+
+    // ============================================================================
+    // 3. WEBRTC PEER CONNECTION
+    // ============================================================================
 
     async createPeerConnection(onDisconnect: () => void): Promise<RTCPeerConnection> {
         this.pc = new RTCPeerConnection(ICE_SERVERS);
 
         this.pc.onicecandidate = async (event) => {
-            // Caller side — forward ICE candidates to remote
-            // remoteId is managed by CallState which will bind this via sendSignal directly
             if (event.candidate) {
                 this.pendingIceCallback?.(event.candidate);
             }
@@ -137,24 +151,18 @@ export class WebRTCState {
         return this.pc;
     }
 
-    // ICE callback wired after connection setup
-    private pendingIceCallback: ((c: RTCIceCandidate) => void) | null = null;
-
     setIceCandidateCallback(cb: (c: RTCIceCandidate) => void) {
         this.pendingIceCallback = cb;
-    }
-
-    async getLocalStream(): Promise<MediaStream> {
-        if (!this.localStream) {
-            this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        }
-        return this.localStream;
     }
 
     addLocalTracksToPc() {
         if (!this.pc || !this.localStream) return;
         this.localStream.getTracks().forEach(t => this.pc!.addTrack(t, this.localStream!));
     }
+
+    // ============================================================================
+    // 4. WEBRTC SIGNALING LOGIC (SDP & ICE)
+    // ============================================================================
 
     async createOffer(): Promise<RTCSessionDescriptionInit> {
         if (!this.pc) throw new Error('No peer connection');
@@ -168,20 +176,37 @@ export class WebRTCState {
         await this.pc.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await this.pc.createAnswer();
         await this.pc.setLocalDescription(answer);
+        await this.flushIceQueue();
         return answer;
     }
 
     async setRemoteAnswer(answer: RTCSessionDescriptionInit) {
         if (!this.pc) throw new Error('No peer connection');
         await this.pc.setRemoteDescription(new RTCSessionDescription(answer));
+        await this.flushIceQueue();
     }
 
     async addIceCandidate(candidate: RTCIceCandidateInit) {
-        if (!this.pc) return;
+        if (!this.pc || !this.pc.remoteDescription) {
+            this.iceQueue.push(candidate);
+            return;
+        }
         await this.pc.addIceCandidate(new RTCIceCandidate(candidate));
     }
 
-    // ─── Controls ─────────────────────────────────────────────────────────────
+    private async flushIceQueue() {
+        if (!this.pc || !this.pc.remoteDescription) return;
+        while (this.iceQueue.length > 0) {
+            const candidate = this.iceQueue.shift();
+            if (candidate) {
+                await this.pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(console.error);
+            }
+        }
+    }
+
+    // ============================================================================
+    // 5. MEDIA CONTROLS & CLEANUP
+    // ============================================================================
 
     setMuted(muted: boolean) {
         this.localStream?.getAudioTracks().forEach(t => t.enabled = !muted);
@@ -192,14 +217,13 @@ export class WebRTCState {
         if (audio) audio.volume = loud ? 1 : 0.8;
     }
 
-    // ─── Cleanup ──────────────────────────────────────────────────────────────
-
     cleanup() {
         this.pc?.close();
         this.pc = null;
         this.localStream?.getTracks().forEach(t => t.stop());
         this.localStream = null;
         this.pendingIceCallback = null;
+        this.iceQueue = [];
     }
 }
 

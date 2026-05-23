@@ -1,11 +1,19 @@
 <script lang="ts">
   import { callState } from "../CallState.svelte";
   import { Bell, MessageSquare, PhoneOff, Phone } from "@lucide/svelte";
+  import { onMount } from "svelte";
+
+  let audioEl: HTMLAudioElement;
+
+  onMount(() => {
+    if (audioEl) {
+      audioEl.play().catch(e => console.warn("Ringtone autoplay blocked by browser:", e));
+    }
+  });
 </script>
 
-<!-- Hidden audio element for remote stream -->
-
-
+<!-- Incoming Ringtone -->
+<audio bind:this={audioEl} src="/assets/ringtone/incoming-call.mp3" loop style="display:none"></audio>
 <!-- Full-screen overlay -->
 <div
   class="absolute inset-0 z-[9999] bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"

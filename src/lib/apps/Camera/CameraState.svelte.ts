@@ -1,3 +1,5 @@
+import { Permissions } from "$lib/utils/permissions";
+
 export class AppCameraState {
   videoEl: HTMLVideoElement | undefined = $state(undefined);
   photoTaken = $state(false);
@@ -12,6 +14,13 @@ export class AppCameraState {
   async startCamera() {
     try {
       if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+      
+      const hasPerm = await Permissions.requestCamera();
+      if (!hasPerm) {
+        console.warn("Camera permission denied.");
+        return;
+      }
+
       this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: this.facingMode } });
       if (this.videoEl) { this.videoEl.srcObject = this.stream; }
     } catch { /* camera not available */ }

@@ -49,8 +49,9 @@ export class CallState {
                 offer,
                 from: { id: user.id, name: user.name }
             });
-        } catch (e) {
+        } catch (e: any) {
             console.error('Failed to initiate call:', e);
+            alert(`Call failed: ${e.message || 'Check microphone permissions'}`);
             this.cleanup();
         }
     }
@@ -68,6 +69,8 @@ export class CallState {
 
     async acceptCall() {
         if (this.status !== 'incoming' || !this.pendingOffer || !this.remoteContact) return;
+        this.status = 'active';
+        this.startTimer();
 
         try {
             await webrtcState.getLocalStream();
@@ -85,11 +88,10 @@ export class CallState {
 
             await webrtcState.sendSignal(this.remoteContact.id, 'call_answer', { answer });
 
-            this.status = 'active';
-            this.startTimer();
             this.pendingOffer = null;
-        } catch (e) {
+        } catch (e: any) {
             console.error('Failed to accept call:', e);
+            alert(`Call failed: ${e.message}`);
             this.cleanup();
         }
     }

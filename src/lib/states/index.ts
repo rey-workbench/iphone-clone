@@ -1,5 +1,6 @@
 export * from './systemState.svelte';
-export * from './authState.svelte';
+export { AuthState } from './authState.svelte';
+export { dialogState } from './dialogState.svelte';
 export * from './usersState.svelte';
 export * from './BaseState.svelte';
 export * from '$lib/apps/Settings/SettingsState.svelte';
