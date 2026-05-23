@@ -25,7 +25,7 @@ export async function setupDatabase() {
       name TEXT NOT NULL
     );
     INSERT OR IGNORE INTO users (id, username, password, name) VALUES 
-    ('user1', 'user1', '12345', 'John Doe (User 1)'),
-    ('user2', 'user2', '12345', 'Jane Smith (User 2)');
+    ('e1b74c2e-4b6c-48c9-8d76-15b561c8f1ea', 'nisa', 'nisa', 'Annisaa Putri Purnomo'),
+    ('f2a5b1c3-2d5f-4a8b-9e4c-34f781d9d1bc', 'rey', 'rey', 'Reynald Silva Baktiar');
   `);
 }

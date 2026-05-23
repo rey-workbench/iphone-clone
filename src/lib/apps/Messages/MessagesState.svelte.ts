@@ -1,8 +1,7 @@
 import { Bot } from '@lucide/svelte';
 import { supabase } from '$lib/config/supabase';
-import { systemState } from '$lib/states';
+import { systemState, usersState } from '$lib/states';
 import { getSetting, setSetting } from '$lib/config/localdb';
-import { fetchWithCache } from '$lib/utils/fetchWithCache';
 import { ApiConfig } from '$lib/config/api';
 
 export class MessagesState {
@@ -15,12 +14,38 @@ export class MessagesState {
     currentChatId = $state('');
     currentChatName = $state('');
 
-    inbox = $state([
-        { id: 'ai-bot', name: 'Buddy Bard', icon: Bot, color: '#007AFF', lastMsg: "Hey! I'm your AI assistant.", time: '12:00 PM', unread: false },
-        { id: 'user2', name: 'user2', initials: 'U2', color: '#8E8E93', lastMsg: 'Tap to chat', time: '', unread: false },
+    inbox: any[] = $state([
+        { id: 'ai-bot', name: 'Buddy Bard', icon: Bot, color: '#007AFF', lastMsg: "Hey! I'm your AI assistant.", time: '12:00 PM', unread: false, initials: 'BB' }
     ]);
 
-    constructor() {}
+    constructor() {
+        usersState.fetchUsers((users) => this.updateInboxWithUsers(users));
+    }
+
+    updateInboxWithUsers(users: any[]) {
+        const currentUser = systemState.currentUser;
+        
+        const newInbox: any[] = [
+            { id: 'ai-bot', name: 'Buddy Bard', icon: Bot, color: '#007AFF', lastMsg: "Hey! I'm your AI assistant.", time: '12:00 PM', unread: false, initials: 'BB' }
+        ];
+
+        users.forEach((u: any) => {
+            if (currentUser && u.id === currentUser.id) return;
+            const existing = this.inbox.find(c => c.id === u.id);
+            
+            newInbox.push({
+                id: u.id,
+                name: u.name,
+                initials: u.name.substring(0, 2).toUpperCase(),
+                color: existing ? existing.color : '#8E8E93',
+                lastMsg: existing ? existing.lastMsg : 'Tap to chat',
+                time: existing ? existing.time : '',
+                unread: existing ? existing.unread : false
+            });
+        });
+
+        this.inbox = newInbox;
+    }
 
     addContact(id: string) {
         if (!id || this.inbox.find(c => c.id === id)) return;
@@ -137,8 +162,11 @@ export class MessagesState {
             return;
         }
 
-        // Save user message to Supabase
-        const { error } = await supabase.from('messages').insert([{ content: prompt, sender_id: user.id, receiver_id: receiverId }]);
+        const { error } = await supabase.from('messages').insert([{ 
+            content: prompt, 
+            sender_id: user.id, 
+            receiver_id: receiverId 
+        }]);
         if (error) console.error("Supabase insert error:", error);
     }
 

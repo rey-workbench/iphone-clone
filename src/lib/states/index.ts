@@ -1,5 +1,6 @@
 export * from './systemState.svelte';
 export * from './authState.svelte';
+export * from './usersState.svelte';
 export * from './BaseState.svelte';
 export * from '$lib/apps/Settings/SettingsState.svelte';
 export * from '$lib/apps/Clock/ClockState.svelte';
