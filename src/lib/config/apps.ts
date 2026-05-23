@@ -1,7 +1,7 @@
 import type { AppConfig } from '$lib/types';
 
 // Map app IDs to real icon filenames
-const I = (f: string) => `/src/lib/assets/icons/${f}`;
+const I = (f: string) => `/assets/icons/${f}`;
 
 export const homeScreenApps: AppConfig[][] = [
   [

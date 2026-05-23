@@ -1,7 +1,7 @@
 <script lang="ts">
   import { systemState } from "$lib/states";
   import { AuthState } from "$lib/states/authState.svelte";
-  import { LoaderCircle, ChevronRight, Apple } from "@lucide/svelte";
+  import { LoaderCircle, ChevronLeft, Handshake } from "@lucide/svelte";
 
   const authState = new AuthState();
 
@@ -14,86 +14,111 @@
   }
 </script>
 
-<div
-  class="absolute inset-0 z-1000 bg-[#f2f2f7] flex flex-col items-center justify-center font-sans"
->
+<div class="absolute inset-0 z-1000 bg-white flex flex-col font-sans">
+  <!-- Top Bar -->
+  <div class="w-full h-[44px]"></div>
   <!-- Status bar placeholder -->
-  <div class="absolute top-0 w-full h-[44px]"></div>
+  <div class="w-full flex items-center px-2 h-[44px]">
+    <button
+      class="flex items-center text-[#c7c7cc] bg-transparent border-none text-[17px]"
+    >
+      <ChevronLeft size={24} />
+      <span>Back</span>
+    </button>
+  </div>
 
   <div
-    class="w-full max-w-[320px] flex flex-col items-center animate-[fadeIn_0.5s_ease-out]"
+    class="flex-1 w-full max-w-[340px] mx-auto flex flex-col items-center animate-[fadeIn_0.5s_ease-out] px-4 pt-4 pb-8"
   >
-    <div class="mb-8 opacity-80">
-      <Apple size={60} color="#000" />
+    <!-- Logo area -->
+    <div class="relative flex items-center justify-center w-28 h-28 mb-4">
+      <img src="/assets/icon.svg" alt="iCloud Logo" class="w-full h-full object-contain" />
     </div>
 
     <h1
       class="text-[28px] font-semibold text-black mb-2 text-center tracking-tight"
     >
-      Sign in to<br />your iPhone
+      iCloud
     </h1>
-    <p class="text-[15px] text-[#8e8e93] text-center mb-8 px-4 leading-snug">
-      Sign in with your Apple ID to use iCloud and other Apple services.
+    <p class="text-[15px] text-[#333] text-center mb-8 px-4 leading-snug">
+      Sign in with your iCloud Apple ID.
     </p>
 
-    <div
-      class="w-full bg-white rounded-[14px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] overflow-hidden mb-4 border border-[#e5e5ea]"
-    >
+    <!-- Inputs Box -->
+    <div class="w-full bg-[#f2f2f7] rounded-[10px] overflow-hidden mb-4">
       <input
+        id="username"
+        name="username"
         type="text"
         placeholder="Apple ID"
         bind:value={authState.username}
-        class="w-full h-[50px] bg-white border-b border-[#c8c7cc] px-4 outline-none text-[17px] rounded-t-xl"
+        class="w-full h-[50px] bg-transparent border-b border-[#d1d1d6] px-4 outline-none text-[17px] text-black"
         onkeydown={(e) => {
-          if (e.key === "Enter") document.getElementById("pwd-input")?.focus();
+          if (e.key === "Enter") document.getElementById("password")?.focus();
         }}
       />
       <input
-        id="pwd-input"
+        id="password"
+        name="password"
         type="password"
         placeholder="Password"
         bind:value={authState.password}
         disabled={authState.isLoading}
         onkeydown={(e) => e.key === "Enter" && handleLogin()}
-        class="flex-1 h-[50px] px-4 text-[17px] text-black bg-transparent border-none outline-none placeholder:text-[#8e8e93] disabled:bg-[#f2f2f7]"
+        class="w-full h-[50px] px-4 text-[17px] text-black bg-transparent border-none outline-none placeholder:text-[#8e8e93] disabled:opacity-50"
       />
     </div>
 
     {#if authState.errorMsg}
       <div
-        class="text-[#ff3b30] text-[13px] text-center mt-4 px-4 animate-[fadeIn_0.3s_ease-out]"
+        class="text-[#ff3b30] text-[13px] text-center mb-4 px-4 animate-[fadeIn_0.3s_ease-out]"
       >
         {authState.errorMsg}
       </div>
     {/if}
 
     <button
-      class="mt-8 flex items-center justify-center bg-transparent border-none opacity-50 transition-opacity {authState.username &&
+      class="bg-transparent border-none text-[#8e8e93] text-[15px] cursor-pointer mb-auto"
+    >
+      Forgot Password or Apple ID?
+    </button>
+
+    <!-- Privacy Section -->
+    <div class="flex flex-col items-center mt-12 mb-8">
+      <Handshake size={32} color="#1C37CA" fill="#1C37CA" class="mb-3" />
+      <p class="text-[11px] text-[#8e8e93] text-center leading-tight">
+        Your Apple ID information is used to enable Apple services when you sign
+        in, including iCloud Backup, which automatically backs up the data on
+        your device in case you need to replace or restore it. Your device
+        serial number may be used to check eligibility for service offers. <span
+          class="text-[#1C37CA]">See how your data is managed...</span
+        >
+      </p>
+    </div>
+
+    <!-- Submit Button (Pill) -->
+    <button
+      class="w-full h-[50px] rounded-[12px] flex items-center justify-center transition-colors mb-6 {authState.username &&
       authState.password
-        ? 'opacity-100 cursor-pointer'
-        : 'cursor-not-allowed'}"
+        ? 'bg-[#1C37CA] text-white'
+        : 'bg-[#f2f2f7] text-[#c7c7cc]'}"
       disabled={!authState.username ||
         !authState.password ||
         authState.isLoading}
       onclick={handleLogin}
     >
-      <div
-        class="w-10 h-10 rounded-full border border-[#c8c7cc] flex items-center justify-center bg-white shadow-sm active:bg-gray-100"
-      >
-        {#if authState.isLoading}
-          <LoaderCircle size={24} class="animate-spin" />
-        {:else}
-          <ChevronRight size={24} />
-        {/if}
-      </div>
+      {#if authState.isLoading}
+        <LoaderCircle size={24} class="animate-spin text-[#8e8e93]" />
+      {:else}
+        <span class="text-[17px] font-medium">Continue</span>
+      {/if}
     </button>
 
-    <div class="mt-8 flex flex-col items-center gap-4">
-      <button
-        class="bg-transparent border-none text-[#007aff] text-[15px] cursor-pointer"
-      >
-        Forgot password or don't have an Apple ID?
-      </button>
-    </div>
+    <!-- Bottom link -->
+    <button
+      class="bg-transparent border-none text-[#8e8e93] text-[15px] cursor-pointer pb-4"
+    >
+      Use Another Device to Sign In
+    </button>
   </div>
 </div>
