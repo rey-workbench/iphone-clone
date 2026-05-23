@@ -82,7 +82,7 @@ export const ApiRequests = {
             }
 
             const data = await response.json();
-            return { iceServers: data.iceServers };
+            return { iceServers: Array.isArray(data.iceServers) ? data.iceServers : [data.iceServers] };
         } catch (error) {
             console.error("[ApiConfig] Failed to fetch ICE servers from Cloudflare, using fallback", error);
             return {
