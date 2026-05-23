@@ -4,15 +4,14 @@ export const handle: Handle = async ({ event, resolve }) => {
   const { pathname, search } = event.url;
 
   const referer = event.request.headers.get('referer') || '';
-  const isFromEmbed = referer.includes('/embed?');
+  const isFromEmbed = referer.includes('/embed');
 
   // Intercept requests that are meant for screenscape.me
   const isScreenscapeRoute = 
     pathname.startsWith('/embed') ||
     pathname.startsWith('/_next/') || 
     pathname.startsWith('/cdn-cgi/') || 
-    pathname === '/skip.png' ||
-    (pathname.startsWith('/api/') && isFromEmbed);
+    isFromEmbed; // Catch ALL assets, APIs, and images requested from inside the iframe!
 
   if (isScreenscapeRoute) {
     const targetUrl = `https://screenscape.me${pathname}${search}`;
