@@ -6,6 +6,28 @@ const DB_NAME = 'reynisa_local_db';
 const STORE_NAME = 'sqlite_store';
 const FILE_KEY = 'local.sqlite';
 
+/** Kunci standar untuk seluruh penyimpanan di LocalDB */
+export const LocalDBKey = {
+  // Auth & User
+  CURRENT_USER:   'current_user',
+  USERS:          'users',
+
+  // App: Notes
+  AI_MESSAGES:    (userId: string) => `ai_messages_${userId}`,
+
+  // App: Mail
+  MAIL:           'mail',
+
+  // App: Photos
+  PHOTOS:         'photos',
+
+  // App: AppStore
+  APP_STORE:      'app_store',
+
+  // App: Settings
+  SETTINGS:       'settings',
+} as const;
+
 let SQL: any;
 let db: Database | null = null;
 let isInitialized = false;

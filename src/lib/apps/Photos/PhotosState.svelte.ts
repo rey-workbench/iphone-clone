@@ -1,4 +1,5 @@
 import { fetchWithCache } from '$lib/utils/fetchWithCache';
+import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
 
 export class AppPhotosState {
@@ -12,8 +13,17 @@ export class AppPhotosState {
   async fetchPhotos() {
     this.loading = true;
     try {
+      // 1. Load dari LocalDB dulu (instan)
+      const cached = await getSetting(LocalDBKey.PHOTOS, null);
+      if (cached) {
+        this.photos = cached;
+        this.loading = false;
+      }
+
+      // 2. Fetch terbaru di background
       const data = await fetchWithCache(ApiConfig.getPhotosList());
       if (data) {
+        await setSetting(LocalDBKey.PHOTOS, data);
         this.photos = data;
       }
     } catch(e) {

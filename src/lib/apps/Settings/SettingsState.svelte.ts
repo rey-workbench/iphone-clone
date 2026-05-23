@@ -4,6 +4,7 @@ import {
     LayoutGrid, Accessibility, Image, Battery, Lock 
 } from '@lucide/svelte';
 import { BaseState } from '$lib/states/BaseState.svelte';
+import { LocalDBKey } from '$lib/config/localdb';
 
 export class SettingsState extends BaseState<any> {
   airplaneMode = $state(false);
@@ -20,7 +21,7 @@ export class SettingsState extends BaseState<any> {
   lowPowerMode = $state(false);
 
   constructor() {
-    super('appSettings');
+    super(LocalDBKey.SETTINGS);
     if (typeof window !== 'undefined') {
       this.loadSettings();
     }

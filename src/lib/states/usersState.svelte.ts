@@ -1,4 +1,4 @@
-import { getSetting, setSetting } from '$lib/config/localdb';
+import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
 
 export class UsersState {
     users = $state<any[]>([]);
@@ -6,7 +6,7 @@ export class UsersState {
     async fetchUsers(onUpdate?: (users: any[]) => void) {
         try {
             // 1. Coba load dari LocalDB terlebih dahulu (Instan)
-            const cachedUsers = await getSetting('cached_turso_users', []);
+            const cachedUsers = await getSetting(LocalDBKey.USERS, []);
             if (cachedUsers && cachedUsers.length > 0) {
                 this.users = cachedUsers;
                 if (onUpdate) onUpdate(this.users);
@@ -19,7 +19,7 @@ export class UsersState {
                 if (data.users) {
                     this.users = data.users;
                     // 3. Simpan ke LocalDB untuk load berikutnya
-                    await setSetting('cached_turso_users', data.users);
+                    await setSetting(LocalDBKey.USERS, data.users);
                     
                     if (onUpdate) onUpdate(this.users);
                 }
