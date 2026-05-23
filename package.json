@@ -33,6 +33,7 @@
 		"@supabase/supabase-js": "^2.106.1",
 		"idb": "^8.0.3",
 		"lrclib-api": "^2.0.4",
+		"node-device-detector": "^2.2.5",
 		"ruhend-scraper": "^10.0.3",
 		"sql.js": "^1.14.1",
 		"ytmusic-api": "^5.3.1"

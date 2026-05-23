@@ -10,6 +10,7 @@ export class CallState {
 
     private timer: ReturnType<typeof setInterval> | null = null;
     private pendingOffer: RTCSessionDescriptionInit | null = null;
+    private remoteDeviceId: string | null = null;
 
     constructor() {
         if (typeof window !== 'undefined') {
@@ -17,7 +18,8 @@ export class CallState {
                 onOffer: (payload) => this.handleOffer(payload),
                 onAnswer: (payload) => this.handleAnswer(payload),
                 onIceCandidate: (payload) => this.handleIceCandidate(payload),
-                onEnd: () => this.handleRemoteEnd()
+                onEnd: () => this.handleRemoteEnd(),
+                onAnsweredElsewhere: () => this.handleAnsweredElsewhere()
             });
         }
     }
@@ -37,7 +39,7 @@ export class CallState {
             
             webrtcState.setIceCandidateCallback(async (candidate) => {
                 if (this.remoteContact) {
-                    await webrtcState.sendSignal(this.remoteContact.id, 'ice_candidate', { candidate });
+                    await webrtcState.sendSignal(this.remoteContact.id, 'ice_candidate', { candidate }, this.remoteDeviceId || undefined);
                 }
             });
 
@@ -63,6 +65,7 @@ export class CallState {
         }
 
         this.remoteContact = payload.from;
+        this.remoteDeviceId = payload.fromDeviceId;
         this.pendingOffer = payload.offer;
         this.status = 'incoming';
     }
@@ -78,7 +81,7 @@ export class CallState {
 
             webrtcState.setIceCandidateCallback(async (candidate) => {
                 if (this.remoteContact) {
-                    await webrtcState.sendSignal(this.remoteContact.id, 'ice_candidate', { candidate });
+                    await webrtcState.sendSignal(this.remoteContact.id, 'ice_candidate', { candidate }, this.remoteDeviceId || undefined);
                 }
             });
 
@@ -86,7 +89,12 @@ export class CallState {
 
             const answer = await webrtcState.setRemoteOffer(this.pendingOffer);
 
-            await webrtcState.sendSignal(this.remoteContact.id, 'call_answer', { answer });
+            await webrtcState.sendSignal(this.remoteContact.id, 'call_answer', { answer }, this.remoteDeviceId || undefined);
+            
+            // Tell other tabs on our account to stop ringing
+            if (systemState.currentUser) {
+                await webrtcState.sendSignal(systemState.currentUser.id, 'call_answered_elsewhere');
+            }
 
             this.pendingOffer = null;
         } catch (e: any) {
@@ -98,18 +106,23 @@ export class CallState {
 
     async declineCall() {
         if (!this.remoteContact) return;
-        await webrtcState.sendSignal(this.remoteContact.id, 'call_end');
+        await webrtcState.sendSignal(this.remoteContact.id, 'call_end', {}, this.remoteDeviceId || undefined);
+        
+        if (systemState.currentUser) {
+            await webrtcState.sendSignal(systemState.currentUser.id, 'call_answered_elsewhere');
+        }
         this.cleanup();
     }
 
     async hangUp() {
         if (!this.remoteContact) return;
-        await webrtcState.sendSignal(this.remoteContact.id, 'call_end');
+        await webrtcState.sendSignal(this.remoteContact.id, 'call_end', {}, this.remoteDeviceId || undefined);
         this.cleanup();
     }
 
     private async handleAnswer(payload: any) {
         try {
+            this.remoteDeviceId = payload.fromDeviceId;
             await webrtcState.setRemoteAnswer(payload.answer);
             this.status = 'active';
             this.startTimer();
@@ -129,6 +142,12 @@ export class CallState {
 
     private handleRemoteEnd() {
         this.cleanup();
+    }
+
+    private handleAnsweredElsewhere() {
+        if (this.status === 'incoming') {
+            this.cleanup();
+        }
     }
 
     // ─── Controls ─────────────────────────────────────────────────────────────
@@ -164,6 +183,7 @@ export class CallState {
         webrtcState.cleanup();
         this.status = 'idle';
         this.remoteContact = null;
+        this.remoteDeviceId = null;
         this.pendingOffer = null;
         this.duration = 0;
         this.isMuted = false;

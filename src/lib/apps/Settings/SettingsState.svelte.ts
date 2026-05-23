@@ -4,6 +4,7 @@ import {
     LayoutGrid, Accessibility, Image, Battery, Lock 
 } from '@lucide/svelte';
 import { BaseState } from '$lib/states/BaseState.svelte';
+import { systemState } from '$lib/states/systemState.svelte';
 import { LocalDBKey } from '$lib/config/localdb';
 
 export class SettingsState extends BaseState<any> {
@@ -72,9 +73,17 @@ export const settingsState = new SettingsState();
 export class AppSettingsState {
     searchText = $state('');
     
-    profile = { name: 'John Appleseed', initials: 'JA' };
+    get profile() {
+        const user = systemState.currentUser;
+        if (user) {
+            const initials = user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+            return { name: user.name, initials };
+        }
+        return { name: 'User', initials: 'U' };
+    }
 
     general = [
+        { id: 'linked_devices', icon: Link, bg: '#34C759', label: 'Linked Devices' },
         { icon: Bell, bg: '#FF3B30', label: 'Notifications' },
         { icon: Volume2, bg: '#FF2D55', label: 'Sounds & Haptics' },
         { icon: Moon, bg: '#5856D6', label: 'Focus' },

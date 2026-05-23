@@ -24,6 +24,7 @@ type SignalCallback = {
     onAnswer: (payload: any) => void;
     onIceCandidate: (payload: any) => void;
     onEnd: () => void;
+    onAnsweredElsewhere: (payload: any) => void;
 };
 
 /**
@@ -64,6 +65,10 @@ export class WebRTCState {
         const handleIfForMe = (payload: any, cb: (p: any) => void) => {
             console.log('[WebRTC] Received broadcast:', payload);
             if (payload.to === systemState.currentUser?.id) {
+                // If it's targeted to a specific device, only process if it matches our deviceId
+                if (payload.toDeviceId && payload.toDeviceId !== systemState.deviceId) {
+                    return;
+                }
                 cb(payload);
             }
         };
@@ -75,6 +80,14 @@ export class WebRTCState {
             .on('broadcast', { event: 'call_answer' },    ({ payload }: any) => handleIfForMe(payload, callbacks.onAnswer))
             .on('broadcast', { event: 'ice_candidate' },  ({ payload }: any) => handleIfForMe(payload, callbacks.onIceCandidate))
             .on('broadcast', { event: 'call_end' },       ({ payload }: any) => handleIfForMe(payload, callbacks.onEnd))
+            .on('broadcast', { event: 'call_answered_elsewhere' }, ({ payload }: any) => handleIfForMe(payload, callbacks.onAnsweredElsewhere))
+            .on('broadcast', { event: 'force_logout' }, ({ payload }: any) => {
+                if (payload.to === systemState.currentUser?.id && payload.toDeviceId === systemState.deviceId) {
+                    console.warn('[System] Received force_logout. Logging out...');
+                    localStorage.removeItem('reynisa_currentUser');
+                    window.location.reload();
+                }
+            })
             .subscribe((status: string) => {
                 console.log('[WebRTC] Supabase channel status:', status);
                 this.isSubscribed = status === 'SUBSCRIBED';
@@ -99,17 +112,23 @@ export class WebRTCState {
         });
     }
 
-    async sendSignal(toUserId: string, event: string, payload: any = {}) {
+    async sendSignal(toUserId: string, event: string, payload: any = {}, toDeviceId?: string) {
         const ready = await this.waitForSubscription();
         if (!this.channel || !ready) {
             console.warn('[WebRTC] Cannot send signal, channel not subscribed yet');
             return;
         }
+
         console.log(`[WebRTC] Sending ${event} to ${toUserId}`);
         await this.channel.send({
             type: 'broadcast',
             event,
-            payload: { ...payload, to: toUserId }
+            payload: { 
+                ...payload, 
+                to: toUserId,
+                toDeviceId,
+                fromDeviceId: systemState.deviceId 
+            }
         });
     }
 
@@ -151,9 +170,14 @@ export class WebRTCState {
 
         this.pc.onconnectionstatechange = () => {
             const state = this.pc?.connectionState;
+            console.log('[WebRTC] Connection state changed to:', state);
             if (state === 'failed' || state === 'disconnected' || state === 'closed') {
                 onDisconnect();
             }
+        };
+
+        this.pc.oniceconnectionstatechange = () => {
+            console.log('[WebRTC] ICE Connection state:', this.pc?.iceConnectionState);
         };
 
         return this.pc;
@@ -190,6 +214,10 @@ export class WebRTCState {
 
     async setRemoteAnswer(answer: RTCSessionDescriptionInit) {
         if (!this.pc) throw new Error('No peer connection');
+        if (this.pc.signalingState !== 'have-local-offer') {
+            console.warn('[WebRTC] Ignoring duplicate/invalid answer. Current state:', this.pc.signalingState);
+            return;
+        }
         await this.pc.setRemoteDescription(new RTCSessionDescription(answer));
         await this.flushIceQueue();
     }

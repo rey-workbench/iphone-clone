@@ -1,14 +1,11 @@
 import { ApiConfig } from '$lib/config/api';
+import { systemState } from '$lib/states/systemState.svelte';
 
 export class AuthState {
     username = $state('');
     password = $state('');
     isLoading = $state(false);
     errorMsg = $state('');
-    
-    // Instead of using the Svelte 4 store inside the class directly,
-    // we can manage it here and update the external systemStore, 
-    // or we can just return the user data and let the component handle it.
     
     async login(): Promise<any> {
         if (!this.username || !this.password) {
@@ -23,7 +20,12 @@ export class AuthState {
             const res = await fetch(ApiConfig.AUTH_LOGIN, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: this.username, password: this.password })
+                body: JSON.stringify({ 
+                    username: this.username, 
+                    password: this.password,
+                    deviceId: systemState.deviceId,
+                    deviceName: systemState.deviceName
+                })
             });
             
             const data = await res.json();

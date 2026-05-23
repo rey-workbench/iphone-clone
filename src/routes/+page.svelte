@@ -223,7 +223,7 @@
     {/if}
 
     <!-- Global WebRTC Audio Element -->
-    <audio id="remote-audio" autoplay playsinline style="display:none"></audio>
+    <audio id="remote-audio" autoplay playsinline style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></audio>
 
     <!-- Global Call Overlays (Always accessible) -->
     {#if callState.status === "incoming"}

@@ -163,24 +163,24 @@ export class MusicState {
     }
 
     playTrack(t: IMusicTrack) {
-        if (!t.videoId) return;
+        const vidId = t.videoId || t.id;
+        if (!vidId) return;
         this.current = t;
-        if (!this.player || typeof this.player.loadVideoById !== "function") return;
+        
         this.showPlayer = true;
         this.showLyrics = false;
         this.lyricsText = "";
         
-        if (this.player && typeof this.player.loadVideoById === "function") {
-            this.player.loadVideoById(t.videoId);
-            this.player.playVideo();
-        } else {
-            setTimeout(() => {
-                if (this.player && typeof this.player.loadVideoById === "function") {
-                    this.player.loadVideoById(t.id);
-                    this.player.playVideo();
-                }
-            }, 1000);
-        }
+        const tryPlay = (retries = 5) => {
+            if (this.player && typeof this.player.loadVideoById === "function") {
+                this.player.loadVideoById(vidId);
+                this.player.playVideo();
+            } else if (retries > 0) {
+                setTimeout(() => tryPlay(retries - 1), 500);
+            }
+        };
+        
+        tryPlay();
     }
 
     togglePlay() {

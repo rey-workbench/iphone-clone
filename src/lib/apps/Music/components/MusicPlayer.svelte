@@ -75,10 +75,10 @@
 </div>
 
 <!-- Player Content -->
-<div class="absolute inset-0 z-20 flex flex-col px-6 pt-24 pb-8">
+<div class="absolute inset-0 z-20 flex flex-col px-6 pt-16 pb-6">
   {#if state.showLyrics}
     <div
-      class="flex-1 overflow-y-auto mb-10 w-full px-6 text-white text-[24px] font-bold leading-normal hide-scrollbar scroll-smooth"
+      class="flex-1 overflow-y-auto mb-6 w-full px-6 text-white text-[24px] font-bold leading-normal hide-scrollbar scroll-smooth"
     >
       {#if state.isFetchingLyrics}
         <div class="flex justify-center py-20">
@@ -116,15 +116,17 @@
       {/if}
     </div>
   {:else}
-    <img
-      src={state.current?.art}
-      alt={state.current?.name}
-      class="w-full aspect-square rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] object-cover mb-12"
-    />
+    <div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center mb-4 shrink">
+      <img
+        src={state.current?.art}
+        alt={state.current?.name}
+        class="h-full max-h-[350px] aspect-square w-auto max-w-full rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] object-cover"
+      />
+    </div>
   {/if}
 
-  <div class="w-full flex-1 flex flex-col">
-    <div class="w-full flex justify-between items-center mb-8">
+  <div class="w-full flex flex-col shrink-0">
+    <div class="w-full flex justify-between items-center mb-5">
       <div class="flex-1 min-w-0 pr-4">
         <div class="font-bold text-white text-[22px] truncate">
           {state.current?.name}
@@ -141,7 +143,7 @@
     </div>
 
     <!-- Progress -->
-    <div class="w-full mb-10">
+    <div class="w-full mb-6">
       <div
         class="w-full h-1.5 bg-white/20 rounded-full relative cursor-pointer"
         onclick={handleSeek}
@@ -190,7 +192,7 @@
     </div>
 
     <!-- Controls -->
-    <div class="flex items-center justify-between px-6 mb-12">
+    <div class="flex items-center justify-between px-6 mb-6">
       <button
         class="bg-transparent border-none cursor-pointer text-white hover:scale-110 transition-transform active:scale-95"
         onclick={() => state.playNext(-1)}
@@ -216,7 +218,7 @@
     </div>
 
     <!-- Volume -->
-    <div class="flex items-center gap-3 text-white/50 mb-10">
+    <div class="flex items-center gap-3 text-white/50 mb-4">
       <Volume1 size={14} />
       <div
         class="flex-1 h-1.5 bg-white/20 rounded-full relative cursor-pointer"
@@ -243,7 +245,7 @@
     </div>
 
     <!-- Bottom Actions -->
-    <div class="flex items-center justify-evenly text-white/70 px-4 mt-auto">
+    <div class="flex items-center justify-evenly text-white/70 px-4 mt-2 mb-2">
       <button
         class="bg-transparent border-none cursor-pointer {state.showLyrics
           ? 'text-ios-pink'
