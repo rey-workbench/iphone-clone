@@ -1,4 +1,4 @@
-import { PUBLIC_METERED_TURN_API_KEY } from '$env/static/public';
+import { PUBLIC_CLOUDFLARE_TURN_KEY_ID, PUBLIC_CLOUDFLARE_TURN_API_TOKEN } from '$env/static/public';
 import { ApiEndpoints } from './endpoints';
 import { ApiDynamic } from './dynamic';
 import { fetchWithCache } from '$lib/utils/fetchWithCache';
@@ -64,20 +64,27 @@ export const ApiRequests = {
 
     async fetchTurnCredentials(): Promise<RTCConfiguration> {
         try {
-            if (!PUBLIC_METERED_TURN_API_KEY) {
-                throw new Error("Missing PUBLIC_METERED_TURN_API_KEY in environment variables");
+            if (!PUBLIC_CLOUDFLARE_TURN_KEY_ID || !PUBLIC_CLOUDFLARE_TURN_API_TOKEN) {
+                throw new Error("Missing Cloudflare TURN environment variables");
             }
             
-            const response = await fetch(`${ApiEndpoints.TURN_CREDENTIALS}?apiKey=${PUBLIC_METERED_TURN_API_KEY}`);
+            const response = await fetch(`${ApiEndpoints.TURN_CREDENTIALS}/${PUBLIC_CLOUDFLARE_TURN_KEY_ID}/credentials/generate`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${PUBLIC_CLOUDFLARE_TURN_API_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ttl: 86400 })
+            });
             
             if (!response.ok) {
-                throw new Error(`Metered API responded with status: ${response.status}`);
+                throw new Error(`Cloudflare API responded with status: ${response.status}`);
             }
 
-            const iceServers = await response.json();
-            return { iceServers };
+            const data = await response.json();
+            return { iceServers: data.iceServers };
         } catch (error) {
-            console.error("[ApiConfig] Failed to fetch ICE servers from Metered, using fallback", error);
+            console.error("[ApiConfig] Failed to fetch ICE servers from Cloudflare, using fallback", error);
             return {
                 iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
             };

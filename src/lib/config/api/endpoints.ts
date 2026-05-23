@@ -15,5 +15,5 @@ export const ApiEndpoints = {
     APP_STORE_PRODUCTS: 'https://dummyjson.com/products',
     MAIL_COMMENTS: 'https://jsonplaceholder.typicode.com/comments',
     LLM_CHAT_COMPLETION: 'https://api.llm7.io/v1/chat/completions',
-    TURN_CREDENTIALS: 'https://myphone.metered.live/api/v1/turn/credentials',
+    TURN_CREDENTIALS: 'https://rtc.live.cloudflare.com/v1/turn/keys',
 } as const;
