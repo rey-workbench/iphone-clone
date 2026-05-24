@@ -29,5 +29,13 @@ export const ApiDynamic = {
         
         const queryString = params.toString();
         return `${ApiEndpoints.MUSIC_SEARCH}${queryString ? '?' + queryString : ''}`;
+    },
+
+    getNetflixMovieStream(tmdbId: string | number): string {
+        return `${ApiEndpoints.VIDSRC_EMBED}/embed/movie?tmdb=${tmdbId}&autoplay=1`;
+    },
+
+    getNetflixTvStream(tmdbId: string | number, season: number, episode: number): string {
+        return `${ApiEndpoints.VIDSRC_EMBED}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&autoplay=1`;
     }
 };

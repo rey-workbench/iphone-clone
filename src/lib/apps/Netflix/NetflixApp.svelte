@@ -48,7 +48,7 @@
 </script>
 
 <div
-  class="w-full h-full bg-[#000000] text-white flex flex-col font-sans overflow-hidden"
+  class="w-full h-full bg-ios-bg text-white flex flex-col font-sans overflow-hidden"
 >
   {#if netflixState.view === "home"}
     <!-- Active Tab: Home -->
@@ -137,7 +137,7 @@
               class="w-full h-full object-cover object-center"
             />
             <div
-              class="absolute inset-0 bg-gradient-to-t from-[#000000] via-transparent to-[#000000]/40"
+              class="absolute inset-0 bg-linear-to-t from-ios-bg via-transparent to-ios-bg/40"
             ></div>
 
             <div

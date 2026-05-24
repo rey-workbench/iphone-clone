@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { netflixState } from "../NetflixState.svelte";
+  import { ApiConfig } from "$lib/config/api";
 
   let media = $derived(netflixState.selectedMedia);
   let isTvShow = $derived(
@@ -17,13 +18,17 @@
   let creator = $state("Loading...");
   let trailerId = $state<string | null>(null);
   let showTrailer = $state(false);
+  let seasons = $state<any[]>([]);
   let idleTimer: any;
 
-  // Menggunakan proxy kembali untuk menyuntikkan script anti-iklan
   let iframeSrc = $derived(
     isTvShow
-      ? `/embed?tmdb=${media?.id}&type=tv&s=${selectedSeason}&e=${selectedEpisode}&lan=original&autoplay=0`
-      : `/embed?tmdb=${media?.id}&type=movie&lan=original&autoplay=0`,
+      ? ApiConfig.getNetflixTvStream(
+          media?.id || "",
+          selectedSeason,
+          selectedEpisode,
+        )
+      : ApiConfig.getNetflixMovieStream(media?.id || ""),
   );
 
   function openFullscreen() {
@@ -49,11 +54,34 @@
         cast = data.cast || "Unknown";
         creator = data.creator || "Unknown";
         trailerId = data.trailerId;
+        if (data.seasons && data.seasons.length > 0) {
+          seasons = data.seasons;
+          selectedSeason = seasons[0].season_number;
+        } else {
+          seasons = [];
+        }
       }
     } catch (e) {
       console.error(e);
     }
   }
+
+  onMount(() => {
+    fetchDetails();
+    // Block malicious framebusting redirects from Vidsrc
+    const preventRedirect = (e: BeforeUnloadEvent) => {
+      if (isPlaying) {
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    };
+    window.addEventListener("beforeunload", preventRedirect);
+    
+    return () => {
+      window.removeEventListener("beforeunload", preventRedirect);
+    };
+  });
 
   function startIdleTimer() {
     clearTimeout(idleTimer);
@@ -85,22 +113,23 @@
 <!-- Fullscreen Landscape Overlay — rendered outside scroll container -->
 {#if isPlaying && isFullscreen}
   <div
-    class="fixed z-[99999] bg-black"
+    class="fixed z-99999 bg-black"
     style="top:0;left:0;width:100vh;height:100vw;transform-origin:top left;transform:rotate(90deg) translateY(-100%);"
   >
     {#key `${isTvShow}-${selectedSeason}-${selectedEpisode}-fs`}
       <iframe
         src={iframeSrc}
         class="w-full h-full pointer-events-auto"
+        style="width: 100%; height: 100%;"
         frameborder="0"
-        allow="autoplay; picture-in-picture; fullscreen"
+        referrerpolicy="origin"
         allowfullscreen
-        title="Stream Fullscreen"
       ></iframe>
     {/key}
     <!-- Exit Fullscreen Button -->
     <button
-      class="absolute top-4 right-4 z-[9] text-white bg-black/70 rounded-full p-2 hover:bg-black/90"
+      type="button"
+      class="absolute top-4 right-4 z-9 text-white bg-black/70 rounded-full p-2 hover:bg-black/90"
       onclick={closeFullscreen}
       aria-label="Exit Fullscreen"
     >
@@ -131,6 +160,7 @@
     class="flex justify-between items-center px-4 mb-4 shrink-0 pointer-events-none"
   >
     <button
+      type="button"
       aria-label="Back"
       class="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors pointer-events-auto"
       onclick={() => netflixState.goBack()}
@@ -149,8 +179,9 @@
     </button>
     {#if !isPlaying}
       <button
+        type="button"
         aria-label="Cast"
-        class="w-8 h-8 flex items-center justify-center text-white bg-black/40 rounded-full backdrop-blur-md pointer-events-auto"
+        class="w-8 h-8 flex items-center justify-center text-white bg-black/40 rounded-full backdrop-blur-md pointer-events-auto hover:bg-black/70 transition-colors"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -177,11 +208,11 @@
       {#key `${isTvShow}-${selectedSeason}-${selectedEpisode}`}
         <iframe
           src={iframeSrc}
-          class="absolute inset-0 w-full h-full"
+          class="absolute inset-0 w-full h-full z-20"
+          style="width: 100%; height: 100%;"
           frameborder="0"
-          allow="picture-in-picture; fullscreen"
+          referrerpolicy="origin"
           allowfullscreen
-          title="Stream Player"
         ></iframe>
       {/key}
 
@@ -226,7 +257,7 @@
           {/if}
 
           <div
-            class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none"
+            class="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent pointer-events-none"
           ></div>
         </div>
       {/if}
@@ -272,6 +303,7 @@
       <!-- Play & Download -->
       <div class="flex flex-col gap-2 mt-1">
         <button
+          type="button"
           class="w-full bg-white text-black font-bold py-2 rounded flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors"
           onclick={() => (isPlaying = true)}
         >
@@ -285,6 +317,7 @@
           Play
         </button>
         <button
+          type="button"
           class="w-full bg-[#2b2b2b] text-white font-bold py-2 rounded flex items-center justify-center gap-2 hover:bg-[#333] transition-colors"
         >
           <svg
@@ -348,21 +381,21 @@
         class="flex items-center gap-6 border-t border-t-[#333] mt-4 pt-4 text-sm font-bold"
       >
         {#if isTvShow}
-          <div class="border-t-4 border-red-600 pt-2 -mt-[20px] text-white">
+          <div class="border-t-4 border-red-600 pt-2 mt-[-20px] text-white">
             Episodes
           </div>
-          <div class="text-gray-400 pt-2 -mt-[20px]">Collection</div>
-          <div class="text-gray-400 pt-2 -mt-[20px]">More Like This</div>
+          <div class="text-gray-400 pt-2 mt-[-20px]">Collection</div>
+          <div class="text-gray-400 pt-2 mt-[-20px]">More Like This</div>
         {:else}
-          <div class="border-t-4 border-red-600 pt-2 -mt-[20px] text-white">
+          <div class="border-t-4 border-red-600 pt-2 mt-[-20px] text-white">
             More Like This
           </div>
-          <div class="text-gray-400 pt-2 -mt-[20px]">Collection</div>
+          <div class="text-gray-400 pt-2 mt-[-20px]">Collection</div>
         {/if}
       </div>
 
       <!-- Episodes for TV -->
-      {#if isTvShow}
+      {#if isTvShow && seasons.length > 0}
         <div class="mt-2">
           <select
             id="season-select"
@@ -370,58 +403,55 @@
             class="bg-[#2b2b2b] text-white px-4 py-2 rounded text-sm font-medium border-none outline-none mb-4"
             bind:value={selectedSeason}
           >
-            <option value={1}>Season 1</option>
-            <option value={2}>Season 2</option>
-            <option value={3}>Season 3</option>
+            {#each seasons as s}
+              <option value={s.season_number}>{s.name}</option>
+            {/each}
           </select>
-
           <div class="flex flex-col gap-6">
-            {#each [{ ep: 1, name: "Pilot", duration: "45m" }, { ep: 2, name: "The Beginning", duration: "42m" }] as ep}
+            {#each Array.from({ length: seasons.find(s => s.season_number === selectedSeason)?.episode_count || 1 }) as _, i}
               <div class="flex flex-col gap-2">
                 <div
                   class="flex items-center gap-3 cursor-pointer group"
                   role="button"
                   tabindex="0"
                   onclick={() => {
-                    selectedEpisode = ep.ep;
+                    selectedEpisode = i + 1;
                     isPlaying = true;
                   }}
                   onkeydown={(e) =>
                     e.key === "Enter" &&
-                    ((selectedEpisode = ep.ep), (isPlaying = true))}
+                    ((selectedEpisode = i + 1), (isPlaying = true))}
                 >
                   <div
                     class="relative w-[130px] h-[75px] shrink-0 bg-[#2b2b2b] rounded flex items-center justify-center overflow-hidden"
                   >
                     <img
                       src={media.backdrop_path}
-                      alt="Episode {ep.ep}"
+                      alt="Episode {i + 1}"
                       class="absolute inset-0 w-full h-full object-cover opacity-60"
                     />
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="white"
-                      class="z-10"
-                      ><circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="white"
-                        stroke-width="1"
-                        fill="rgba(0,0,0,0.5)"
-                      /><path d="M10 8l6 4-6 4V8z" /></svg
-                    >
+                    {#if selectedEpisode === i + 1 && isPlaying}
+                      <div class="text-xs font-bold text-red-600 z-10">Playing</div>
+                    {:else}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="white"
+                        class="z-10 group-hover:scale-110 transition-transform"
+                      >
+                        <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1" fill="rgba(0,0,0,0.5)" />
+                        <path d="M10 8l6 4-6 4V8z" />
+                      </svg>
+                    {/if}
                   </div>
-                  <div class="flex flex-col justify-center flex-1">
-                    <h4
-                      class="text-sm font-medium text-white group-hover:underline"
-                    >
-                      {ep.ep}. {ep.name}
-                    </h4>
-                    <span class="text-xs text-gray-400">{ep.duration}</span>
+                  <div class="flex flex-col flex-1">
+                    <div class="flex justify-between items-center mb-1">
+                      <div class="text-sm text-white font-medium">
+                        Episode {i + 1}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <p class="text-[13px] text-gray-400 leading-snug">

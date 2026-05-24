@@ -53,7 +53,20 @@ export async function GET({ url }) {
             }
         }
 
-        return json({ cast, creator, trailerId });
+        const imdbId = data.imdb_id || null;
+        
+        let seasons = [];
+        if (type === 'tv' && data.seasons) {
+            seasons = data.seasons
+                .filter((s: any) => s.season_number > 0)
+                .map((s: any) => ({
+                    season_number: s.season_number,
+                    episode_count: s.episode_count,
+                    name: s.name || `Season ${s.season_number}`
+                }));
+        }
+
+        return json({ cast, creator, trailerId, imdb_id: imdbId, seasons });
     } catch (error: any) {
         return json({ error: error.message }, { status: 500 });
     }

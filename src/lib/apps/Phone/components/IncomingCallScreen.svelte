@@ -67,7 +67,7 @@
       <div class="flex flex-col items-center gap-2">
         <button
           onclick={() => callState.declineCall()}
-          class="w-[72px] h-[72px] rounded-full bg-[#FF3B30] flex items-center justify-center shadow-lg shadow-red-900/40 active:opacity-80 transition-opacity text-white"
+          class="w-[72px] h-[72px] rounded-full bg-ios-red flex items-center justify-center shadow-lg shadow-red-900/40 active:opacity-80 transition-opacity text-white"
           aria-label="Decline"
         >
           <PhoneOff size={32} />
@@ -79,7 +79,7 @@
       <div class="flex flex-col items-center gap-2">
         <button
           onclick={() => callState.acceptCall()}
-          class="w-[72px] h-[72px] rounded-full bg-[#34C759] flex items-center justify-center shadow-lg shadow-green-900/40 active:opacity-80 transition-opacity text-white"
+          class="w-[72px] h-[72px] rounded-full bg-ios-green flex items-center justify-center shadow-lg shadow-green-900/40 active:opacity-80 transition-opacity text-white"
           aria-label="Accept"
         >
           <Phone size={32} />

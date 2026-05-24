@@ -21,10 +21,8 @@ export class NetflixState {
   async fetchTrending() {
     this.isLoading = true;
     try {
-      // Using an open CORS proxy or an alternative free API if possible.
-      // But TMDB requires auth. We'll use a hardcoded mock if no key is present in env.
-      // We will try calling our backend proxy first.
-      const res = await fetch('/api/netflix/trending');
+
+      const res = await fetch('/api/netflix/latest');
       if (res.ok) {
         const data = await res.json();
         this.movies = data.movies || [];
