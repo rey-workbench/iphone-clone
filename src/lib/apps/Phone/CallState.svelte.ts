@@ -77,7 +77,10 @@ export class CallState {
 
     private async handleOffer(payload: any) {
         if (this.status !== 'idle') {
-            if (this.remoteContact && this.remoteContact.id === payload.from.id) {
+            const isSameContact = this.remoteContact && payload.from && 
+                (this.remoteContact.id === payload.from.id || this.remoteContact.username === payload.from.username);
+                
+            if (isSameContact) {
                 // Renegotiation for video
                 try {
                     const answer = await webrtcState.setRemoteOffer(payload.offer);
@@ -88,7 +91,10 @@ export class CallState {
                 return;
             }
 
-            await webrtcState.sendSignal(payload.from.id, 'call_end');
+            // If it's a different contact trying to call while we are busy, tell them we are busy
+            if (payload.from && payload.from.id) {
+                await webrtcState.sendSignal(payload.from.id, 'call_end');
+            }
             return;
         }
 
