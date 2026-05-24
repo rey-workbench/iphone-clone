@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount, onDestroy } from "svelte";
   import { netflixState } from "../NetflixState.svelte";
 
   let media = $derived(netflixState.selectedMedia);
@@ -12,11 +13,17 @@
   let selectedSeason = $state(1);
   let selectedEpisode = $state(1);
 
-  // Bypassing our proxy entirely so the browser can natively solve Cloudflare Turnstile!
+  let cast = $state("Loading...");
+  let creator = $state("Loading...");
+  let trailerId = $state<string | null>(null);
+  let showTrailer = $state(false);
+  let idleTimer: any;
+
+  // Menggunakan proxy kembali untuk menyuntikkan script anti-iklan
   let iframeSrc = $derived(
     isTvShow
-      ? `https://screenscape.me/embed?tmdb=${media?.id}&type=tv&s=${selectedSeason}&e=${selectedEpisode}&lan=eng`
-      : `https://screenscape.me/embed?tmdb=${media?.id}&type=movie&lan=eng`
+      ? `/embed?tmdb=${media?.id}&type=tv&s=${selectedSeason}&e=${selectedEpisode}&lan=original&autoplay=0`
+      : `/embed?tmdb=${media?.id}&type=movie&lan=original&autoplay=0`,
   );
 
   function openFullscreen() {
@@ -29,6 +36,50 @@
     isPlaying = false;
     isFullscreen = false;
   }
+
+  async function fetchDetails() {
+    if (!media?.id) return;
+    try {
+      const type = isTvShow ? "tv" : "movie";
+      const res = await fetch(
+        `/api/netflix/details?id=${media.id}&type=${type}`,
+      );
+      const data = await res.json();
+      if (!data.error) {
+        cast = data.cast || "Unknown";
+        creator = data.creator || "Unknown";
+        trailerId = data.trailerId;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function startIdleTimer() {
+    clearTimeout(idleTimer);
+    showTrailer = false;
+    idleTimer = setTimeout(() => {
+      if (!isPlaying && trailerId) {
+        showTrailer = true;
+      }
+    }, 4000); // 4 seconds of idle time
+  }
+
+  $effect(() => {
+    if (media) {
+      cast = "Loading...";
+      creator = "Loading...";
+      trailerId = null;
+      showTrailer = false;
+      fetchDetails().then(() => {
+        startIdleTimer();
+      });
+    }
+  });
+
+  onDestroy(() => {
+    clearTimeout(idleTimer);
+  });
 </script>
 
 <!-- Fullscreen Landscape Overlay — rendered outside scroll container -->
@@ -42,7 +93,8 @@
         src={iframeSrc}
         class="w-full h-full pointer-events-auto"
         frameborder="0"
-        allow="autoplay; picture-in-picture"
+        allow="autoplay; picture-in-picture; fullscreen"
+        allowfullscreen
         title="Stream Fullscreen"
       ></iframe>
     {/key}
@@ -119,56 +171,66 @@
   </div>
 
   {#if media}
-    <!-- Inline Portrait Player -->
-    {#if isPlaying}
-      <div
-        class="relative w-full aspect-video bg-black shrink-0 animate-[fadeIn_0.3s_ease]"
-      >
-        {#key `${isTvShow}-${selectedSeason}-${selectedEpisode}`}
-          <iframe
-            src={iframeSrc}
-            class="w-full h-full pointer-events-auto"
-            frameborder="0"
-            allow="autoplay; picture-in-picture; fullscreen"
-            allowfullscreen
-            title="Stream Player"
-          ></iframe>
-        {/key}
+    <!-- Media Player & Thumbnail Container -->
+    <div class="relative w-full h-[250px] bg-black shrink-0 overflow-hidden">
+      <!-- Iframe always running in background to burn through the "Ad-Free" countdown -->
+      {#key `${isTvShow}-${selectedSeason}-${selectedEpisode}`}
+        <iframe
+          src={iframeSrc}
+          class="absolute inset-0 w-full h-full"
+          frameborder="0"
+          allow="autoplay; picture-in-picture; fullscreen"
+          allowfullscreen
+          title="Stream Player"
+        ></iframe>
+      {/key}
 
-      </div>
-    {:else}
-      <!-- Hero Thumbnail / Play trigger -->
-      <div
-        class="relative w-full h-[250px] shrink-0 bg-cover bg-center cursor-pointer group"
-        style="background-image: url({media.backdrop_path ||
-          media.poster_path})"
-        role="button"
-        tabindex="0"
-        aria-label="Play"
-        onclick={() => (isPlaying = true)}
-        onkeydown={(e) => e.key === "Enter" && (isPlaying = true)}
-      >
+      <!-- Hero Thumbnail Overlay (Hides Iframe until Play is clicked) -->
+      {#if !isPlaying}
         <div
-          class="absolute inset-0 bg-black/30 flex items-center justify-center"
+          class="absolute inset-0 w-full h-full bg-black z-10 animate-[fadeIn_0.3s_ease]"
         >
-          <div
-            class="w-16 h-16 rounded-full border-2 border-white flex items-center justify-center bg-black/40 group-hover:bg-white/20 transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="white"
-              class="ml-1"><path d="M8 5v14l11-7z" /></svg
+          <!-- Background Image or Trailer -->
+          {#if showTrailer && trailerId}
+            <iframe
+              src="https://www.youtube.com/embed/{trailerId}?autoplay=1&mute=1&controls=0&playsinline=1&modestbranding=1&loop=1&playlist={trailerId}"
+              class="w-full h-full object-cover scale-[1.35] pointer-events-none opacity-80"
+              frameborder="0"
+              allow="autoplay; encrypted-media; picture-in-picture"
+              title="Trailer"
+            ></iframe>
+          {:else}
+            <div
+              class="w-full h-full bg-cover bg-center transition-opacity duration-500"
+              style="background-image: url({media.backdrop_path ||
+                media.poster_path})"
+            ></div>
+
+            <!-- Play button overlay (Only visible when trailer hasn't started) -->
+            <div
+              class="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none"
             >
-          </div>
+              <div
+                class="w-16 h-16 rounded-full border-2 border-white flex items-center justify-center bg-black/40"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="white"
+                  class="ml-1"><path d="M8 5v14l11-7z" /></svg
+                >
+              </div>
+            </div>
+          {/if}
+
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none"
+          ></div>
         </div>
-        <div
-          class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"
-        ></div>
-      </div>
-    {/if}
+      {/if}
+    </div>
 
     <!-- Content Details -->
     <div class="px-3 pt-2 flex flex-col gap-3 pb-12">
@@ -251,9 +313,10 @@
 
       <!-- Cast -->
       <p class="text-[11px] text-gray-400 leading-tight">
-        <span class="text-gray-300">Starring:</span> Actor Name, Another Actor<br
-        />
-        <span class="text-gray-300">Creator:</span> Director Name
+        <span class="text-gray-300">Starring:</span>
+        {cast}<br />
+        <span class="text-gray-300">{isTvShow ? "Creator:" : "Director:"}</span>
+        {creator}
       </p>
 
       <!-- Actions: My List, Rate, Share -->
