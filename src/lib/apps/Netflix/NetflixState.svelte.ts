@@ -42,18 +42,22 @@ export class NetflixState {
   selectMedia(item: any) {
     this.selectedMedia = item;
     this.view = 'detail';
+    if (typeof window !== 'undefined') window.history.pushState({ netflixModal: 'detail' }, '');
   }
 
   playMedia() {
     this.view = 'player';
+    if (typeof window !== 'undefined') window.history.pushState({ netflixModal: 'player' }, '');
   }
 
-  goBack() {
+  goBack(fromPopState = false) {
     if (this.view === 'player') {
       this.view = 'detail';
+      if (!fromPopState && typeof window !== 'undefined') window.history.back();
     } else if (this.view === 'detail') {
       this.view = 'home';
       this.selectedMedia = null;
+      if (!fromPopState && typeof window !== 'undefined') window.history.back();
     }
   }
 

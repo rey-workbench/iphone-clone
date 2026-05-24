@@ -3,6 +3,7 @@
   import MovieDetail from "./components/MovieDetail.svelte";
   import { systemState } from "$lib/states";
   import Player from "./components/Player.svelte";
+  import { onMount } from "svelte";
 
   let headerOpacity = $state(0);
   let activeTab = $state("home"); // 'home', 'search'
@@ -42,6 +43,16 @@
     } else {
       serverSearchResults = [];
     }
+  });
+
+  onMount(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (netflixState.view !== 'home') {
+        netflixState.goBack(true);
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   });
 
   let top10Movies = $derived(netflixState.movies.slice(0, 10));
