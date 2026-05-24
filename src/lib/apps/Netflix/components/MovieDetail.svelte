@@ -20,6 +20,7 @@
   let showTrailer = $state(false);
   let seasons = $state<any[]>([]);
   let idleTimer: any;
+  let currentServer = $state(1);
 
   let iframeSrc = $derived(
     isTvShow
@@ -27,8 +28,9 @@
           media?.id || "",
           selectedSeason,
           selectedEpisode,
+          currentServer
         )
-      : ApiConfig.getNetflixMovieStream(media?.id || ""),
+      : ApiConfig.getNetflixMovieStream(media?.id || "", currentServer),
   );
 
   function openFullscreen() {
@@ -336,6 +338,20 @@
           >
           Download
         </button>
+      </div>
+
+      <!-- Server Switcher -->
+      <div class="flex items-center gap-2 mt-2 mb-1 overflow-x-auto no-scrollbar">
+        <span class="text-xs text-gray-400 font-medium whitespace-nowrap">Server:</span>
+        {#each [1, 2] as server}
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors {currentServer === server ? 'bg-white text-black' : 'bg-[#333] text-gray-300 hover:bg-[#444]'}"
+            onclick={() => currentServer = server}
+          >
+            {server === 1 ? 'Vidsrc' : '2embed'}
+          </button>
+        {/each}
       </div>
 
       <!-- Synopsis -->

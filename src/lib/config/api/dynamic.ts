@@ -31,11 +31,13 @@ export const ApiDynamic = {
         return `${ApiEndpoints.MUSIC_SEARCH}${queryString ? '?' + queryString : ''}`;
     },
 
-    getNetflixMovieStream(tmdbId: string | number): string {
-        return `${ApiEndpoints.VIDSRC_EMBED}/embed/movie?tmdb=${tmdbId}&autoplay=1`;
+    getNetflixMovieStream(tmdbId: string | number, server: number = 1): string {
+        if (server === 2) return `${ApiEndpoints.TWOEMBED}/embed/${tmdbId}`;
+        return `${ApiEndpoints.VIDSRC_EMBED}/embed/movie?tmdb=${tmdbId}&ds_lang=id`;
     },
 
-    getNetflixTvStream(tmdbId: string | number, season: number, episode: number): string {
-        return `${ApiEndpoints.VIDSRC_EMBED}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&autoplay=1`;
+    getNetflixTvStream(tmdbId: string | number, season: number, episode: number, server: number = 1): string {
+        if (server === 2) return `${ApiEndpoints.TWOEMBED}/embedtv/${tmdbId}&s=${season}&e=${episode}`;
+        return `${ApiEndpoints.VIDSRC_EMBED}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=id`;
     }
 };

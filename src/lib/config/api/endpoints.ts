@@ -16,6 +16,7 @@ export const ApiEndpoints = {
     MAIL_COMMENTS: 'https://jsonplaceholder.typicode.com/comments',
     LLM_CHAT_COMPLETION: 'https://api.llm7.io/v1/chat/completions',
     TURN_CREDENTIALS: 'https://rtc.live.cloudflare.com/v1/turn/keys',
-    // Movies (Vidsrc Embed)
+    // Movies Servers
     VIDSRC_EMBED: 'https://vidsrc-embed.ru',
+    TWOEMBED: 'https://www.2embed.cc',
 } as const;
