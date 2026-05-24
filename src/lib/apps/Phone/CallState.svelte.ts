@@ -23,6 +23,14 @@ export class CallState {
                 onEnd: () => this.handleRemoteEnd(),
                 onAnsweredElsewhere: () => this.handleAnsweredElsewhere()
             });
+
+            window.addEventListener('reynisa:remote_video', () => {
+                this.isVideo = true;
+                // Force reactivity update for the video tag
+                const stream = webrtcState.remoteStream;
+                webrtcState.remoteStream = null;
+                setTimeout(() => webrtcState.remoteStream = stream, 10);
+            });
         }
     }
 
@@ -63,6 +71,17 @@ export class CallState {
 
     private async handleOffer(payload: any) {
         if (this.status !== 'idle') {
+            if (this.remoteContact && this.remoteContact.id === payload.from.id) {
+                // Renegotiation for video
+                try {
+                    const answer = await webrtcState.setRemoteOffer(payload.offer);
+                    await webrtcState.sendSignal(this.remoteContact.id, 'call_answer', { answer }, this.remoteDeviceId || undefined);
+                } catch (e) {
+                    console.error('Failed to renegotiate:', e);
+                }
+                return;
+            }
+
             await webrtcState.sendSignal(payload.from.id, 'call_end');
             return;
         }

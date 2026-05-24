@@ -160,6 +160,12 @@ export class WebRTCState {
             }
             this.remoteStream.addTrack(event.track);
 
+            if (event.track.kind === 'video') {
+                if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new CustomEvent('reynisa:remote_video'));
+                }
+            }
+
             // Keep the audio fallback working
             if (event.track.kind === 'audio') {
                 const audio = document.getElementById('remote-audio') as HTMLAudioElement;
