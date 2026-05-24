@@ -349,7 +349,7 @@
         <span class="text-xs text-gray-400 font-medium whitespace-nowrap"
           >Server:</span
         >
-        {#each [1, 2] as server}
+        {#each [1, 2, 3] as server}
           <button
             type="button"
             class="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors {currentServer ===
@@ -358,7 +358,7 @@
               : 'bg-[#333] text-gray-300 hover:bg-[#444]'}"
             onclick={() => (currentServer = server)}
           >
-            {server === 1 ? "Vidsrc" : "VidLink"}
+            {server === 1 ? "Vidsrc" : server === 2 ? "VidLink" : "MultiEmbed"}
           </button>
         {/each}
       </div>

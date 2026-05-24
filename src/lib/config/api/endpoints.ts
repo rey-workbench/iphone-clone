@@ -19,4 +19,5 @@ export const ApiEndpoints = {
     // Movies Servers
     VIDSRC_EMBED: 'https://vidsrc-embed.ru',
     VIDLINK: 'https://vidlink.pro',
+    MULTIEMBED: 'https://multiembed.mov',
 } as const;

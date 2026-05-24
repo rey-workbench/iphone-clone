@@ -32,11 +32,13 @@ export const ApiDynamic = {
     },
 
     getNetflixMovieStream(tmdbId: string | number, server: number = 1): string {
+        if (server === 3) return `${ApiEndpoints.MULTIEMBED}/?video_id=${tmdbId}&tmdb=1`;
         if (server === 2) return `${ApiEndpoints.VIDLINK}/movie/${tmdbId}`;
         return `${ApiEndpoints.VIDSRC_EMBED}/embed/movie?tmdb=${tmdbId}&ds_lang=id`;
     },
 
     getNetflixTvStream(tmdbId: string | number, season: number, episode: number, server: number = 1): string {
+        if (server === 3) return `${ApiEndpoints.MULTIEMBED}/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
         if (server === 2) return `${ApiEndpoints.VIDLINK}/tv/${tmdbId}/${season}/${episode}`;
         return `${ApiEndpoints.VIDSRC_EMBED}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=id`;
     }
