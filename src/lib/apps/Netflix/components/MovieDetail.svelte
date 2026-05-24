@@ -70,11 +70,9 @@
 
   onMount(() => {
     fetchDetails();
-    // Block malicious framebusting redirects (but disable for 2embed/vidsrc/vidlink to prevent Sandbox Error)
+    // Block malicious framebusting redirects unconditionally
     const preventRedirect = (e: BeforeUnloadEvent) => {
-      const uses2Embed = iframeSrc.includes("vidsrc") || iframeSrc.includes("vidlink") || iframeSrc.includes("2embed");
-      
-      if (isPlaying && !uses2Embed) {
+      if (isPlaying) {
         e.preventDefault();
         e.returnValue = "";
         return "";
