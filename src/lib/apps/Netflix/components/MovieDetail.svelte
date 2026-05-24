@@ -179,7 +179,7 @@
           src={iframeSrc}
           class="absolute inset-0 w-full h-full"
           frameborder="0"
-          allow="autoplay; picture-in-picture; fullscreen"
+          allow="picture-in-picture; fullscreen"
           allowfullscreen
           title="Stream Player"
         ></iframe>
