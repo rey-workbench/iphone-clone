@@ -8,6 +8,10 @@
     Video,
     User,
     PhoneOff,
+    Star,
+    RefreshCcw,
+    VideoOff,
+    Mic
   } from "@lucide/svelte";
 
   function setSrcObject(node: HTMLVideoElement, stream: MediaStream | null) {
@@ -15,7 +19,7 @@
     return {
       update(newStream: MediaStream | null) {
         node.srcObject = newStream;
-      }
+      },
     };
   }
 
@@ -53,7 +57,7 @@
       icon: Video,
       label: "FaceTime",
       action: () => callState.toggleVideo(),
-      active: () => callState.isVideo,
+      active: () => callState.isLocalVideo,
     },
     {
       id: "contacts",
@@ -78,13 +82,15 @@
 
 <!-- Hidden audio element -->
 
-
 <!-- Full-screen overlay -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="absolute inset-0 z-[9999] bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"
-     style="background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);"
-     onclick={() => { if (callState.isVideo) showControls = !showControls; }}
+<div
+  class="absolute inset-0 z-[9999] bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"
+  style="background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);"
+  onclick={() => {
+    if (callState.isVideo) showControls = !showControls;
+  }}
 >
   {#if callState.isVideo}
     <!-- Remote Video Background -->
@@ -96,7 +102,9 @@
     ></video>
 
     <!-- Local Video PiP -->
-    <div class="absolute top-16 right-4 w-28 h-40 bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 z-50">
+    <div
+      class="absolute top-16 right-4 w-28 h-40 bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 z-50"
+    >
       <video
         use:setSrcObject={callState.localStream}
         autoplay
@@ -107,56 +115,102 @@
     </div>
   {/if}
 
-  <!-- Top spacer -->
-  <div class="h-16"></div>
+  <!-- Top Avatar & Name -->
+  {#if callState.isVideo}
+    <!-- Video Mode: Top Left Avatar & Name -->
+    <div class="absolute top-12 left-6 z-50 flex items-center gap-3 transition-opacity duration-300 {showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}">
+       <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white text-xl overflow-hidden backdrop-blur-md ring-2 ring-white/10">
+           {callState.remoteContact?.name?.substring(0, 1) ?? "?"}
+       </div>
+       <div class="flex flex-col">
+           <span class="text-white text-lg font-medium drop-shadow-md">{callState.remoteContact?.name ?? "Unknown"}</span>
+           <span class="text-white/80 text-sm drop-shadow-md">{callState.durationFormatted}</span>
+       </div>
+    </div>
+  {#else}
+    <!-- Audio Mode: Center Avatar & Name -->
+    <div class="flex flex-col items-center z-10 transition-opacity duration-300 opacity-100">
+      <div class="w-24 h-24 rounded-full bg-[#3a3a3a] flex items-center justify-center text-white text-4xl font-semibold mb-4 shadow-2xl ring-4 ring-white/10">
+        {callState.remoteContact?.name?.substring(0, 1) ?? "?"}
+      </div>
 
-  <!-- Avatar & Name (Hide when video is on) -->
-  <div class="flex flex-col items-center z-10 transition-opacity duration-300 {callState.isVideo ? 'opacity-0 pointer-events-none' : 'opacity-100'}">
+      <h1 class="text-[34px] font-semibold text-white tracking-tight mb-1" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+        {callState.remoteContact?.name ?? "Unknown"}
+      </h1>
+
+      <p class="text-[17px] text-white/90 tabular-nums mb-8" style="text-shadow: 0 1px 5px rgba(0,0,0,0.5);">
+        {callState.durationFormatted}
+      </p>
+    </div>
+  {/if}
+
+  <!-- Controls -->
+  {#if callState.isVideo}
+    <!-- FaceTime Bottom Panel -->
     <div
-      class="w-24 h-24 rounded-full bg-[#3a3a3a] flex items-center justify-center text-white text-4xl font-semibold mb-4 shadow-2xl ring-4 ring-white/10"
+      class="absolute bottom-8 left-4 right-4 bg-[#2a2a2a]/80 backdrop-blur-xl rounded-[32px] p-6 z-50 transition-opacity duration-300 {showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}"
+      onclick={(e) => e.stopPropagation()}
     >
-      {callState.remoteContact?.name?.substring(0, 1) ?? "?"}
+        <div class="flex justify-between items-center mb-6 px-2">
+            <button class="flex flex-col items-center gap-1 opacity-50"><Star size={24} color="white"/><span class="text-[10px] text-white font-medium mt-1">effects</span></button>
+            <button onclick={() => callState.toggleMute()} class="flex flex-col items-center gap-1 {callState.isMuted ? 'opacity-100' : 'opacity-50'} transition-opacity">
+                {#if callState.isMuted}
+                    <MicOff size={24} color="white"/>
+                {#else}
+                    <Mic size={24} color="white"/>
+                {/if}
+                <span class="text-[10px] text-white font-medium mt-1">mute</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 opacity-50"><RefreshCcw size={24} color="white"/><span class="text-[10px] text-white font-medium mt-1">flip</span></button>
+            <button onclick={() => callState.hangUp()} class="w-12 h-12 rounded-full bg-[#FF3B30] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all"><PhoneOff size={20} color="white"/></button>
+        </div>
+        <div class="flex gap-4">
+            <button onclick={() => callState.toggleVideo()} class="flex-1 py-3.5 rounded-2xl bg-white/10 flex items-center justify-center gap-2 text-sm text-white font-medium active:scale-95 transition-all">
+                <VideoOff size={18}/> Camera Off
+            </button>
+            <button onclick={() => callState.toggleSpeaker()} class="flex-1 py-3.5 rounded-2xl {callState.isSpeaker ? 'bg-white text-black' : 'bg-white/10 text-white'} flex items-center justify-center gap-2 text-sm font-medium active:scale-95 transition-all">
+                <Volume2 size={18}/> Speaker
+            </button>
+        </div>
+    </div>
+  {#else}
+    <!-- Audio Mode Controls -->
+    <div
+      class="grid grid-cols-3 gap-x-6 gap-y-5 px-8 mb-auto z-10 transition-opacity duration-300 opacity-100"
+      onclick={(e) => e.stopPropagation()}
+    >
+      {#each controls as c}
+        <button
+          onclick={c.action}
+          class="flex flex-col items-center gap-2 group"
+          aria-label={c.label}
+        >
+          <div
+            class="w-[70px] h-[70px] rounded-2xl flex items-center justify-center transition-all backdrop-blur-md border border-white/10
+                      {c.active()
+              ? 'bg-white text-black'
+              : 'bg-black/40 text-white'}
+                      active:scale-95"
+          >
+            <c.icon size={28} />
+          </div>
+          <span class="text-[13px] text-white/90 font-medium drop-shadow-md">{c.label}</span>
+        </button>
+      {/each}
     </div>
 
-    <h1 class="text-[34px] font-semibold text-white tracking-tight mb-1" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
-      {callState.remoteContact?.name ?? "Unknown"}
-    </h1>
-
-    <p class="text-[17px] text-white/90 tabular-nums mb-8" style="text-shadow: 0 1px 5px rgba(0,0,0,0.5);">
-      {callState.durationFormatted}
-    </p>
-  </div>
-
-  <!-- Controls Grid -->
-  <div class="grid grid-cols-3 gap-x-6 gap-y-5 px-8 mb-auto z-10 transition-opacity duration-300 {showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}">
-    {#each controls as c}
-      <button
-        onclick={c.action}
-        class="flex flex-col items-center gap-2 group"
-        aria-label={c.label}
-      >
-        <div
-          class="w-[70px] h-[70px] rounded-2xl flex items-center justify-center transition-all backdrop-blur-md border border-white/10
-                    {c.active()
-            ? 'bg-white text-black'
-            : 'bg-black/40 text-white'}
-                    active:scale-95"
-        >
-          <c.icon size={28} />
-        </div>
-        <span class="text-[13px] text-white/90 font-medium drop-shadow-md">{c.label}</span>
-      </button>
-    {/each}
-  </div>
-
-  <!-- Hang Up -->
-  <div class="pb-16 z-10 transition-opacity duration-300 {showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}">
-    <button
-      onclick={() => callState.hangUp()}
-      class="w-[72px] h-[72px] rounded-full bg-[#FF3B30] flex items-center justify-center shadow-lg shadow-red-900/50 active:opacity-80 transition-opacity text-white"
-      aria-label="End call"
+    <!-- Audio Mode Hang Up -->
+    <div
+      class="pb-16 z-10 transition-opacity duration-300 opacity-100"
+      onclick={(e) => e.stopPropagation()}
     >
-      <PhoneOff size={32} />
-    </button>
-  </div>
+      <button
+        onclick={() => callState.hangUp()}
+        class="w-[72px] h-[72px] rounded-full bg-[#FF3B30] flex items-center justify-center shadow-lg shadow-red-900/50 active:opacity-80 active:scale-95 transition-all text-white"
+        aria-label="hang up"
+      >
+        <PhoneOff size={32} />
+      </button>
+    </div>
+  {/if}
 </div>

@@ -7,7 +7,13 @@ export class CallState {
     duration = $state(0);
     isMuted = $state(false);
     isSpeaker = $state(false);
-    isVideo = $state(false);
+    isLocalVideo = $state(false);
+    isRemoteVideo = $state(false);
+    
+    get isVideo() {
+        return this.isLocalVideo || this.isRemoteVideo;
+    }
+    
     direction = $state<'incoming' | 'outgoing' | null>(null);
 
     private timer: ReturnType<typeof setInterval> | null = null;
@@ -25,7 +31,7 @@ export class CallState {
             });
 
             window.addEventListener('reynisa:remote_video', () => {
-                this.isVideo = true;
+                this.isRemoteVideo = true;
                 // Force reactivity update for the video tag
                 const stream = webrtcState.remoteStream;
                 webrtcState.remoteStream = null;
@@ -187,10 +193,10 @@ export class CallState {
 
     async toggleVideo() {
         if (!this.remoteContact) return;
-        const willEnable = !this.isVideo;
+        const willEnable = !this.isLocalVideo;
         const success = await webrtcState.toggleVideo(willEnable, this.remoteContact.id, this.remoteDeviceId || undefined);
         if (success) {
-            this.isVideo = willEnable;
+            this.isLocalVideo = willEnable;
         }
     }
 
@@ -256,7 +262,8 @@ export class CallState {
         this.pendingOffer = null;
         this.duration = 0;
         this.isMuted = false;
-        this.isVideo = false;
+        this.isLocalVideo = false;
+        this.isRemoteVideo = false;
         this.direction = null;
     }
 }
