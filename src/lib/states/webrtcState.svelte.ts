@@ -20,7 +20,8 @@ type SignalCallback = {
 export class WebRTCState {
     // ─── Core WebRTC ──────────────────────────────────────────────────────────
     private pc: RTCPeerConnection | null = null;
-    private localStream: MediaStream | null = null;
+    localStream = $state<MediaStream | null>(null);
+    remoteStream = $state<MediaStream | null>(null);
     private iceQueue: RTCIceCandidateInit[] = [];
     private pendingIceCallback: ((c: RTCIceCandidate) => void) | null = null;
 
@@ -122,13 +123,19 @@ export class WebRTCState {
     // 2. MEDIA DEVICE SETUP
     // ============================================================================
 
-    async getLocalStream(): Promise<MediaStream> {
+    async getLocalStream(withVideo: boolean = false): Promise<MediaStream> {
         if (!this.localStream) {
             const hasPerm = await Permissions.requestMicrophone();
             if (!hasPerm) {
                 throw new Error("Microphone permission denied by user.");
             }
-            this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            if (withVideo) {
+                const hasCameraPerm = await Permissions.requestCamera();
+                if (!hasCameraPerm) {
+                    throw new Error("Camera permission denied by user.");
+                }
+            }
+            this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: withVideo });
         }
         return this.localStream;
     }
@@ -148,10 +155,19 @@ export class WebRTCState {
         };
 
         this.pc.ontrack = (event) => {
-            const audio = document.getElementById('remote-audio') as HTMLAudioElement;
-            if (audio) {
-                audio.srcObject = event.streams[0];
-                audio.play().catch(console.error);
+            if (!this.remoteStream) {
+                this.remoteStream = new MediaStream();
+            }
+            this.remoteStream.addTrack(event.track);
+
+            // Keep the audio fallback working
+            if (event.track.kind === 'audio') {
+                const audio = document.getElementById('remote-audio') as HTMLAudioElement;
+                if (audio) {
+                    if (!audio.srcObject) audio.srcObject = new MediaStream();
+                    (audio.srcObject as MediaStream).addTrack(event.track);
+                    audio.play().catch(console.error);
+                }
             }
         };
 
@@ -240,11 +256,49 @@ export class WebRTCState {
         if (audio) audio.volume = loud ? 1 : 0.8;
     }
 
+    async toggleVideo(enable: boolean, toUserId: string, toDeviceId?: string) {
+        if (!this.pc || !this.localStream) return false;
+
+        try {
+            if (enable) {
+                const hasCameraPerm = await Permissions.requestCamera();
+                if (!hasCameraPerm) return false;
+
+                const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const videoTrack = videoStream.getVideoTracks()[0];
+                
+                this.localStream.addTrack(videoTrack);
+                this.pc.addTrack(videoTrack, this.localStream);
+            } else {
+                const videoTrack = this.localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.stop();
+                    this.localStream.removeTrack(videoTrack);
+                    const sender = this.pc.getSenders().find(s => s.track === videoTrack);
+                    if (sender) this.pc.removeTrack(sender);
+                }
+            }
+
+            // Renegotiate
+            const offer = await this.createOffer();
+            await this.sendSignal(toUserId, 'call_offer', {
+                offer,
+                from: { id: systemState.currentUser?.id, name: systemState.currentUser?.name }
+            }, toDeviceId);
+            
+            return true;
+        } catch (e) {
+            console.error("Failed to toggle video", e);
+            return false;
+        }
+    }
+
     cleanup() {
         this.pc?.close();
         this.pc = null;
         this.localStream?.getTracks().forEach(t => t.stop());
         this.localStream = null;
+        this.remoteStream = null;
         this.pendingIceCallback = null;
         this.iceQueue = [];
     }

@@ -7,6 +7,7 @@ export class CallState {
     duration = $state(0);
     isMuted = $state(false);
     isSpeaker = $state(false);
+    isVideo = $state(false);
 
     private timer: ReturnType<typeof setInterval> | null = null;
     private pendingOffer: RTCSessionDescriptionInit | null = null;
@@ -162,6 +163,23 @@ export class CallState {
         webrtcState.setSpeakerVolume(this.isSpeaker);
     }
 
+    async toggleVideo() {
+        if (!this.remoteContact) return;
+        const willEnable = !this.isVideo;
+        const success = await webrtcState.toggleVideo(willEnable, this.remoteContact.id, this.remoteDeviceId || undefined);
+        if (success) {
+            this.isVideo = willEnable;
+        }
+    }
+
+    get localStream() {
+        return webrtcState.localStream;
+    }
+
+    get remoteStream() {
+        return webrtcState.remoteStream;
+    }
+
     // ─── Timer ────────────────────────────────────────────────────────────────
 
     private startTimer() {
@@ -187,6 +205,7 @@ export class CallState {
         this.pendingOffer = null;
         this.duration = 0;
         this.isMuted = false;
+        this.isVideo = false;
     }
 }
 
