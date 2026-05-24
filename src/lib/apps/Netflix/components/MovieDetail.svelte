@@ -28,7 +28,7 @@
           media?.id || "",
           selectedSeason,
           selectedEpisode,
-          currentServer
+          currentServer,
         )
       : ApiConfig.getNetflixMovieStream(media?.id || "", currentServer),
   );
@@ -70,9 +70,11 @@
 
   onMount(() => {
     fetchDetails();
-    // Block malicious framebusting redirects from Vidsrc
+    // Block malicious framebusting redirects (but disable for 2embed/vidsrc/vidlink to prevent Sandbox Error)
     const preventRedirect = (e: BeforeUnloadEvent) => {
-      if (isPlaying) {
+      const uses2Embed = iframeSrc.includes("vidsrc") || iframeSrc.includes("vidlink") || iframeSrc.includes("2embed");
+      
+      if (isPlaying && !uses2Embed) {
         e.preventDefault();
         e.returnValue = "";
         return "";
@@ -341,15 +343,22 @@
       </div>
 
       <!-- Server Switcher -->
-      <div class="flex items-center gap-2 mt-2 mb-1 overflow-x-auto no-scrollbar">
-        <span class="text-xs text-gray-400 font-medium whitespace-nowrap">Server:</span>
+      <div
+        class="flex items-center gap-2 mt-2 mb-1 overflow-x-auto no-scrollbar"
+      >
+        <span class="text-xs text-gray-400 font-medium whitespace-nowrap"
+          >Server:</span
+        >
         {#each [1, 2] as server}
           <button
             type="button"
-            class="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors {currentServer === server ? 'bg-white text-black' : 'bg-[#333] text-gray-300 hover:bg-[#444]'}"
-            onclick={() => currentServer = server}
+            class="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors {currentServer ===
+            server
+              ? 'bg-white text-black'
+              : 'bg-[#333] text-gray-300 hover:bg-[#444]'}"
+            onclick={() => (currentServer = server)}
           >
-            {server === 1 ? 'Vidsrc' : '2embed'}
+            {server === 1 ? "Vidsrc" : "VidLink"}
           </button>
         {/each}
       </div>
@@ -424,7 +433,7 @@
             {/each}
           </select>
           <div class="flex flex-col gap-6">
-            {#each Array.from({ length: seasons.find(s => s.season_number === selectedSeason)?.episode_count || 1 }) as _, i}
+            {#each Array.from( { length: seasons.find((s) => s.season_number === selectedSeason)?.episode_count || 1 }, ) as _, i}
               <div class="flex flex-col gap-2">
                 <div
                   class="flex items-center gap-3 cursor-pointer group"
@@ -447,7 +456,9 @@
                       class="absolute inset-0 w-full h-full object-cover opacity-60"
                     />
                     {#if selectedEpisode === i + 1 && isPlaying}
-                      <div class="text-xs font-bold text-red-600 z-10">Playing</div>
+                      <div class="text-xs font-bold text-red-600 z-10">
+                        Playing
+                      </div>
                     {:else}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -457,7 +468,14 @@
                         fill="white"
                         class="z-10 group-hover:scale-110 transition-transform"
                       >
-                        <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1" fill="rgba(0,0,0,0.5)" />
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="white"
+                          stroke-width="1"
+                          fill="rgba(0,0,0,0.5)"
+                        />
                         <path d="M10 8l6 4-6 4V8z" />
                       </svg>
                     {/if}
