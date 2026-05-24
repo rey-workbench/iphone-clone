@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Star, Clock, User, Grid3x3, Voicemail, Phone, Delete, Info } from '@lucide/svelte';
+  import { Star, Clock, User, Grid3x3, Voicemail, Phone, Delete, Info, PhoneIncoming, PhoneOutgoing, PhoneMissed, Video } from '@lucide/svelte';
   import { PhoneState } from './PhoneState.svelte';
   import { callState } from './CallState.svelte';
   import IncomingCallScreen from './components/IncomingCallScreen.svelte';
@@ -57,8 +57,22 @@
           {#each state.recents as call, i}
             <div class="flex items-center p-3 px-4">
               <div class="flex-1 flex flex-col gap-0.5">
-                <span class="text-[17px] font-medium {call.missed ? 'text-ios-red' : 'text-white'}">{call.name}</span>
-                <span class="text-[13px] text-ios-label2">{call.time}</span>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[17px] font-medium {call.missed ? 'text-ios-red' : 'text-white'}">{call.name}</span>
+                  {#if call.isVideo}
+                    <Video size={14} class="text-ios-label2 mt-0.5" />
+                  {/if}
+                </div>
+                <div class="flex items-center gap-1 text-[13px] text-ios-label2">
+                  {#if call.type === 'incoming'}
+                    <PhoneIncoming size={12} />
+                  {:else if call.type === 'outgoing'}
+                    <PhoneOutgoing size={12} />
+                  {:else if call.type === 'missed'}
+                    <PhoneMissed size={12} />
+                  {/if}
+                  <span>{call.time}</span>
+                </div>
               </div>
               <Info size={20} class="text-ios-blue" />
             </div>

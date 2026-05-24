@@ -8,6 +8,7 @@ export class CallState {
     isMuted = $state(false);
     isSpeaker = $state(false);
     isVideo = $state(false);
+    direction = $state<'incoming' | 'outgoing' | null>(null);
 
     private timer: ReturnType<typeof setInterval> | null = null;
     private pendingOffer: RTCSessionDescriptionInit | null = null;
@@ -33,6 +34,7 @@ export class CallState {
 
         this.remoteContact = contact;
         this.status = 'calling';
+        this.direction = 'outgoing';
 
         try {
             await webrtcState.getLocalStream();
@@ -69,6 +71,7 @@ export class CallState {
         this.remoteDeviceId = payload.fromDeviceId;
         this.pendingOffer = payload.offer;
         this.status = 'incoming';
+        this.direction = 'incoming';
     }
 
     async acceptCall() {
@@ -196,7 +199,36 @@ export class CallState {
 
     // ─── Cleanup ──────────────────────────────────────────────────────────────
 
-    private cleanup() {
+    private async cleanup() {
+        // Save to history before clearing
+        if (this.remoteContact && this.direction) {
+            let type: 'incoming' | 'outgoing' | 'missed';
+            if (this.status === 'incoming' && this.duration === 0) {
+                type = 'missed';
+            } else if (this.status === 'calling' && this.duration === 0) {
+                type = 'outgoing'; // or missed outgoing, but let's stick to outgoing
+            } else {
+                type = this.direction;
+            }
+
+            const { saveCallHistory } = await import('$lib/config/localdb');
+            await saveCallHistory({
+                id: crypto.randomUUID(),
+                contact_id: this.remoteContact.id,
+                contact_name: this.remoteContact.name,
+                type,
+                timestamp: Date.now(),
+                duration: this.duration,
+                is_video: this.isVideo
+            });
+            
+            // Reload recents if phone app is open
+            // Since PhoneState is instanced, we can emit an event or just let it reload when opened
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('reynisa:call_ended'));
+            }
+        }
+
         if (this.timer) { clearInterval(this.timer); this.timer = null; }
         webrtcState.cleanup();
         this.status = 'idle';
@@ -206,6 +238,7 @@ export class CallState {
         this.duration = 0;
         this.isMuted = false;
         this.isVideo = false;
+        this.direction = null;
     }
 }
 

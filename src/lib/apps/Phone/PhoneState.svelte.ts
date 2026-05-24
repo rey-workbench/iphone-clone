@@ -18,6 +18,44 @@ export class PhoneState {
 
     constructor() {
         usersState.fetchUsers((users) => this.updateContacts(users));
+        this.loadRecents();
+        if (typeof window !== 'undefined') {
+            window.addEventListener('reynisa:call_ended', () => this.loadRecents());
+        }
+    }
+
+    async loadRecents() {
+        const { getCallHistory } = await import('$lib/config/localdb');
+        const history = await getCallHistory();
+        
+        const now = new Date();
+        const isToday = (d: Date) => d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        const isYesterday = (d: Date) => {
+            const y = new Date(now);
+            y.setDate(y.getDate() - 1);
+            return d.getDate() === y.getDate() && d.getMonth() === y.getMonth() && d.getFullYear() === y.getFullYear();
+        };
+
+        this.recents = history.map(entry => {
+            const d = new Date(entry.timestamp);
+            let timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (isToday(d)) {
+                // timeStr = timeStr;
+            } else if (isYesterday(d)) {
+                timeStr = 'Yesterday';
+            } else {
+                timeStr = d.toLocaleDateString();
+            }
+
+            return {
+                id: entry.id,
+                name: entry.contact_name,
+                time: timeStr,
+                type: entry.type,
+                isVideo: entry.is_video,
+                missed: entry.type === 'missed'
+            };
+        });
     }
 
     updateContacts(users: any[]) {
@@ -27,15 +65,6 @@ export class PhoneState {
             username: u.username,
             initials: u.name.substring(0, 2).toUpperCase(),
         }));
-
-        // Isi recents dengan user pertama yang ada sebagai demo
-        if (this.recents.length === 0 && users.length > 0) {
-            this.recents = users.map((u, i) => ({
-                name: u.name,
-                time: i === 0 ? 'Today' : i === 1 ? 'Yesterday' : `${i} days ago`,
-                missed: i % 2 !== 0,
-            }));
-        }
     }
 
     appendNumber(n: string) {

@@ -56,13 +56,23 @@ export async function initLocalDB() {
     db= new SQL.Database(savedData);
   } else {
     db = new SQL.Database();
-    db!.run(`
-      CREATE TABLE IF NOT EXISTS settings (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL
-      );
-    `);
   }
+
+  db!.run(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS call_history (
+      id TEXT PRIMARY KEY,
+      contact_id TEXT NOT NULL,
+      contact_name TEXT NOT NULL,
+      type TEXT NOT NULL,
+      timestamp INTEGER NOT NULL,
+      duration INTEGER NOT NULL,
+      is_video INTEGER NOT NULL DEFAULT 0
+    );
+  `);
   
   isInitialized = true;
   return db;
@@ -90,4 +100,41 @@ export async function getSetting(key: string, defaultValue: any) {
     return JSON.parse(res[0].values[0][0] as string);
   }
   return defaultValue;
+}
+
+export type CallHistoryEntry = {
+  id: string;
+  contact_id: string;
+  contact_name: string;
+  type: 'incoming' | 'outgoing' | 'missed';
+  timestamp: number;
+  duration: number;
+  is_video: boolean;
+};
+
+export async function saveCallHistory(entry: CallHistoryEntry) {
+  const d = await initLocalDB();
+  if (!d) return;
+  d.run(
+    'INSERT INTO call_history (id, contact_id, contact_name, type, timestamp, duration, is_video) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [entry.id, entry.contact_id, entry.contact_name, entry.type, entry.timestamp, entry.duration, entry.is_video ? 1 : 0]
+  );
+  await saveLocalDB();
+}
+
+export async function getCallHistory(): Promise<CallHistoryEntry[]> {
+  const d = await initLocalDB();
+  if (!d) return [];
+  const res = d.exec('SELECT id, contact_id, contact_name, type, timestamp, duration, is_video FROM call_history ORDER BY timestamp DESC LIMIT 100');
+  if (res.length === 0) return [];
+  
+  return res[0].values.map((v: any[]) => ({
+    id: v[0] as string,
+    contact_id: v[1] as string,
+    contact_name: v[2] as string,
+    type: v[3] as 'incoming' | 'outgoing' | 'missed',
+    timestamp: v[4] as number,
+    duration: v[5] as number,
+    is_video: (v[6] as number) === 1,
+  }));
 }
