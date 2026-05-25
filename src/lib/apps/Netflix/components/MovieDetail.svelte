@@ -205,7 +205,7 @@
 
   {#if media}
     <!-- Media Player & Thumbnail Container -->
-    <div class="relative w-full h-[250px] bg-black shrink-0 overflow-hidden">
+    <div class="relative w-full aspect-video bg-black shrink-0 overflow-hidden">
       <!-- Iframe always running in background to burn through the "Ad-Free" countdown -->
       {#key `${isTvShow}-${selectedSeason}-${selectedEpisode}`}
         <iframe
