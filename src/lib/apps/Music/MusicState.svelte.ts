@@ -190,7 +190,6 @@ export class MusicState {
 
     playNext(dir: number) {
         if (!this.current || this.tracks.length === 0) return;
-        if (!this.current) return;
         const idx = this.tracks.findIndex((t: IMusicTrack) => t.id === this.current?.id);
         if (idx === -1) {
             // Jika track saat ini tidak ada di daftar tracks (misal karena diganti hasil fetchUpNext)

@@ -141,7 +141,7 @@
       >
         <!-- Hero Banner -->
         {#if netflixState.movies.length > 0}
-          <div class="relative w-full h-[550px]">
+          <div class="relative w-full h-137.5">
             <img
               src={netflixState.movies[0].poster_path}
               alt={netflixState.movies[0].title}
@@ -233,7 +233,7 @@
           </div>
         {:else}
           <div
-            class="w-full h-[550px] flex items-center justify-center bg-black"
+            class="w-full h-137.5 flex items-center justify-center bg-black"
           >
             <div
               class="w-8 h-8 border-4 border-[#E50914] border-t-transparent rounded-full animate-spin"
@@ -256,7 +256,7 @@
               {#each top10Movies as movie, i}
                 {#if i < 4}
                   <button
-                    class="relative flex-none w-[105px] h-[155px] rounded overflow-hidden bg-[#222] snap-start transition-transform hover:scale-105"
+                    class="relative flex-none w-26.25 h-38.75 rounded overflow-hidden bg-[#222] snap-start transition-transform hover:scale-105"
                     onclick={() => netflixState.selectMedia(movie)}
                     aria-label="Watch {movie.title}"
                   >
@@ -294,7 +294,7 @@
                     </div>
                     <!-- Progress bar -->
                     <div
-                      class="absolute bottom-0 left-0 w-full h-[3px] bg-gray-600"
+                      class="absolute bottom-0 left-0 w-full h-0.75 bg-gray-600"
                     >
                       <div class="h-full bg-[#E50914] w-1/3"></div>
                     </div>
@@ -314,20 +314,20 @@
             >
               {#each netflixState.tvShows.slice(0, 10) as tv, i}
                 <button
-                  class="relative flex-none w-[135px] h-[165px] flex items-end justify-end overflow-visible snap-start transition-transform hover:scale-105"
+                  class="relative flex-none w-33.75 h-41.25 flex items-end justify-end overflow-visible snap-start transition-transform hover:scale-105"
                   onclick={() => netflixState.selectMedia(tv)}
                   aria-label="View {tv.title}"
                 >
                   <!-- Huge Top 10 Number -->
                   <div
-                    class="absolute left-4 bottom-[-8px] text-[85px] font-black text-black z-20 tracking-tighter drop-shadow-md"
+                    class="absolute left-4 -bottom-2 text-[85px] font-black text-black z-20 tracking-tighter drop-shadow-md"
                     style="-webkit-text-stroke: 3px white; color: black; line-height: 0.8; font-family: Impact, sans-serif;"
                   >
                     {i + 1}
                   </div>
                   <!-- Poster -->
                   <div
-                    class="w-[110px] h-[165px] relative z-10 rounded overflow-hidden"
+                    class="w-27.5 h-41.25 relative z-10 rounded overflow-hidden"
                   >
                     <img
                       src={tv.poster_path}
@@ -388,6 +388,7 @@
             {#if searchQuery}
               <button
                 class="pr-3 py-2 text-gray-400"
+                aria-label="Clear Search"
                 onclick={() => (searchQuery = "")}
               >
                 <svg
@@ -423,7 +424,7 @@
                   onclick={() => netflixState.selectMedia(item)}
                   aria-label="View {item.title}"
                 >
-                  <div class="w-[140px] h-[75px] shrink-0 relative">
+                  <div class="w-35 h-18.75 shrink-0 relative">
                     <img
                       src={item.backdrop_path || item.poster_path}
                       alt={item.title}
@@ -468,7 +469,7 @@
             <div class="grid grid-cols-3 gap-2 px-2">
               {#each searchResults as item}
                 <button
-                  class="w-full aspect-[2/3] relative rounded overflow-hidden"
+                  class="w-full aspect-2/3 relative rounded overflow-hidden"
                   onclick={() => netflixState.selectMedia(item)}
                 >
                   <img

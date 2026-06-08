@@ -9,6 +9,10 @@ export default defineConfig({
 		sveltekit(),
 		SvelteKitPWA({
 			registerType: 'autoUpdate',
+			devOptions: {
+				enabled: true,
+				suppressWarnings: true
+			},
 			manifest: {
 				name: 'iOS 26 Clone',
 				short_name: 'iOS Clone',

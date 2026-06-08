@@ -1,4 +1,4 @@
-import { Permissions } from "$lib/utils/permissions";
+import { requestCamera } from "$lib/utils/permissions";
 
 export class AppCameraState {
   videoEl: HTMLVideoElement | undefined = $state(undefined);
@@ -8,6 +8,7 @@ export class AppCameraState {
   mode: 'video' | 'photo' | 'portrait' = $state('photo');
   facingMode: 'user' | 'environment' = $state('environment');
   modes: ('video' | 'photo' | 'portrait')[] = ['video', 'photo', 'portrait'];
+  error: string | null = $state(null);
 
   constructor() {}
 
@@ -15,7 +16,7 @@ export class AppCameraState {
     try {
       if (this.stream) this.stream.getTracks().forEach(t => t.stop());
       
-      const hasPerm = await Permissions.requestCamera();
+      const hasPerm = await requestCamera();
       if (!hasPerm) {
         console.warn("Camera permission denied.");
         return;

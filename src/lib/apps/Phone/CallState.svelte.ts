@@ -10,18 +10,20 @@ export class CallState {
     isLocalVideo = $state(false);
     isRemoteVideo = $state(false);
     
-    get isVideo() {
-        return this.isLocalVideo || this.isRemoteVideo;
-    }
+    isVideo = $derived(this.isLocalVideo || this.isRemoteVideo);
     
     direction = $state<'incoming' | 'outgoing' | null>(null);
 
     private timer: ReturnType<typeof setInterval> | null = null;
     private pendingOffer: RTCSessionDescriptionInit | null = null;
     private remoteDeviceId: string | null = null;
+    private initialized = false;
 
-    constructor() {
-        if (typeof window !== 'undefined') {
+    constructor() {}
+
+    init() {
+        if (typeof window !== 'undefined' && !this.initialized) {
+            this.initialized = true;
             webrtcState.setupSignaling({
                 onOffer: (payload) => this.handleOffer(payload),
                 onAnswer: (payload) => this.handleAnswer(payload),

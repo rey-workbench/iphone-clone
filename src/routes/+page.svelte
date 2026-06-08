@@ -52,6 +52,12 @@
   let CurrentAppComponent = $derived(
     systemState.activeApp ? appComponents[systemState.activeApp] : null,
   );
+
+  $effect(() => {
+    if (systemState.currentUser) {
+      callState.init();
+    }
+  });
 </script>
 
 <svelte:head>
@@ -62,11 +68,11 @@
   class="w-screen h-dvh flex items-center justify-center bg-[#0a0a0a] overflow-hidden"
 >
   <div
-    class="relative w-[393px] h-[852px] rounded-[48px] overflow-hidden bg-black shadow-[0_0_0_2px_#333,0_0_0_4px_#1a1a1a,0_0_60px_rgba(0,0,0,0.5),0_0_120px_rgba(0,0,0,0.3)] border border-white/5 max-[430px]:w-screen max-[430px]:h-dvh max-[430px]:rounded-none max-[430px]:shadow-none max-[430px]:border-none"
+    class="relative w-98.25 h-213 rounded-[48px] overflow-hidden bg-black shadow-[0_0_0_2px_#333,0_0_0_4px_#1a1a1a,0_0_60px_rgba(0,0,0,0.5),0_0_120px_rgba(0,0,0,0.3)] border border-white/5 max-[430px]:w-screen max-[430px]:h-dvh max-[430px]:rounded-none max-[430px]:shadow-none max-[430px]:border-none"
   >
     <!-- Notch -->
     <div
-      class="absolute top-0 left-1/2 -translate-x-1/2 w-[160px] h-[32px] bg-black rounded-b-[24px] z-400"
+      class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-black rounded-b-3xl z-400"
     ></div>
 
     {#if !systemState.currentUser}
@@ -105,7 +111,7 @@
           <div
             class="absolute bottom-10 animate-[bounceUp_2s_ease-in-out_infinite]"
           >
-            <div class="w-[134px] h-[5px] bg-white/40 rounded-full"></div>
+            <div class="w-33.5 h-1.25 bg-white/40 rounded-full"></div>
           </div>
         </div>
       </div>
@@ -130,12 +136,12 @@
           </div>
         </div>
         <button
-          class="absolute top-0 left-1/2 -translate-x-1/2 w-[140px] h-5 z-200 bg-transparent border-none cursor-pointer opacity-0"
+          class="absolute top-0 left-1/2 -translate-x-1/2 w-35 h-5 z-200 bg-transparent border-none cursor-pointer opacity-0"
           onclick={() => state.closeApp()}
           aria-label="Close app"
         ></button>
         <button
-          class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100 cursor-pointer border-none"
+          class="absolute bottom-2 left-1/2 -translate-x-1/2 w-33.5 h-1.25 bg-white/30 rounded-full z-100 cursor-pointer border-none"
           onclick={() => state.closeApp()}
           aria-label="Home"
         ></button>
@@ -155,12 +161,12 @@
             </div>
           </div>
           <button
-            class="absolute top-0 left-1/2 -translate-x-1/2 w-[140px] h-5 z-200 bg-transparent border-none cursor-pointer opacity-0"
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-35 h-5 z-200 bg-transparent border-none cursor-pointer opacity-0"
             onclick={() => state.closeApp()}
             aria-label="Close app"
           ></button>
           <button
-            class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100 cursor-pointer border-none"
+            class="absolute bottom-2 left-1/2 -translate-x-1/2 w-33.5 h-1.25 bg-white/30 rounded-full z-100 cursor-pointer border-none"
             onclick={() => state.closeApp()}
             aria-label="Home"
           ></button>
@@ -176,13 +182,13 @@
               class="absolute inset-0 bg-linear-to-br from-[#0f0c29] via-[#302b63] via-40% to-[#16213e]"
             ></div>
             <div
-              class="absolute w-[200px] h-[200px] rounded-full top-[15%] left-[-20%] bg-gradient-radial from-[#667eea] to-[#764ba2] blur-[60px] opacity-40 animate-[orbFloat_20s_ease-in-out_infinite]"
+              class="absolute w-50 h-50 rounded-full top-[15%] left-[-20%] bg-gradient-radial from-[#667eea] to-[#764ba2] blur-[60px] opacity-40 animate-[orbFloat_20s_ease-in-out_infinite]"
             ></div>
             <div
-              class="absolute w-[180px] h-[180px] rounded-full top-[50%] right-[-15%] bg-gradient-radial from-[#f093fb] to-[#f5576c] blur-[60px] opacity-40 animate-[orbFloat_20s_ease-in-out_infinite_-7s]"
+              class="absolute w-45 h-45 rounded-full top-[50%] right-[-15%] bg-gradient-radial from-[#f093fb] to-[#f5576c] blur-[60px] opacity-40 animate-[orbFloat_20s_ease-in-out_infinite_-7s]"
             ></div>
             <div
-              class="absolute w-[150px] h-[150px] rounded-full bottom-[20%] left-[20%] bg-gradient-radial from-[#4facfe] to-[#00f2fe] blur-[60px] opacity-40 animate-[orbFloat_20s_ease-in-out_infinite_-14s]"
+              class="absolute w-37.5 h-37.5 rounded-full bottom-[20%] left-[20%] bg-gradient-radial from-[#4facfe] to-[#00f2fe] blur-[60px] opacity-40 animate-[orbFloat_20s_ease-in-out_infinite_-14s]"
             ></div>
           </div>
 
@@ -220,7 +226,7 @@
 
           <Dock />
           <div
-            class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[134px] h-[5px] bg-white/30 rounded-full z-100"
+            class="absolute bottom-2 left-1/2 -translate-x-1/2 w-33.5 h-1.25 bg-white/30 rounded-full z-100"
           ></div>
         </div>
       {/if}

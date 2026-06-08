@@ -1,6 +1,6 @@
 import { supabase } from '$lib/config/supabase';
 import { systemState } from '$lib/states/systemState.svelte';
-import { Permissions } from '$lib/utils/permissions';
+import { requestMicrophone, requestCamera } from '$lib/utils/permissions';
 import { ApiConfig } from '$lib/config/api';
 
 export type CallStatus = 'idle' | 'calling' | 'incoming' | 'active';
@@ -125,12 +125,12 @@ export class WebRTCState {
 
     async getLocalStream(withVideo: boolean = false): Promise<MediaStream> {
         if (!this.localStream) {
-            const hasPerm = await Permissions.requestMicrophone();
+            const hasPerm = await requestMicrophone();
             if (!hasPerm) {
-                throw new Error("Microphone permission denied by user.");
+                throw new Error("Microphone permission denied");
             }
             if (withVideo) {
-                const hasCameraPerm = await Permissions.requestCamera();
+                const hasCameraPerm = await requestCamera();
                 if (!hasCameraPerm) {
                     throw new Error("Camera permission denied by user.");
                 }
@@ -267,7 +267,7 @@ export class WebRTCState {
 
         try {
             if (enable) {
-                const hasCameraPerm = await Permissions.requestCamera();
+                const hasCameraPerm = await requestCamera();
                 if (!hasCameraPerm) return false;
 
                 const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });

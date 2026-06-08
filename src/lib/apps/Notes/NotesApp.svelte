@@ -1,12 +1,14 @@
 <script lang="ts">
   import { Trash2, SquarePen, ChevronLeft } from '@lucide/svelte';
-  import { notesState } from '$lib/states';
   import { AppNotesState } from './NotesState.svelte';
-
   const state = new AppNotesState();
+
+  $effect(() => {
+    state.load();
+  });
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">
+<div class="h-full pt-13.5 pb-5 bg-black flex flex-col ">
   {#if state.selectedNote}
     <div class="flex-1 flex flex-col">
       <div class="flex justify-between items-center px-4 py-2 border-b border-ios-sep">
@@ -26,10 +28,10 @@
     <div class="flex-1 flex flex-col overflow-hidden">
       <div class="px-5 pt-2 pb-3">
         <h1 class="text-[34px] font-bold text-white">Notes</h1>
-        <span class="text-[13px] text-ios-label2">{notesState.notes.length} Notes</span>
+        <span class="text-[13px] text-ios-label2">{state.notes.length} Notes</span>
       </div>
       <div class="flex-1 overflow-y-auto px-4">
-        {#each notesState.notes as note}
+        {#each state.notes as note}
           <button class="w-full text-left p-3 px-4 bg-ios-bg2 border-none text-white cursor-pointer border-b border-ios-sep first:rounded-t-xl last:rounded-b-xl last:border-b-0" onclick={() => state.selectNote(note)}>
             <div class="text-[17px] font-semibold mb-1">{note.title}</div>
             <div class="flex gap-2 text-[13px] text-ios-label2">
@@ -41,7 +43,7 @@
       </div>
       <div class="flex justify-between items-center px-4 py-2 bg-[rgba(30,30,30,0.95)] border-t border-ios-sep">
         <span></span>
-        <span class="text-[13px] text-ios-label2">{notesState.notes.length} Notes</span>
+        <span class="text-[13px] text-ios-label2">{state.notes.length} Notes</span>
         <button class="w-11 h-11 bg-transparent border-none text-[#FF9F0A] cursor-pointer flex justify-end items-center" onclick={() => state.addNote()} aria-label="New note">
           <SquarePen size={22} />
         </button>

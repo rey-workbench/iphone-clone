@@ -121,6 +121,7 @@
     {#key `${isTvShow}-${selectedSeason}-${selectedEpisode}-fs`}
       <iframe
         src={iframeSrc}
+        title="Netflix Player"
         class="w-full h-full pointer-events-auto"
         style="width: 100%; height: 100%;"
         frameborder="0"
@@ -155,7 +156,7 @@
 
 <!-- Main Detail Page -->
 <div
-  class="w-full h-full bg-black text-white flex flex-col font-sans overflow-y-auto no-scrollbar pb-20 pt-[54px]"
+  class="w-full h-full bg-black text-white flex flex-col font-sans overflow-y-auto no-scrollbar pb-20 pt-13.5"
 >
   <!-- Header (Safe Area) -->
   <div
@@ -210,6 +211,7 @@
       {#key `${isTvShow}-${selectedSeason}-${selectedEpisode}`}
         <iframe
           src={iframeSrc}
+          title="Netflix Player"
           class="absolute inset-0 w-full h-full z-20"
           style="width: 100%; height: 100%;"
           frameborder="0"
@@ -404,16 +406,16 @@
         class="flex items-center gap-6 border-t border-t-[#333] mt-4 pt-4 text-sm font-bold"
       >
         {#if isTvShow}
-          <div class="border-t-4 border-red-600 pt-2 mt-[-20px] text-white">
+          <div class="border-t-4 border-red-600 pt-2 -mt-5 text-white">
             Episodes
           </div>
-          <div class="text-gray-400 pt-2 mt-[-20px]">Collection</div>
-          <div class="text-gray-400 pt-2 mt-[-20px]">More Like This</div>
+          <div class="text-gray-400 pt-2 -mt-5">Collection</div>
+          <div class="text-gray-400 pt-2 -mt-5">More Like This</div>
         {:else}
-          <div class="border-t-4 border-red-600 pt-2 mt-[-20px] text-white">
+          <div class="border-t-4 border-red-600 pt-2 -mt-5 text-white">
             More Like This
           </div>
-          <div class="text-gray-400 pt-2 mt-[-20px]">Collection</div>
+          <div class="text-gray-400 pt-2 -mt-5">Collection</div>
         {/if}
       </div>
 
@@ -446,7 +448,7 @@
                     ((selectedEpisode = i + 1), (isPlaying = true))}
                 >
                   <div
-                    class="relative w-[130px] h-[75px] shrink-0 bg-[#2b2b2b] rounded flex items-center justify-center overflow-hidden"
+                    class="relative w-32.5 h-18.75 shrink-0 bg-[#2b2b2b] rounded flex items-center justify-center overflow-hidden"
                   >
                     <img
                       src={media.backdrop_path}

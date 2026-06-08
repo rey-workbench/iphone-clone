@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { clockState } from '$lib/states';
+  import { clockState } from '$lib/apps/Clock/ClockState.svelte';
   import { Globe, AlarmClock, Timer, Hourglass } from '@lucide/svelte';
 
   let tab: 'worldClock' | 'alarm' | 'stopwatch' | 'timer' = $state('worldClock');
@@ -54,7 +54,7 @@
   ];
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">
+<div class="h-full pt-13.5 pb-5 bg-black flex flex-col ">
   <div class="flex-1 overflow-y-auto px-4 ">
     {#if tab === 'worldClock'}
       <div class="text-[34px] font-bold text-white px-1 py-2 pb-4">World Clock</div>
@@ -73,8 +73,8 @@
         {#each alarms as alarm, i}
           <div class="flex items-center justify-between p-3 px-4">
             <div class="flex flex-col gap-0.5"><span class="text-[48px] font-extralight text-white">{alarm.time}</span><span class="text-[13px] text-ios-label2">{alarm.label}, {alarm.days}</span></div>
-            <button class="w-[51px] h-[31px] rounded-2xl relative transition-colors border-none cursor-pointer shrink-0 {alarm.enabled ? 'bg-ios-green' : 'bg-[#39393D]'}" onclick={() => toggleAlarm(alarm.id)} aria-label="Toggle {alarm.label} alarm">
-              <div class="w-[27px] h-[27px] rounded-full bg-white absolute top-[2px] left-[2px] transition-transform shadow-md {alarm.enabled ? 'translate-x-5' : ''}"></div>
+            <button class="w-12.75 h-7.75 rounded-2xl relative transition-colors border-none cursor-pointer shrink-0 {alarm.enabled ? 'bg-ios-green' : 'bg-[#39393D]'}" onclick={() => toggleAlarm(alarm.id)} aria-label="Toggle {alarm.label} alarm">
+              <div class="w-6.75 h-6.75 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform shadow-md {alarm.enabled ? 'translate-x-5' : ''}"></div>
             </button>
           </div>
           {#if i < alarms.length - 1}<div class="h-px bg-ios-sep ml-4"></div>{/if}
@@ -83,14 +83,14 @@
     {:else if tab === 'stopwatch'}
       <div class="text-[34px] font-bold text-white px-1 py-2 pb-4">Stopwatch</div>
       <div class="text-[72px] font-extralight text-white text-center py-15 tabular-nums">{fmtSW(swMs)}</div>
-      <div class="flex justify-center gap-[30px] px-5">
+      <div class="flex justify-center gap-7.5 px-5">
         <button class="w-20 h-20 rounded-full border-2 border-ios-gray bg-ios-gray/20 text-white text-[16px] font-medium cursor-pointer" onclick={resetSW}>Reset</button>
         <button class="w-20 h-20 rounded-full border-2 cursor-pointer text-[16px] font-medium {swRunning ? 'border-ios-red bg-ios-red/20 text-ios-red' : 'border-ios-green bg-ios-green/20 text-ios-green'}" onclick={toggleSW}>{swRunning ? 'Stop' : 'Start'}</button>
       </div>
     {:else}
       <div class="text-[34px] font-bold text-white px-1 py-2 pb-4">Timer</div>
       <div class="text-[72px] font-extralight text-white text-center py-15 tabular-nums">{fmtT(timerSec)}</div>
-      <div class="flex justify-center gap-[30px] px-5">
+      <div class="flex justify-center gap-7.5 px-5">
         <button class="w-20 h-20 rounded-full border-2 border-ios-gray bg-ios-gray/20 text-white text-[16px] font-medium cursor-pointer" onclick={resetTimer}>Cancel</button>
         <button class="w-20 h-20 rounded-full border-2 cursor-pointer text-[16px] font-medium {timerRunning ? 'border-ios-red bg-ios-red/20 text-ios-red' : 'border-ios-green bg-ios-green/20 text-ios-green'}" onclick={toggleTimer}>{timerRunning ? 'Pause' : 'Start'}</button>
       </div>
