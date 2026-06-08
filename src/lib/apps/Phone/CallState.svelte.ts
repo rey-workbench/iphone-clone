@@ -244,7 +244,7 @@ export class CallState {
                 type = this.direction;
             }
 
-            const { saveCallHistory } = await import('$lib/config/localdb');
+            const { saveCallHistory } = await import('./callHistoryDb');
             await saveCallHistory({
                 id: crypto.randomUUID(),
                 contact_id: this.remoteContact.id,

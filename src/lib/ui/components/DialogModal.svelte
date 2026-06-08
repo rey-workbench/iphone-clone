@@ -5,7 +5,7 @@
 {#if dialogState.isOpen && dialogState.options}
   <!-- Backdrop -->
   <div
-    class="absolute inset-0 z-70 bg-black/40 flex items-center justify-center p-8 backdrop-blur-[2px] animate-[fadeIn_0.3s_ease-out]"
+    class="absolute inset-0 z-9999 bg-black/40 flex items-center justify-center p-8 backdrop-blur-[2px] animate-[fadeIn_0.3s_ease-out]"
   >
     <!-- Dialog Box -->
     <div

@@ -1,40 +1,35 @@
 import { Smartphone } from '@lucide/svelte';
-import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
+import { LocalDBKey } from '$lib/config/localdb';
+import { SyncState } from '$lib/utils/SyncState.svelte';
 import { ApiConfig } from '$lib/config/api';
 import type { AppStoreTabId } from '$lib/types';
 
-export class AppStoreState {
+export class AppStoreState extends SyncState<any> {
     tab = $state<AppStoreTabId>('today');
     featured: any[] = $state([]);
     topApps: any[] = $state([]);
-    loading = $state(true);
 
-    constructor() {}
-
-    async init() {
-        this.loading = true;
-        try {
-            // 1. Tampilkan cache LocalDB dulu (instan)
-            const cached = await getSetting(LocalDBKey.APP_STORE, null);
-            if (cached) {
-                this.applyData(cached);
-                this.loading = false;
-            }
-
-            // 2. Fetch terbaru di background
+    constructor() {
+        super(LocalDBKey.APPSTORE_PRODUCTS, null, async () => {
             const data = await ApiConfig.fetchAppStoreProducts();
-            if (data) {
-                await setSetting(LocalDBKey.APP_STORE, data);
-                this.applyData(data);
-            }
-        } catch(e) {
-            console.error(e);
-        } finally {
-            this.loading = false;
-        }
+            return data;
+        });
     }
 
-    applyData(data: any) {
+    async init() {
+        await this.load();
+    }
+
+    // Override internal parseCache or use a dedicated method to process data when loaded
+    protected parseCache(cached: any) {
+        if (cached) {
+            this.applyData(cached);
+        }
+        return cached;
+    }
+
+    private applyData(data: any) {
+        if (!data || !data.products) return;
         const products = data.products;
         this.featured = products.slice(0, 3).map((p: any) => ({
             name: p.title,

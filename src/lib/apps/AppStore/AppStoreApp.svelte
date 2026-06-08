@@ -19,7 +19,7 @@
   ];
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">
+<div class="h-full pt-13.5 pb-5 bg-black flex flex-col ">
   <div class="flex-1 overflow-y-auto px-4 ">
     <div class="px-1 py-2 pb-4">
       <span class="text-[13px] text-ios-label2 uppercase tracking-wider font-semibold">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
@@ -28,7 +28,7 @@
     <div class="flex flex-col gap-4 mb-6">
       {#each state.featured as app}
         <div class="rounded-2xl overflow-hidden bg-ios-bg2">
-          <img src={app.img} alt={app.name} class="w-full h-[180px] object-cover" />
+          <img src={app.img} alt={app.name} class="w-full h-45 object-cover" />
           <div class="p-3"><div class="text-[11px] text-ios-label2 uppercase tracking-wider font-semibold">{app.cat}</div><div class="text-[20px] font-bold text-white">{app.name}</div><div class="text-[13px] text-ios-label2">{app.dev}</div></div>
         </div>
       {/each}
@@ -47,7 +47,7 @@
             <div class="flex-1 min-w-0"><div class="text-[17px] text-white truncate">{app.name}</div><div class="text-[13px] text-ios-label2">{app.cat}</div></div>
             <button class="px-4 py-1.5 rounded-full bg-ios-fill border-none text-ios-blue text-[15px] font-semibold cursor-pointer">GET</button>
           </div>
-          {#if i < state.topApps.length - 1}<div class="h-px bg-ios-sep ml-[76px]"></div>{/if}
+          {#if i < state.topApps.length - 1}<div class="h-px bg-ios-sep ml-19"></div>{/if}
         {/each}
       </div>
     {/if}

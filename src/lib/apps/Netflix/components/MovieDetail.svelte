@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { netflixState } from "../NetflixState.svelte";
   import { ApiConfig } from "$lib/config/api";
+  import { dialogState } from "$lib/states/dialogState.svelte";
 
   let media = $derived(netflixState.selectedMedia);
   let isTvShow = $derived(
@@ -10,6 +11,15 @@
   let title = $derived(media?.title || media?.name || "Unknown Title");
 
   let isPlaying = $state(false);
+
+  // Trap framebuster's history.back() immediately when modal opens
+  $effect(() => {
+    if (typeof window !== "undefined") {
+      for (let i = 0; i < 3; i++) {
+        window.history.pushState({ dummy: true, index: i }, "");
+      }
+    }
+  });
   let isFullscreen = $state(false);
   let selectedSeason = $state(1);
   let selectedEpisode = $state(1);
@@ -72,16 +82,26 @@
     fetchDetails();
     // Block malicious framebusting redirects unconditionally
     const preventRedirect = (e: BeforeUnloadEvent) => {
-      if (isPlaying) {
-        e.preventDefault();
-        e.returnValue = "";
-        return "";
-      }
+      e.preventDefault();
+      e.returnValue = "";
+      return "";
     };
     window.addEventListener("beforeunload", preventRedirect);
     
+    const handleVisibilityChange = () => {
+      if (document.hidden && isPlaying) {
+        dialogState.show({
+          title: "Iklan Terdeteksi",
+          message: "Server video baru saja membuka tab iklan. Silakan tutup tab tersebut secara manual jika masih terbuka.\n\nUntuk pengalaman menonton terbaik tanpa gangguan popup dan iklan, kami menyarankan Anda menggunakan Brave Browser.",
+          confirmText: "Mengerti"
+        });
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
     return () => {
       window.removeEventListener("beforeunload", preventRedirect);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   });
 

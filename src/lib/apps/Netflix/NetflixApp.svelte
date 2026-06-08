@@ -47,6 +47,12 @@
 
   onMount(() => {
     const handlePopState = (e: PopStateEvent) => {
+      // Ignore popstate if the framebuster script called history.back() 
+      // and consumed a dummy state, landing us back in our valid 'detail' state
+      if (e.state?.netflixModal === 'detail') return;
+      // Also ignore if we landed on another dummy state in the chain
+      if (e.state?.dummy) return;
+
       if (netflixState.view !== 'home') {
         netflixState.goBack(true);
       }

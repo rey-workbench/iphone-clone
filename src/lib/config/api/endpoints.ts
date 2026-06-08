@@ -17,7 +17,7 @@ export const ApiEndpoints = {
     LLM_CHAT_COMPLETION: 'https://api.llm7.io/v1/chat/completions',
     TURN_CREDENTIALS: 'https://rtc.live.cloudflare.com/v1/turn/keys',
     // Movies Servers
-    VIDSRC_EMBED: 'https://vidsrc-embed.ru',
+    VIDSRC_EMBED: 'https://vsembed.ru',
     VIDLINK: 'https://vidlink.pro',
     MULTIEMBED: 'https://multiembed.mov',
 } as const;

@@ -1,77 +1,75 @@
 import { ApiConfig } from '$lib/config/api';
 import type { Note } from '$lib/types';
+import { LocalDBKey } from '$lib/config/localdb';
+import { SyncState } from '$lib/utils/SyncState.svelte';
 
 const defaultNotes: Note[] = [
   { id: '1', title: 'Welcome to Notes', content: 'This is a sample note in your iOS 26 clone.', date: new Date() },
 ];
 
-export class AppNotesState {
-    notes = $state<Note[]>(defaultNotes);
+export class AppNotesState extends SyncState<Note[]> {
     selectedNote: Note | null = $state(null);
     editContent = $state('');
     editTitle = $state('');
-    private isLoaded = false;
 
-    constructor() {}
-
-    async load() {
-        if (typeof window === 'undefined' || this.isLoaded) return;
-        this.isLoaded = true;
-        try {
+    constructor() {
+        super(LocalDBKey.NOTES, defaultNotes, async () => {
             const r = await fetch(ApiConfig.NOTES);
-            const data = await r.json();
-            if (data.success && data.notes && data.notes.length > 0) {
-                this.notes = data.notes.map((n: any) => ({ ...n, date: new Date(n.date) }));
+            const resData = await r.json();
+            if (resData.success && resData.notes) {
+                return resData.notes.map((n: any) => ({ ...n, date: new Date(n.date) }));
             }
-        } catch (e) {
-            console.error(e);
-        }
+            return []; // Kembalikan kosong jika tidak ada notes
+        });
+    }
+
+    protected parseCache(cached: any): Note[] {
+        if (!cached || !Array.isArray(cached)) return defaultNotes;
+        return cached.map(n => ({ ...n, date: new Date(n.date) }));
+    }
+
+    get notes() {
+        return this.data || [];
     }
 
     async addNote() {
         const n: Note = { id: String(Date.now()), title: 'New Note', content: '', date: new Date() };
-        const original = this.notes;
-        this.notes = [n, ...this.notes];
         this.selectNote(n);
 
-        try {
-            const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('POST', n));
-            if (!res.ok) throw new Error('Failed to add note');
-        } catch (e) {
-            console.error(e);
-            this.notes = original;
-        }
+        await this.mutate(
+            (current) => [n, ...current],
+            async () => {
+                const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('POST', n));
+                if (!res.ok) throw new Error('Failed to add note');
+            }
+        );
     }
 
     async goBack() {
         if (this.selectedNote) {
             const updatedNote = { ...this.selectedNote, title: this.editTitle, content: this.editContent, date: new Date() };
-            const original = this.notes;
-            this.notes = this.notes.map(n => n.id === updatedNote.id ? updatedNote : n);
             
-            try {
-                const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('PUT', updatedNote));
-                if (!res.ok) throw new Error('Failed to update note');
-            } catch (e) {
-                console.error(e);
-                this.notes = original;
-            }
+            await this.mutate(
+                (current) => current.map(n => n.id === updatedNote.id ? updatedNote : n),
+                async () => {
+                    const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('PUT', updatedNote));
+                    if (!res.ok) throw new Error('Failed to update note');
+                }
+            );
         }
         this.selectedNote = null;
     }
 
     async deleteNote(id: string) {
-        const original = this.notes;
-        this.notes = this.notes.filter(n => n.id !== id);
         this.selectedNote = null;
-
-        try {
-            const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('DELETE', { id }));
-            if (!res.ok) throw new Error('Failed to delete note');
-        } catch (e) {
-            console.error(e);
-            this.notes = original;
-        }
+        
+        await this.mutate(
+            (current) => current.filter(n => n.id !== id),
+            async () => {
+                const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('DELETE', { id }));
+                if (!res.ok) throw new Error('Failed to delete note');
+            }
+        );
     }
 
     selectNote(note: Note) {

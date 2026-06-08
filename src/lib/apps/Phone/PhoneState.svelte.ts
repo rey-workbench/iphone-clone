@@ -25,7 +25,7 @@ export class PhoneState {
     }
 
     async loadRecents() {
-        const { getCallHistory } = await import('$lib/config/localdb');
+        const { getCallHistory } = await import('./callHistoryDb');
         const history = await getCallHistory();
         
         const now = new Date();

@@ -1,33 +1,35 @@
 import { ApiConfig } from '$lib/config/api';
-import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
+import { LocalDBKey } from '$lib/config/localdb';
+import { SyncState } from '$lib/utils/SyncState.svelte';
 
-export class UsersState {
-    users = $state<any[]>([]);
+export class UsersState extends SyncState<any[]> {
+    private updateCallback?: (users: any[]) => void;
+
+    constructor() {
+        super(LocalDBKey.USERS_LIST, [], async () => {
+            const res = await fetch(ApiConfig.USERS);
+            if (!res.ok) throw new Error("Failed to fetch users");
+            const data = await res.json();
+            return data.users || [];
+        });
+    }
 
     async fetchUsers(onUpdate?: (users: any[]) => void) {
-        try {
-            // 1. Coba load dari LocalDB terlebih dahulu (Instan)
-            const cachedUsers = await getSetting(LocalDBKey.USERS, []);
-            if (cachedUsers && cachedUsers.length > 0) {
-                this.users = cachedUsers;
-                if (onUpdate) onUpdate(this.users);
-            }
+        this.updateCallback = onUpdate;
+        await this.load();
+    }
 
-            // 2. Fetch data terbaru dari server (Turso) di background
-            const res = await fetch(ApiConfig.USERS);
-            if (res.ok) {
-                const data = await res.json();
-                if (data.users) {
-                    this.users = data.users;
-                    // 3. Simpan ke LocalDB untuk load berikutnya
-                    await setSetting(LocalDBKey.USERS, data.users);
-                    
-                    if (onUpdate) onUpdate(this.users);
-                }
-            }
-        } catch (e) {
-            console.error("Failed to fetch users:", e);
+    // Override the setter logic to trigger callback if defined
+    protected parseCache(cached: any): any[] {
+        if (cached && this.updateCallback) {
+            this.updateCallback(cached);
         }
+        return cached || [];
+    }
+
+    // Expose data as users for backward compatibility
+    get users() {
+        return this.data || [];
     }
 }
 
