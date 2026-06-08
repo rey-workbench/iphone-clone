@@ -52,7 +52,7 @@ export class AppNotesState extends SyncState<Note[]> {
             await this.mutate(
                 (current) => current.map(n => n.id === updatedNote.id ? updatedNote : n),
                 async () => {
-                    const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('PUT', updatedNote));
+                    const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('POST', updatedNote));
                     if (!res.ok) throw new Error('Failed to update note');
                 }
             );
