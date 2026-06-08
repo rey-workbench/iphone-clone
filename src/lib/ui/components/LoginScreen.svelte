@@ -14,11 +14,11 @@
   }
 </script>
 
-<div class="absolute inset-0 z-1000 bg-white flex flex-col font-sans">
+<div class="absolute inset-0 z-60 bg-white flex flex-col font-sans">
   <!-- Top Bar -->
-  <div class="w-full h-[44px]"></div>
+  <div class="w-full h-13.5"></div>
   <!-- Status bar placeholder -->
-  <div class="w-full flex items-center px-2 h-[44px]">
+  <div class="w-full flex items-center px-2 h-11">
     <button
       class="flex items-center text-[#c7c7cc] bg-transparent border-none text-[17px]"
     >
@@ -28,7 +28,7 @@
   </div>
 
   <div
-    class="flex-1 w-full max-w-[340px] mx-auto flex flex-col items-center animate-[fadeIn_0.5s_ease-out] px-4 pt-4 pb-8"
+    class="flex-1 w-full max-w-85 mx-auto flex flex-col items-center animate-[fadeIn_0.3s_ease-out] px-4 pt-4 pb-8"
   >
     <!-- Logo area -->
     <div class="relative flex items-center justify-center w-28 h-28 mb-4">
@@ -52,7 +52,7 @@
         type="text"
         placeholder="Apple ID"
         bind:value={authState.username}
-        class="w-full h-[50px] bg-transparent border-b border-[#d1d1d6] px-4 outline-none text-[17px] text-black"
+        class="w-full h-12.5 bg-transparent border-b border-[#d1d1d6] px-4 outline-none text-[17px] text-black"
         onkeydown={(e) => {
           if (e.key === "Enter") document.getElementById("password")?.focus();
         }}
@@ -65,7 +65,7 @@
         bind:value={authState.password}
         disabled={authState.isLoading}
         onkeydown={(e) => e.key === "Enter" && handleLogin()}
-        class="w-full h-[50px] px-4 text-[17px] text-black bg-transparent border-none outline-none placeholder:text-[#8e8e93] disabled:opacity-50"
+        class="w-full h-12.5 px-4 text-[17px] text-black bg-transparent border-none outline-none placeholder:text-[#8e8e93] disabled:opacity-50"
       />
     </div>
 
@@ -98,7 +98,7 @@
 
     <!-- Submit Button (Pill) -->
     <button
-      class="w-full h-[50px] rounded-[12px] flex items-center justify-center transition-colors mb-6 {authState.username &&
+      class="w-full h-12.5 rounded-xl flex items-center justify-center transition-colors mb-6 {authState.username &&
       authState.password
         ? 'bg-[#1C37CA] text-white'
         : 'bg-[#f2f2f7] text-[#c7c7cc]'}"

@@ -55,7 +55,7 @@
 </div>
 
 <!-- Player Content -->
-<div class="absolute inset-0 z-20 flex flex-col px-6 pt-14 pb-6">
+<div class="absolute inset-0 z-20 flex flex-col px-6 pt-13.5 pb-6">
   <!-- Header -->
   <div class="relative flex justify-between items-center mb-8 shrink-0">
     <button
@@ -69,7 +69,7 @@
         class="text-[11px] font-medium tracking-widest text-white/50 uppercase"
         >PLAYING FROM</span
       >
-      <span class="text-[13px] font-semibold text-white truncate max-w-[200px]">
+      <span class="text-[13px] font-semibold text-white truncate max-w-50">
         {state.current?.album || state.current?.name || "Music"}
       </span>
     </div>
@@ -85,7 +85,7 @@
           <Loader2 class="animate-spin text-white/50" size={32} />
         </div>
       {:else if state.isSynced && state.parsedLyrics.length > 0}
-        <div class="space-y-6 py-[40vh]">
+        <div class="space-y-6 py-32">
           {#each state.parsedLyrics as line, i}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -120,7 +120,7 @@
       <img
         src={state.current?.art}
         alt={state.current?.name}
-        class="h-full max-h-[350px] aspect-square w-auto max-w-full rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] object-cover"
+        class="h-full max-h-87.5 aspect-square w-auto max-w-full rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] object-cover"
       />
     </div>
   {/if}

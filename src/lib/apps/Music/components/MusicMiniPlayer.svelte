@@ -6,7 +6,7 @@
 </script>
 
 <div
-  class="flex gap-3 items-center px-3 py-2 bg-[#2c2c2e] border-t border-white/10 cursor-pointer text-white text-left w-full shrink-0 z-20"
+  class="flex gap-3 items-center px-3 py-2 bg-ios-bg3 border-t border-white/10 cursor-pointer text-white text-left w-full shrink-0 z-20"
   role="button"
   tabindex="0"
   onclick={() => (state.showPlayer = true)}

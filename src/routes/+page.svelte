@@ -68,11 +68,11 @@
   class="w-screen h-dvh flex items-center justify-center bg-[#0a0a0a] overflow-hidden"
 >
   <div
-    class="relative w-98.25 h-213 rounded-[48px] overflow-hidden bg-black shadow-[0_0_0_2px_#333,0_0_0_4px_#1a1a1a,0_0_60px_rgba(0,0,0,0.5),0_0_120px_rgba(0,0,0,0.3)] border border-white/5 max-[430px]:w-screen max-[430px]:h-dvh max-[430px]:rounded-none max-[430px]:shadow-none max-[430px]:border-none"
+    class="relative w-98.25 h-213 rounded-[48px] overflow-hidden bg-black shadow-[0_0_0_2px_#333,0_0_0_4px_#1a1a1a,0_0_60px_rgba(0,0,0,0.5),0_0_120px_rgba(0,0,0,0.3)] border border-white/5 max-[430px]:w-screen max-[430px]:h-full max-[430px]:rounded-none max-[430px]:shadow-none max-[430px]:border-none"
   >
     <!-- Notch -->
     <div
-      class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-black rounded-b-3xl z-400"
+      class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-black rounded-b-3xl z-40"
     ></div>
 
     {#if !systemState.currentUser}
@@ -80,7 +80,7 @@
     {:else if state.showLockScreen}
       <!-- Lock Screen -->
       <div
-        class="absolute inset-0 z-300 cursor-pointer transition-opacity duration-300"
+        class="absolute inset-0 z-30 cursor-pointer transition-opacity duration-300"
         style="transform: translateY(-{state.lockScreenY}px); opacity: {1 -
           state.lockScreenY / 400}"
         ontouchstart={(e) => state.handleLockTouchStart(e)}
@@ -175,7 +175,7 @@
 
       {#if !systemState.activeApp || state.appTransition}
         <!-- Home Screen -->
-        <div class="absolute inset-0 flex flex-col animate-[fadeIn_0.4s_ease]">
+        <div class="absolute inset-0 flex flex-col animate-[fadeIn_0.3s_ease-out]">
           <!-- Wallpaper -->
           <div class="absolute inset-0 overflow-hidden">
             <div

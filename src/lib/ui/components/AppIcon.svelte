@@ -12,9 +12,9 @@
   }
 </script>
 
-<button class="flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer select-none w-[76px] active:scale-[0.88] transition-transform duration-150" onclick={openApp} id="app-{app.id}">
-  <div class="w-[60px] h-[60px] rounded-[14px] flex items-center justify-center shadow-lg relative overflow-hidden border border-white/15 {app.customContainerClass || ''}">
-    <img src={app.icon} alt={app.name} class="w-full h-full object-cover rounded-[14px] {app.customIconClass || ''}" />
+<button class="flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer select-none w-19 active:scale-[0.88] transition-transform duration-150" onclick={openApp} id="app-{app.id}">
+  <div class="w-15 h-15 rounded-2xl flex items-center justify-center shadow-lg relative overflow-hidden border border-white/15 {app.customContainerClass || ''}">
+    <img src={app.icon} alt={app.name} class="w-full h-full object-cover rounded-2xl {app.customIconClass || ''}" />
   </div>
-  <span class="text-[11px] font-medium text-white drop-shadow-md max-w-[72px] truncate">{app.name}</span>
+  <span class="text-xs font-medium text-white drop-shadow-md max-w-18 truncate">{app.name}</span>
 </button>

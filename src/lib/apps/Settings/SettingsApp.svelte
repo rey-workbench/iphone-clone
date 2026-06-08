@@ -42,8 +42,8 @@
           </div>
           <div class="flex-1 text-[17px]">{item.label}</div>
           {#if item.toggle}
-            <div class="w-12.75 h-7.75 rounded-2xl relative transition-colors duration-200 shrink-0 {item.value ? 'bg-ios-green' : 'bg-[#39393D]'}">
-              <div class="w-6.75 h-6.75 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform duration-200 shadow-md {item.value ? 'translate-x-5' : ''}"></div>
+            <div class="w-12.75 h-7.75 rounded-2xl relative transition-colors duration-200 shrink-0" class:bg-ios-green={item.value} class:bg-ios-bg3={!item.value}>
+              <div class="w-6.75 h-6.75 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform duration-200 shadow-md" class:translate-x-5={item.value}></div>
             </div>
           {:else}
             <span class="text-[15px] text-ios-label2 mr-1">{item.detail}</span>
