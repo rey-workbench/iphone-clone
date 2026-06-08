@@ -1,4 +1,5 @@
-import { dialogState, systemState } from '$lib/states';
+import { dialogState } from '$lib/states/dialogState.svelte';
+import { systemState } from '$lib/states/systemState.svelte';
 
 /**
  * Request microphone permission from the user
