@@ -54,7 +54,7 @@
   ];
 </script>
 
-<div class="h-full pt-13.5 pb-5 bg-black flex flex-col ">
+<div class="h-full pt-13.5 pb-0 bg-black flex flex-col ">
   <div class="flex-1 overflow-y-auto px-4 ">
     {#if tab === 'worldClock'}
       <div class="text-[34px] font-bold text-white px-1 py-2 pb-4">World Clock</div>
@@ -96,7 +96,7 @@
       </div>
     {/if}
   </div>
-  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5 shrink-0 justify-around">
+  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep pt-1.5 pb-8 shrink-0 justify-around">
     {#each tabs as t}
       <button class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {tab === t.id ? 'text-[#FF9F0A]' : 'text-ios-label2'}" onclick={() => tab = t.id}>
         <t.icon size={24} />

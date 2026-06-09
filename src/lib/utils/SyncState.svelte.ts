@@ -13,12 +13,12 @@ export class SyncState<T> {
     loading = $state(true);
     error = $state<string | null>(null);
 
-    protected db: LocalDBAdapter;
+    protected db: LocalDBAdapter<T>;
     protected key: string;
     protected fetcher: () => Promise<T>;
     protected isLoaded = false;
 
-    constructor(db: LocalDBAdapter, key: string, defaultData: T, fetcher: () => Promise<T>) {
+    constructor(db: LocalDBAdapter<T>, key: string, defaultData: T, fetcher: () => Promise<T>) {
         this.db = db;
         this.key = key;
         this.data = defaultData;
@@ -35,7 +35,7 @@ export class SyncState<T> {
         this.error = null;
 
         // 1. STALE: Load dari LocalDB (0ms)
-        const cached = await this.db.get(this.key, null);
+        const cached = await this.db.get(this.key, null as unknown as T);
         if (cached !== null) {
             this.data = this.parseCache(cached);
             this.loading = false;
@@ -47,9 +47,10 @@ export class SyncState<T> {
             this.data = fresh;
             // 3. CACHE: Update IndexedDB
             await this.saveCache();
-        } catch (e: any) {
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : String(e);
             console.error(`[SyncState] Failed to fetch data for ${this.key}:`, e);
-            this.error = e.message || String(e);
+            this.error = message;
         } finally {
             this.loading = false;
         }
@@ -65,8 +66,7 @@ export class SyncState<T> {
         remoteMutation: () => Promise<void>
     ) {
         // Backup original state
-        // Karena this.data di Svelte 5 adalah proxy, kita clone dengan $state.snapshot jika ada
-        const original = JSON.parse(JSON.stringify(this.data));
+        const original = this.data ? $state.snapshot(this.data) as T : null;
 
         try {
             // 1. Optimistic Update
@@ -76,12 +76,13 @@ export class SyncState<T> {
             // 2. Remote Action
             await remoteMutation();
 
-        } catch (e: any) {
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : String(e);
             console.error(`[SyncState] Optimistic Mutation failed for ${this.key}, reverting...`, e);
-            this.error = e.message || String(e);
+            this.error = message;
             
             // 3. Revert
-            this.data = this.parseCache(original);
+            this.data = original ? this.parseCache(original) : null;
             await this.saveCache();
             throw e;
         }
@@ -91,14 +92,16 @@ export class SyncState<T> {
      * Simpan state reaktif saat ini ke IndexedDB dengan aman (membuang Proxy Svelte 5).
      */
     protected async saveCache() {
-        await this.db.set(this.key, this.data);
+        // Use $state.snapshot to strip Svelte proxies before storing
+        const snapshot = this.data ? $state.snapshot(this.data) : null;
+        await this.db.set(this.key, snapshot as T);
     }
 
     /**
      * Hook virtual: Override fungsi ini di class turunan jika butuh mengubah data mentah dari JSON 
      * (misalnya mengubah string menjadi objek Date).
      */
-    protected parseCache(cachedData: any): T {
-        return cachedData as T;
+    protected parseCache(cachedData: T): T {
+        return cachedData;
     }
 }

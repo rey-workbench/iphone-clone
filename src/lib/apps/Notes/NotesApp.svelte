@@ -9,7 +9,7 @@
   });
 </script>
 
-<div class="h-full pt-13.5 pb-5 bg-black flex flex-col ">
+<div class="h-full pt-13.5 pb-0 bg-black flex flex-col ">
   {#if state.selectedNote}
     <div class="flex-1 flex flex-col">
       <div class="flex justify-between items-center px-4 py-2 border-b border-ios-sep">
@@ -58,7 +58,7 @@
           {/each}
         {/if}
       </div>
-      <div class="flex justify-between items-center px-4 py-2 bg-[rgba(30,30,30,0.95)] border-t border-ios-sep">
+      <div class="flex justify-between items-center px-4 pt-2 pb-8 bg-[rgba(30,30,30,0.95)] border-t border-ios-sep">
         <span></span>
         <span class="text-[13px] text-ios-label2">{state.notes.length} Notes</span>
         <button class="w-11 h-11 bg-transparent border-none text-[#FF9F0A] cursor-pointer flex justify-end items-center" onclick={() => state.addNote()} aria-label="New note">

@@ -20,7 +20,7 @@
   ];
 </script>
 
-<div class="h-full pt-13.5 pb-5 bg-black flex flex-col ">
+<div class="h-full pt-13.5 pb-0 bg-black flex flex-col ">
   <div class="flex-1 overflow-y-auto px-4 ">
     <div class="px-1 py-2 pb-4">
       <span class="text-[13px] text-ios-label2 uppercase tracking-wider font-semibold">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
@@ -32,8 +32,8 @@
           <div class="rounded-2xl overflow-hidden bg-ios-bg2 flex flex-col">
             <Skeleton height="180px" borderRadius="0" />
             <div class="p-3">
-              <Skeleton height="12px" width="60px" className="mb-2" />
-              <Skeleton height="24px" width="150px" className="mb-1" />
+              <Skeleton height="12px" width="60px" class="mb-2" />
+              <Skeleton height="24px" width="150px" class="mb-1" />
               <Skeleton height="16px" width="100px" />
             </div>
           </div>
@@ -52,7 +52,7 @@
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
         {#each Array(5) as _, i}
           <div class="flex items-center gap-3 p-2.5 px-4">
-            <Skeleton width="16px" height="20px" className="w-4" />
+            <Skeleton width="16px" height="20px" class="w-4" />
             <div class="w-12 h-12 rounded-xl overflow-hidden shrink-0">
               <Skeleton width="100%" height="100%" borderRadius="12px" />
             </div>
@@ -81,7 +81,7 @@
       </div>
     {/if}
   </div>
-  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5 shrink-0 justify-around">
+  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep pt-1.5 pb-8 shrink-0 justify-around">
     {#each tabItems as t}
       <button class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {state.tab === t.id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => state.tab = t.id}>
         <t.icon size={24} />

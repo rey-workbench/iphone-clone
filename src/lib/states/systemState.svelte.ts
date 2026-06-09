@@ -67,10 +67,10 @@ export class SystemState {
 
   async init() {
     try {
-      this.currentUser = await sessionDb.get(SessionDBKey.CURRENT_USER, null);
-      this.recentApps = await sessionDb.get('RECENT_APPS', []);
+      this.currentUser = (await sessionDb.get(SessionDBKey.CURRENT_USER, null)) as { id: string; username: string; name: string } | null;
+      this.recentApps = (await sessionDb.get('RECENT_APPS', [])) as string[];
 
-      let devId = await sessionDb.get<string | null>('device_id', null);
+      let devId = (await sessionDb.get('device_id', null)) as string | null;
       if (!devId) {
         devId = crypto.randomUUID();
         await sessionDb.set('device_id', devId);

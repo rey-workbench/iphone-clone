@@ -526,9 +526,8 @@
       </div>
     {/if}
 
-    <!-- Bottom Navigation Bar -->
     <div
-      class="absolute bottom-0 left-0 w-full bg-[#141414]/95 backdrop-blur-lg border-t border-[#333] z-50 flex justify-around items-center pt-2 pb-6 px-2"
+      class="absolute bottom-0 left-0 w-full bg-[#141414]/95 backdrop-blur-lg border-t border-[#333] z-50 flex justify-around items-center pt-2 pb-8 px-2"
     >
       <button
         class="flex flex-col items-center gap-1 w-16"

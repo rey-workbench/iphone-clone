@@ -114,7 +114,6 @@
           onkeydown={(e: KeyboardEvent) =>
             e.key === "Enter" && state.navigate()}
           class="flex-1 bg-transparent border-none text-black text-[17px] outline-none"
-          autofocus
         />
       </div>
       <button
@@ -138,7 +137,7 @@
           <div class="flex flex-col gap-2">
             <Skeleton width="33%" height="16px" borderRadius="4px" />
             <Skeleton width="75%" height="20px" borderRadius="4px" />
-            <Skeleton width="100%" height="40px" borderRadius="4px" className="mt-1" />
+            <Skeleton width="100%" height="40px" borderRadius="4px" class="mt-1" />
           </div>
         {/each}
       </div>
@@ -235,7 +234,7 @@
   {#if !state.showInput}
     <!-- Bottom Address Bar and Toolbar -->
     <div
-      class="bg-[rgba(242,242,246,0.9)] backdrop-blur-md border-t border-gray-300 pb-5 pt-2 flex flex-col gap-2 z-20"
+      class="bg-[rgba(242,242,246,0.9)] backdrop-blur-md border-t border-gray-300 pb-8 pt-2 flex flex-col gap-2 z-20"
     >
       <!-- Floating Address Pill -->
       <div class="px-3">

@@ -1,5 +1,5 @@
 import { LocalDBAdapter } from './core';
-export const phoneDb = new LocalDBAdapter('call_history');
+export const phoneDb = new LocalDBAdapter<CallHistoryEntry>('call_history');
 
 export type CallHistoryEntry = {
   id: string;
@@ -16,8 +16,14 @@ export async function saveCallHistory(entry: CallHistoryEntry) {
 }
 
 export async function getCallHistory(): Promise<CallHistoryEntry[]> {
-  const db = await phoneDb.init();
-  if (!db) return [];
-  const entries = await db.getAll('call_history') as CallHistoryEntry[];
+  const entries = await phoneDb.getAll();
   return entries.sort((a, b) => b.timestamp - a.timestamp);
+}
+
+export async function deleteCallHistory(id: string) {
+  await phoneDb.delete(id);
+}
+
+export async function clearCallHistory() {
+  await phoneDb.clear();
 }

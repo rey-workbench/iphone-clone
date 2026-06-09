@@ -11,7 +11,7 @@
   });
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">
+<div class="h-full pt-[54px] pb-0 bg-black flex flex-col ">
   {#if state.selectedPhoto}
     <div class="flex-1 flex flex-col">
       <div class="flex items-center px-4 py-2 border-b border-ios-sep">
@@ -47,7 +47,7 @@
         </div>
       {/if}
     </div>
-    <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5 shrink-0">
+    <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep pt-1.5 pb-8 shrink-0">
       {#each [
         { id: 'library', icon: Image, label: 'Library' },
         { id: 'foryou', icon: Heart, label: 'For You' },

@@ -34,7 +34,7 @@ export class ClockState {
           { id: '3', time: '22:00', label: 'Bedtime', enabled: true, days: 'Weekdays' },
         ]
       };
-      const data = await settingsDb.get<typeof defaultClock>('app_clock', defaultClock);
+      const data = await settingsDb.get('app_clock', defaultClock);
       this.activeTab = data.activeTab || 'worldClock';
       this.stopwatchRunning = data.stopwatchRunning || false;
       this.stopwatchTime = data.stopwatchTime || 0;

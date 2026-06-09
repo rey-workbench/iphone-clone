@@ -17,7 +17,7 @@
   ];
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">
+<div class="h-full pt-[54px] pb-0 bg-black flex flex-col ">
   <div class="flex-1 overflow-y-auto">
     {#if state.tab === 'keypad'}
       <div class="flex flex-col items-center py-5">
@@ -150,7 +150,7 @@
       </div>
     {/if}
   </div>
-  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep py-1.5 shrink-0 justify-around">
+  <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep pt-1.5 pb-8 shrink-0 justify-around">
     {#each tabItems as t}
       <button class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {state.tab === t.id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => state.tab = t.id}>
         <t.icon size={24} />

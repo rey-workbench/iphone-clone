@@ -5,7 +5,7 @@
   const state = new MessagesState();
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-black flex flex-col ">
+<div class="h-full pt-[54px] pb-0 bg-black flex flex-col ">
   {#if state.chatView}
     <div class="flex-1 flex flex-col min-h-0">
       <div class="flex items-center justify-between px-4 py-2 border-b border-ios-sep">
@@ -19,7 +19,7 @@
         {#each state.messages as msg, i}
           {@const isLastInGroup = i === state.messages.length - 1 || state.messages[i + 1].isUser !== msg.isUser}
           <div class="flex {msg.isUser ? 'justify-end' : ''}">
-            <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-[17px] leading-snug whitespace-pre-wrap break-words {msg.isUser ? `bg-linear-to-b from-ios-blue to-[#0051D5] text-white ${isLastInGroup ? 'rounded-br-[4px]' : 'rounded-br-xl'}` : `bg-ios-bg3 text-white ${isLastInGroup ? 'rounded-bl-[4px]' : 'rounded-bl-xl'}`}">{msg.content}</div>
+            <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-[17px] leading-snug whitespace-pre-wrap wrap-break-word {msg.isUser ? `bg-linear-to-b from-ios-blue to-[#0051D5] text-white ${isLastInGroup ? 'rounded-br-[4px]' : 'rounded-br-xl'}` : `bg-ios-bg3 text-white ${isLastInGroup ? 'rounded-bl-[4px]' : 'rounded-bl-xl'}`}">{msg.content}</div>
           </div>
         {/each}
         {#if state.isTyping}
@@ -30,7 +30,7 @@
           </div></div>
         {/if}
       </div>
-      <div class="flex items-center gap-2 px-3 py-2 border-t border-ios-sep bg-[rgba(30,30,30,0.95)]">
+      <div class="flex items-center gap-2 px-3 pt-2 pb-8 border-t border-ios-sep bg-[rgba(30,30,30,0.95)]">
         <input bind:value={state.inputText} placeholder="iMessage" onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && state.send()}
           class="flex-1 h-9 rounded-[18px] border border-ios-sep bg-transparent text-white px-4 text-[17px] outline-none" />
         {#if state.inputText}
