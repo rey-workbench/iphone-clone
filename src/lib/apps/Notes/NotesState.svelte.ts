@@ -1,10 +1,10 @@
 import { ApiConfig } from '$lib/config/api';
 import type { Note } from '$lib/types';
-import { LocalDBKey } from '$lib/config/localdb';
+import { notesDb, NotesDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 
 const defaultNotes: Note[] = [
-  { id: '1', title: 'Welcome to Notes', content: 'This is a sample note in your iOS 26 clone.', date: new Date() },
+    { id: '1', title: 'Welcome to Notes', content: 'This is a sample note in your iOS 26 clone.', date: new Date() },
 ];
 
 export class AppNotesState extends SyncState<Note[]> {
@@ -13,7 +13,7 @@ export class AppNotesState extends SyncState<Note[]> {
     editTitle = $state('');
 
     constructor() {
-        super(LocalDBKey.NOTES, defaultNotes, async () => {
+        super(notesDb, NotesDBKey.NOTES, defaultNotes, async () => {
             const r = await fetch(ApiConfig.NOTES);
             const resData = await r.json();
             if (resData.success && resData.notes) {
@@ -48,7 +48,7 @@ export class AppNotesState extends SyncState<Note[]> {
     async goBack() {
         if (this.selectedNote) {
             const updatedNote = { ...this.selectedNote, title: this.editTitle, content: this.editContent, date: new Date() };
-            
+
             await this.mutate(
                 (current) => current.map(n => n.id === updatedNote.id ? updatedNote : n),
                 async () => {
@@ -62,7 +62,7 @@ export class AppNotesState extends SyncState<Note[]> {
 
     async deleteNote(id: string) {
         this.selectedNote = null;
-        
+
         await this.mutate(
             (current) => current.filter(n => n.id !== id),
             async () => {

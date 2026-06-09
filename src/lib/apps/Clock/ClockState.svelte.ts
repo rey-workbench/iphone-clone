@@ -1,5 +1,5 @@
 import type { Alarm } from '$lib/types';
-import { getSetting, setSetting } from '$lib/config/localdb';
+import { settingsDb } from '$lib/config/localdb';
 
 export class ClockState {
   activeTab = $state<'worldClock' | 'alarm' | 'stopwatch' | 'timer'>('worldClock');
@@ -22,7 +22,7 @@ export class ClockState {
     this.isLoading = true;
     try {
       const defaultClock = {
-        activeTab: 'worldClock',
+        activeTab: 'worldClock' as 'worldClock' | 'alarm' | 'stopwatch' | 'timer',
         stopwatchRunning: false,
         stopwatchTime: 0,
         timerRunning: false,
@@ -34,7 +34,7 @@ export class ClockState {
           { id: '3', time: '22:00', label: 'Bedtime', enabled: true, days: 'Weekdays' },
         ]
       };
-      const data = await getSetting('app_clock', defaultClock);
+      const data = await settingsDb.get<typeof defaultClock>('app_clock', defaultClock);
       this.activeTab = data.activeTab || 'worldClock';
       this.stopwatchRunning = data.stopwatchRunning || false;
       this.stopwatchTime = data.stopwatchTime || 0;
@@ -50,7 +50,7 @@ export class ClockState {
 
   async save() {
     if (typeof window !== 'undefined') {
-      const data = {
+      const snap = {
         activeTab: this.activeTab,
         stopwatchRunning: this.stopwatchRunning,
         stopwatchTime: this.stopwatchTime,
@@ -59,7 +59,7 @@ export class ClockState {
         timerRemaining: this.timerRemaining,
         alarms: $state.snapshot(this.alarms)
       };
-      await setSetting('app_clock', data);
+      await settingsDb.set('app_clock', snap);
     }
   }
 

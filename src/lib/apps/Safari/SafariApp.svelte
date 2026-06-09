@@ -1,22 +1,291 @@
 <script lang="ts">
-  import { AppSafariState } from './SafariState.svelte';
+  import { AppSafariState } from "./SafariState.svelte";
+  import { onMount } from "svelte";
+  import {
+    ChevronLeft,
+    ChevronRight,
+    Share,
+    BookOpen,
+    Copy,
+    Lock,
+  } from "@lucide/svelte";
 
   const state = new AppSafariState();
+
+  onMount(async () => {
+    // Add debugging for page unloads
+    window.addEventListener("beforeunload", (e) => {
+      console.trace("[Scramjet Debug] Page is reloading or unloading. Trace:");
+    });
+
+    if ("serviceWorker" in navigator) {
+      const loadScript = (src: string) =>
+        new Promise<void>((resolve, reject) => {
+          if (document.querySelector(`script[src="${src}"]`)) return resolve();
+          const script = document.createElement("script");
+          script.src = src;
+          script.onload = () => resolve();
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+
+      try {
+        await loadScript("/scram/scramjet_bundled.js");
+        await loadScript("/scram/controller.api.js");
+        await loadScript("/libcurl/index.js");
+
+        const LibcurlClient = (window as any).LibcurlTransport.default;
+        const wispUrl = location.origin.replace(/^http/, "ws") + "/wisp/";
+
+        const transport = new LibcurlClient({ wisp: wispUrl });
+        await transport.init();
+
+        const { Controller } = (window as any).$scramjetController;
+        const reg = await navigator.serviceWorker.register("/scramjet-sw.js", {
+          scope: "/",
+        });
+
+        const waitForActive = (worker: ServiceWorker | null) =>
+          new Promise<void>((resolve) => {
+            if (!worker) return resolve();
+            if (worker.state === "activated") return resolve();
+            worker.addEventListener("statechange", () => {
+              if (worker.state === "activated") resolve();
+            });
+          });
+
+        if (!reg.active) {
+          await waitForActive(reg.installing || reg.waiting);
+        }
+
+        const serviceworker = reg.active!;
+
+        state.scramjet = new Controller({
+          serviceworker,
+          transport,
+          config: {
+            prefix: "/scramjet/",
+            scramjetPath: "/scram/scramjet_bundled.js",
+            injectPath: "/scram/controller.inject.js",
+            wasmPath: "/scram/scramjet.wasm",
+          },
+        });
+
+        await state.scramjet.wait();
+
+        state.isReady = true;
+
+        // Initialize the frame
+        if (!state.frameObj && document.getElementById("safari-container")) {
+          const iframe = document.createElement("iframe");
+          iframe.className =
+            "absolute inset-0 w-full h-full border-none bg-white";
+          state.frameObj = state.scramjet.createFrame(iframe);
+          document.getElementById("safari-container")!.appendChild(iframe);
+          if (state.url) {
+            state.frameObj.go(state.url);
+          }
+        }
+      } catch (err: any) {
+        console.error("[Scramjet] Initialization failed", err);
+        state.errorMessage = err.toString();
+      }
+    }
+  });
+
+  const favorites = [
+    { name: "Apple", icon: "🍏", url: "https://www.apple.com" },
+    { name: "YouTube", icon: "▶️", url: "https://www.youtube.com" },
+    { name: "Google", icon: "🔍", url: "https://www.google.com" },
+    { name: "Wikipedia", icon: "W", url: "https://en.wikipedia.org" },
+  ];
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-ios-bg flex flex-col">
-  <div class="flex-1 relative">
-    <iframe src={state.url} title="Browser" class="absolute inset-0 w-full h-full border-none bg-white"></iframe>
-  </div>
-  <div class="flex items-center gap-2 px-3 py-2  bg-[rgba(30,30,30,0.95)] border-t border-ios-sep">
-    {#if state.showInput}
-      <input bind:value={state.inputUrl} onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && state.navigate()}
-        class="flex-1 h-9 rounded-[10px] bg-ios-fill border-none text-white px-3 text-[15px] outline-none" />
-      <button class="bg-transparent border-none text-ios-blue text-[15px] font-medium cursor-pointer" onclick={() => state.navigate()}>Go</button>
-    {:else}
-      <button class="flex-1 h-9 rounded-[10px] bg-ios-fill flex items-center justify-center text-ios-label2 text-[15px] cursor-pointer border-none" onclick={() => state.toggleInput()}>
-        {state.url.replace(/^https?:\/\//, '').replace(/\/$/, '').substring(0, 40)}
+<div class="h-full pt-13.5 flex flex-col bg-[#f2f2f6] relative">
+  {#if state.showInput}
+    <!-- Top Address Bar (Search Mode) -->
+    <div class="flex items-center gap-2 px-4 py-3 bg-[#f2f2f6] z-20">
+      <div
+        class="flex-1 h-10 rounded-[10px] bg-[#e3e3e8] flex items-center px-3"
+      >
+        <input
+          bind:value={state.inputUrl}
+          onkeydown={(e: KeyboardEvent) =>
+            e.key === "Enter" && state.navigate()}
+          class="flex-1 bg-transparent border-none text-black text-[17px] outline-none"
+          autofocus
+        />
+      </div>
+      <button
+        class="bg-transparent border-none text-ios-blue text-[17px] font-medium cursor-pointer px-1"
+        onclick={() => (state.showInput = false)}
+      >
+        Cancel
       </button>
+    </div>
+  {/if}
+
+  <!-- Main Content Area -->
+  <div
+    class="flex-1 relative overflow-y-auto z-10 {state.showInput || !state.url
+      ? 'bg-[#f2f2f6]'
+      : 'bg-white'}"
+  >
+    {#if state.isSearching}
+      <div class="p-6 flex flex-col gap-6">
+        {#each Array(5) as _}
+          <div class="animate-pulse flex flex-col gap-2">
+            <div class="h-4 bg-gray-300 rounded w-1/3"></div>
+            <div class="h-5 bg-gray-300 rounded w-3/4"></div>
+            <div class="h-10 bg-gray-300 rounded w-full mt-1"></div>
+          </div>
+        {/each}
+      </div>
+    {:else if state.searchError}
+      <div class="p-6 text-red-500 font-medium">Error: {state.searchError}</div>
+    {:else if state.searchResults}
+      <div class="p-4 flex flex-col gap-6 bg-white min-h-full">
+        {#each state.searchResults as result}
+          <div
+            role="button"
+            tabindex="0"
+            class="flex flex-col gap-1 cursor-pointer"
+            onclick={() => {
+              state.navigate(result.url);
+            }}
+            onkeydown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                state.navigate(result.url);
+              }
+            }}
+          >
+            <div class="text-[12px] text-gray-500 truncate">{result.url}</div>
+            <div
+              class="text-[18px] text-[#1a0dab] hover:underline font-medium leading-tight"
+            >
+              {result.title}
+            </div>
+            <div
+              class="text-[14px] text-[#4d5156] leading-snug line-clamp-3 mt-1"
+            >
+              {result.description || result.content || result.snippet || ""}
+            </div>
+          </div>
+        {/each}
+        {#if state.searchResults.length === 0}
+          <div class="text-gray-500 mt-4 text-center">No results found.</div>
+        {/if}
+      </div>
+    {:else if !state.url && !state.showInput}
+      <!-- Start Page -->
+      <div class="p-6">
+        <h1 class="text-2xl font-bold mb-6 text-black">Favorites</h1>
+        <div class="grid grid-cols-4 gap-y-6 gap-x-2">
+          {#each favorites as fav}
+            <button
+              class="flex flex-col items-center gap-2 bg-transparent border-none cursor-pointer"
+              onclick={() => {
+                state.inputUrl = fav.url;
+                state.url = fav.url;
+                state.navigate();
+              }}
+            >
+              <div
+                class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl"
+              >
+                {fav.icon}
+              </div>
+              <span
+                class="text-[11px] text-gray-500 truncate w-full text-center"
+                >{fav.name}</span
+              >
+            </button>
+          {/each}
+        </div>
+      </div>
+    {:else}
+      {#if state.errorMessage}
+        <div
+          class="p-6 text-red-500 flex items-center justify-center h-full text-center font-bold"
+        >
+          {state.errorMessage}
+        </div>
+      {:else if !state.isReady}
+        <div class="p-6 text-gray-500 flex items-center justify-center h-full">
+          Loading Scramjet engine...
+        </div>
+      {/if}
+
+      <!-- Container for Scramjet iframe -->
+      <div
+        id="safari-container"
+        class="absolute inset-0 w-full h-full bg-white {state.isReady &&
+        state.url &&
+        !state.searchResults &&
+        !state.isSearching &&
+        !state.errorMessage
+          ? 'block'
+          : 'hidden'}"
+      ></div>
     {/if}
   </div>
+
+  {#if !state.showInput}
+    <!-- Bottom Address Bar and Toolbar -->
+    <div
+      class="bg-[rgba(242,242,246,0.9)] backdrop-blur-md border-t border-gray-300 pb-5 pt-2 flex flex-col gap-2 z-20"
+    >
+      <!-- Floating Address Pill -->
+      <div class="px-3">
+        <button
+          class="w-full h-11 rounded-[12px] bg-white shadow-sm flex items-center justify-center gap-2 text-black text-[15px] cursor-pointer border border-gray-200"
+          onclick={() => state.toggleInput()}
+        >
+          <span class="flex items-center justify-center text-gray-400">
+            <Lock size={14} />
+          </span>
+          {#if state.url}
+            {state.url
+              .replace(/^https?:\/\//, "")
+              .replace(/\/$/, "")
+              .substring(0, 40)}
+          {:else}
+            Search or enter website name
+          {/if}
+        </button>
+      </div>
+
+      <!-- Bottom Toolbar Icons -->
+      <div class="flex items-center justify-between px-5 pt-1 pb-1">
+        <button
+          class="text-ios-blue bg-transparent border-none p-2 cursor-pointer disabled:opacity-30"
+          onclick={() => state.goBack()}
+        >
+          <ChevronLeft size={24} />
+        </button>
+        <button
+          class="text-ios-blue bg-transparent border-none p-2 cursor-pointer disabled:opacity-30"
+          onclick={() => state.goForward()}
+        >
+          <ChevronRight size={24} />
+        </button>
+        <button
+          class="text-ios-blue bg-transparent border-none p-2 cursor-pointer"
+        >
+          <Share size={24} />
+        </button>
+        <button
+          class="text-ios-blue bg-transparent border-none p-2 cursor-pointer"
+        >
+          <BookOpen size={24} />
+        </button>
+        <button
+          class="text-ios-blue bg-transparent border-none p-2 cursor-pointer"
+        >
+          <Copy size={24} />
+        </button>
+      </div>
+    </div>
+  {/if}
 </div>

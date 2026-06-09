@@ -1,4 +1,4 @@
-import { getSetting, setSetting } from '$lib/config/localdb';
+import type { LocalDBAdapter } from '$lib/config/localdb/core';
 
 /**
  * Base class Svelte 5 untuk manajemen state reaktif.
@@ -13,11 +13,13 @@ export class SyncState<T> {
     loading = $state(true);
     error = $state<string | null>(null);
 
+    protected db: LocalDBAdapter;
     protected key: string;
     protected fetcher: () => Promise<T>;
     protected isLoaded = false;
 
-    constructor(key: string, defaultData: T, fetcher: () => Promise<T>) {
+    constructor(db: LocalDBAdapter, key: string, defaultData: T, fetcher: () => Promise<T>) {
+        this.db = db;
         this.key = key;
         this.data = defaultData;
         this.fetcher = fetcher;
@@ -33,7 +35,7 @@ export class SyncState<T> {
         this.error = null;
 
         // 1. STALE: Load dari LocalDB (0ms)
-        const cached = await getSetting(this.key, null);
+        const cached = await this.db.get(this.key, null);
         if (cached !== null) {
             this.data = this.parseCache(cached);
             this.loading = false;
@@ -89,7 +91,7 @@ export class SyncState<T> {
      * Simpan state reaktif saat ini ke IndexedDB dengan aman (membuang Proxy Svelte 5).
      */
     protected async saveCache() {
-        await setSetting(this.key, this.data);
+        await this.db.set(this.key, this.data);
     }
 
     /**

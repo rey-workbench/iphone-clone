@@ -1,5 +1,5 @@
 import { supabase } from '$lib/config/supabase';
-import { systemState } from '$lib/states/systemState.svelte';
+import { systemState } from '$lib/states';
 import { requestMicrophone, requestCamera } from '$lib/utils/permissions';
 import { ApiConfig } from '$lib/config/api';
 

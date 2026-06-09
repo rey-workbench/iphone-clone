@@ -1,6 +1,6 @@
 import { Plane, Wifi, Bluetooth, Antenna, Link, Bell, Volume2, Moon, Hourglass, Settings, Sun, LayoutGrid, Accessibility, Image, Battery, Lock } from '@lucide/svelte';
-import { systemState } from '$lib/states/systemState.svelte';
-import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
+import { systemState } from '$lib/states';
+import { settingsDb, SettingsDBKey } from '$lib/config/localdb';
 
 export class SettingsState {
   airplaneMode = $state(false);
@@ -27,7 +27,7 @@ export class SettingsState {
   async init() {
     this.isLoading = true;
     try {
-      const data = await getSetting(LocalDBKey.SETTINGS, {
+      const data = await settingsDb.get(SettingsDBKey.SETTINGS, {
         airplaneMode: false,
         wifi: true,
         bluetooth: true,
@@ -64,7 +64,7 @@ export class SettingsState {
         autoBrightness: this.autoBrightness,
         lowPowerMode: this.lowPowerMode
       };
-      await setSetting(LocalDBKey.SETTINGS, data);
+      await settingsDb.set(SettingsDBKey.SETTINGS, data);
     }
   }
 }
