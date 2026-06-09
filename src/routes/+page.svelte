@@ -72,7 +72,7 @@
   >
     <!-- Notch -->
     <div
-      class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-black rounded-b-3xl z-40"
+      class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-black rounded-b-3xl z-1000"
     ></div>
 
     {#if !systemState.currentUser}
