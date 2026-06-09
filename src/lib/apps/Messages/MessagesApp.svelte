@@ -16,9 +16,10 @@
         <span class="w-24"></span>
       </div>
       <div class="flex-1 overflow-y-auto p-3 pb-2 flex flex-col gap-1 min-h-0">
-        {#each state.messages as msg}
+        {#each state.messages as msg, i}
+          {@const isLastInGroup = i === state.messages.length - 1 || state.messages[i + 1].isUser !== msg.isUser}
           <div class="flex {msg.isUser ? 'justify-end' : ''}">
-            <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-[17px] leading-snug {msg.isUser ? 'bg-linear-to-b from-ios-blue to-[#0051D5] text-white rounded-br-[4px]' : 'bg-ios-bg3 text-white rounded-bl-[4px]'}">{msg.content}</div>
+            <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-[17px] leading-snug whitespace-pre-wrap break-words {msg.isUser ? `bg-linear-to-b from-ios-blue to-[#0051D5] text-white ${isLastInGroup ? 'rounded-br-[4px]' : 'rounded-br-xl'}` : `bg-ios-bg3 text-white ${isLastInGroup ? 'rounded-bl-[4px]' : 'rounded-bl-xl'}`}">{msg.content}</div>
           </div>
         {/each}
         {#if state.isTyping}
@@ -49,7 +50,7 @@
         }}>+</button>
       </div>
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-        {#each state.inbox as convo}
+        {#each state.inbox as convo (convo.id)}
           <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-white text-left border-b border-ios-sep last:border-b-0" onclick={() => state.openChat(convo.id, convo.name)}>
             <div class="w-[45px] h-[45px] rounded-full flex items-center justify-center text-[16px] font-semibold text-white shrink-0" style="background:{convo.color}">
               {#if convo.icon}

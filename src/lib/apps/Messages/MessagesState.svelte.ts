@@ -170,6 +170,7 @@ export class MessagesState {
         this.currentChatId = id;
         this.currentChatName = name;
         this.chatView = true;
+        this.messages = []; // Clear previous messages
         this.loadMessages(); 
     }
 

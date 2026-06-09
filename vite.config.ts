@@ -34,9 +34,9 @@ export default defineConfig({
 				suppressWarnings: true
 			},
 			manifest: {
-				name: 'iOS 26 Clone',
-				short_name: 'iOS Clone',
-				description: 'iOS 26 Clone built with SvelteKit',
+				name: 'MyPhone',
+				short_name: 'MyPhone',
+				description: 'MyPhone Simulator built with SvelteKit',
 				theme_color: '#000000',
 				background_color: '#000000',
 				display: 'standalone',
