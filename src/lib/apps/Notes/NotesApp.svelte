@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Trash2, SquarePen, ChevronLeft } from '@lucide/svelte';
   import { AppNotesState } from './NotesState.svelte';
+  import Skeleton from '$lib/components/ui/Skeleton.svelte';
   const state = new AppNotesState();
 
   $effect(() => {
@@ -28,18 +29,34 @@
     <div class="flex-1 flex flex-col overflow-hidden">
       <div class="px-5 pt-2 pb-3">
         <h1 class="text-[34px] font-bold text-white">Notes</h1>
-        <span class="text-[13px] text-ios-label2">{state.notes.length} Notes</span>
+        {#if !state.loading}
+          <span class="text-[13px] text-ios-label2">{state.notes.length} Notes</span>
+        {/if}
       </div>
       <div class="flex-1 overflow-y-auto px-4">
-        {#each state.notes as note}
-          <button class="w-full text-left p-3 px-4 bg-ios-bg2 border-none text-white cursor-pointer border-b border-ios-sep first:rounded-t-xl last:rounded-b-xl last:border-b-0" onclick={() => state.selectNote(note)}>
-            <div class="text-[17px] font-semibold mb-1">{note.title}</div>
-            <div class="flex gap-2 text-[13px] text-ios-label2">
-              <span>{state.fmtDate(note.date)}</span>
-              <span class="truncate flex-1">{note.content.substring(0, 50)}</span>
-            </div>
-          </button>
-        {/each}
+        {#if state.loading}
+          <div class="bg-ios-bg2 rounded-xl overflow-hidden">
+            {#each Array(4) as _, i}
+              <div class="w-full text-left p-3 px-4 flex flex-col gap-1.5 {i < 3 ? 'border-b border-ios-sep' : ''}">
+                <Skeleton width="120px" height="20px" />
+                <div class="flex gap-2">
+                  <Skeleton width="60px" height="16px" />
+                  <Skeleton width="140px" height="16px" />
+                </div>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          {#each state.notes as note}
+            <button class="w-full text-left p-3 px-4 bg-ios-bg2 border-none text-white cursor-pointer border-b border-ios-sep first:rounded-t-xl last:rounded-b-xl last:border-b-0" onclick={() => state.selectNote(note)}>
+              <div class="text-[17px] font-semibold mb-1">{note.title}</div>
+              <div class="flex gap-2 text-[13px] text-ios-label2">
+                <span>{state.fmtDate(note.date)}</span>
+                <span class="truncate flex-1">{note.content.substring(0, 50)}</span>
+              </div>
+            </button>
+          {/each}
+        {/if}
       </div>
       <div class="flex justify-between items-center px-4 py-2 bg-[rgba(30,30,30,0.95)] border-t border-ios-sep">
         <span></span>

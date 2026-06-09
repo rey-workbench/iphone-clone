@@ -6,8 +6,10 @@ export class PhoneState {
     dialNumber = $state('');
 
     recents: any[] = $state([]);
+    loadingRecents = $state(true);
 
     contacts: any[] = $state([]);
+    loadingContacts = $state(true);
 
     keys = [
         [{ n: '1', s: '' }, { n: '2', s: 'ABC' }, { n: '3', s: 'DEF' }],
@@ -25,6 +27,7 @@ export class PhoneState {
     }
 
     async loadRecents() {
+        this.loadingRecents = true;
         const { getCallHistory } = await import('$lib/config/localdb');
         const history = await getCallHistory();
         
@@ -56,6 +59,7 @@ export class PhoneState {
                 missed: entry.type === 'missed'
             };
         });
+        this.loadingRecents = false;
     }
 
     updateContacts(users: any[]) {
@@ -68,6 +72,7 @@ export class PhoneState {
                 initials: displayName.substring(0, 2).toUpperCase(),
             };
         });
+        this.loadingContacts = false;
     }
 
     appendNumber(n: string) {

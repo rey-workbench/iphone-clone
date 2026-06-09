@@ -4,6 +4,7 @@
   import { systemState } from "$lib/states";
   import Player from "./components/Player.svelte";
   import { onMount } from "svelte";
+  import Skeleton from "$lib/components/ui/Skeleton.svelte";
 
   let headerOpacity = $state(0);
   let activeTab = $state("home"); // 'home', 'search'
@@ -238,12 +239,17 @@
             </div>
           </div>
         {:else}
-          <div
-            class="w-full h-137.5 flex items-center justify-center bg-black"
-          >
-            <div
-              class="w-8 h-8 border-4 border-[#E50914] border-t-transparent rounded-full animate-spin"
-            ></div>
+          <div class="relative w-full h-137.5">
+            <Skeleton width="100%" height="100%" />
+            <div class="absolute bottom-0 left-0 w-full pb-6 flex flex-col items-center gap-4">
+              <Skeleton width="60%" height="48px" />
+              <Skeleton width="80%" height="16px" />
+              <div class="flex items-center justify-center gap-8 w-full mt-2">
+                <Skeleton width="32px" height="40px" />
+                <Skeleton width="120px" height="40px" borderRadius="4px" />
+                <Skeleton width="32px" height="40px" />
+              </div>
+            </div>
           </div>
         {/if}
 
@@ -259,6 +265,13 @@
             <div
               class="flex overflow-x-auto px-4 pb-2 gap-2 no-scrollbar snap-x"
             >
+              {#if top10Movies.length === 0}
+                {#each Array(4) as _}
+                  <div class="relative flex-none w-26.25 h-38.75 rounded overflow-hidden snap-start bg-[#222]">
+                    <Skeleton width="100%" height="100%" />
+                  </div>
+                {/each}
+              {:else}
               {#each top10Movies as movie, i}
                 {#if i < 4}
                   <button
@@ -307,6 +320,7 @@
                   </button>
                 {/if}
               {/each}
+              {/if}
             </div>
           </div>
 
@@ -318,6 +332,15 @@
             <div
               class="flex overflow-x-auto px-4 pb-4 gap-0 no-scrollbar snap-x"
             >
+              {#if netflixState.tvShows.length === 0}
+                {#each Array(3) as _}
+                  <div class="relative flex-none w-33.75 h-41.25 flex items-end justify-end overflow-visible snap-start">
+                    <div class="w-27.5 h-41.25 relative z-10 rounded overflow-hidden">
+                      <Skeleton width="100%" height="100%" />
+                    </div>
+                  </div>
+                {/each}
+              {:else}
               {#each netflixState.tvShows.slice(0, 10) as tv, i}
                 <button
                   class="relative flex-none w-33.75 h-41.25 flex items-end justify-end overflow-visible snap-start transition-transform hover:scale-105"
@@ -358,6 +381,7 @@
                   </div>
                 </button>
               {/each}
+              {/if}
             </div>
           </div>
         </div>

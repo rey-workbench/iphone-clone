@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { ChevronLeft, Loader2 } from '@lucide/svelte';
   import { AppMailState } from './MailState.svelte';
+  import Skeleton from '$lib/components/ui/Skeleton.svelte';
 
   const state = new AppMailState();
 
@@ -31,17 +32,34 @@
     <div class="flex-1 overflow-y-auto px-4">
       <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4">Inbox</h1>
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-        {#each state.emails as email, i}
-          <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-left text-white items-start" onclick={() => state.openEmail(email)}>
-            {#if !email.read}<div class="w-2.5 h-2.5 rounded-full bg-ios-blue shrink-0 mt-1.5"></div>{:else}<div class="w-2.5 shrink-0"></div>{/if}
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between mb-0.5"><span class="text-[17px] {!email.read ? 'font-semibold' : 'font-normal'}">{email.from}</span><span class="text-[13px] text-ios-label2">{email.date}</span></div>
-              <div class="text-[15px] {!email.read ? 'font-semibold' : 'font-normal'} truncate">{email.subject}</div>
-              <div class="text-[14px] text-ios-label2 truncate mt-0.5">{email.preview}</div>
+        {#if state.loading && state.emails.length === 0}
+          {#each Array(5) as _, i}
+            <div class="flex gap-3 p-3 px-4 w-full items-start">
+              <Skeleton width="10px" height="10px" borderRadius="9999px" class="shrink-0 mt-1.5" />
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between mb-1">
+                  <Skeleton width="100px" height="16px" />
+                  <Skeleton width="40px" height="12px" />
+                </div>
+                <Skeleton width="80%" height="16px" class="mb-1" />
+                <Skeleton width="90%" height="14px" />
+              </div>
             </div>
-          </button>
-          {#if i < state.emails.length - 1}<div class="h-px bg-ios-sep ml-[40px]"></div>{/if}
-        {/each}
+            {#if i < 4}<div class="h-px bg-ios-sep ml-[40px]"></div>{/if}
+          {/each}
+        {:else}
+          {#each state.emails as email, i}
+            <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-left text-white items-start" onclick={() => state.openEmail(email)}>
+              {#if !email.read}<div class="w-2.5 h-2.5 rounded-full bg-ios-blue shrink-0 mt-1.5"></div>{:else}<div class="w-2.5 shrink-0"></div>{/if}
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between mb-0.5"><span class="text-[17px] {!email.read ? 'font-semibold' : 'font-normal'}">{email.from}</span><span class="text-[13px] text-ios-label2">{email.date}</span></div>
+                <div class="text-[15px] {!email.read ? 'font-semibold' : 'font-normal'} truncate">{email.subject}</div>
+                <div class="text-[14px] text-ios-label2 truncate mt-0.5">{email.preview}</div>
+              </div>
+            </button>
+            {#if i < state.emails.length - 1}<div class="h-px bg-ios-sep ml-[40px]"></div>{/if}
+          {/each}
+        {/if}
       </div>
     </div>
   {/if}

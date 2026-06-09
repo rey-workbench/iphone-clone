@@ -1,6 +1,7 @@
 <script lang="ts">
   import { AppSafariState } from "./SafariState.svelte";
   import { onMount } from "svelte";
+  import Skeleton from "$lib/components/ui/Skeleton.svelte";
   import {
     ChevronLeft,
     ChevronRight,
@@ -134,10 +135,10 @@
     {#if state.isSearching}
       <div class="p-6 flex flex-col gap-6">
         {#each Array(5) as _}
-          <div class="animate-pulse flex flex-col gap-2">
-            <div class="h-4 bg-gray-300 rounded w-1/3"></div>
-            <div class="h-5 bg-gray-300 rounded w-3/4"></div>
-            <div class="h-10 bg-gray-300 rounded w-full mt-1"></div>
+          <div class="flex flex-col gap-2">
+            <Skeleton width="33%" height="16px" borderRadius="4px" />
+            <Skeleton width="75%" height="20px" borderRadius="4px" />
+            <Skeleton width="100%" height="40px" borderRadius="4px" className="mt-1" />
           </div>
         {/each}
       </div>

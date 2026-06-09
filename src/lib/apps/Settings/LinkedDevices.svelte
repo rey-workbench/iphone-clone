@@ -4,6 +4,7 @@
   import { webrtcState } from "$lib/states/webrtcState.svelte";
   import { onMount } from "svelte";
   import { ApiConfig } from "$lib/config/api";
+  import Skeleton from "$lib/components/ui/Skeleton.svelte";
 
   let { onBack } = $props<{ onBack: () => void }>();
 
@@ -101,7 +102,19 @@
     </div>
     <div class="bg-ios-bg2 rounded-xl mb-5 overflow-hidden">
       {#if isLoading}
-        <div class="p-4 text-center text-ios-label2">Loading...</div>
+        {#each Array(3) as _, i}
+          <div class="flex items-center gap-3 py-3 px-4 w-full">
+            <div class="w-10 h-10 rounded-md shrink-0">
+              <Skeleton width="100%" height="100%" borderRadius="6px" />
+            </div>
+            <div class="flex-1 flex flex-col gap-1.5">
+              <Skeleton width="60%" height="18px" />
+              <Skeleton width="40%" height="14px" />
+            </div>
+            <Skeleton width="70px" height="28px" borderRadius="9999px" />
+          </div>
+          {#if i < 2}<div class="h-px bg-ios-sep ml-[68px]"></div>{/if}
+        {/each}
       {:else if devices.length === 0}
         <div class="p-4 text-center text-ios-label2">
           No linked devices found.

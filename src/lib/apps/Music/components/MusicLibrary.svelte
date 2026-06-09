@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { MusicState } from "../MusicState.svelte";
   import { Play, Search } from "@lucide/svelte";
+  import Skeleton from "$lib/components/ui/Skeleton.svelte";
 
   let { state }: { state: MusicState } = $props();
 </script>
@@ -11,8 +12,31 @@
       {state.activeTab.replace("_", " ")}
     </h1>
     {#if state.tracks.length === 0}
-      <div class="flex justify-center py-20">
-        <div class="w-8 h-8 border-2 border-ios-label2 border-t-white rounded-full animate-spin"></div>
+      <div class="mb-5">
+        <h2 class="text-[22px] font-bold text-white mb-3"><Skeleton width="120px" height="24px" /></h2>
+        <div class="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
+          {#each Array(4) as _}
+            <div class="min-w-[150px] text-left p-0">
+              <Skeleton width="150px" height="150px" borderRadius="12px" />
+              <Skeleton width="120px" height="16px" className="mt-1.5" />
+              <Skeleton width="90px" height="14px" className="mt-1" />
+            </div>
+          {/each}
+        </div>
+      </div>
+      <div class="bg-ios-bg2 rounded-xl overflow-hidden mb-5">
+        {#each Array(5) as _, i}
+          <div class="flex gap-3 p-2 px-3 w-full items-center">
+            <Skeleton width="48px" height="48px" borderRadius="8px" className="shrink-0" />
+            <div class="flex-1 min-w-0 flex flex-col gap-1">
+              <Skeleton width="160px" height="18px" />
+              <Skeleton width="100px" height="14px" />
+            </div>
+          </div>
+          {#if i < 4}
+            <div class="h-px bg-ios-sep ml-[68px]"></div>
+          {/if}
+        {/each}
       </div>
     {:else}
       <div class="mb-5">
@@ -72,8 +96,19 @@
       </div>
     {/if}
     {#if state.isSearching}
-      <div class="flex justify-center py-10">
-        <div class="w-8 h-8 border-2 border-ios-label2 border-t-white rounded-full animate-spin"></div>
+      <div class="bg-ios-bg2 rounded-xl overflow-hidden mt-4 mb-5">
+        {#each Array(5) as _, i}
+          <div class="flex gap-3 p-2 px-3 w-full items-center">
+            <Skeleton width="48px" height="48px" borderRadius="8px" className="shrink-0" />
+            <div class="flex-1 min-w-0 flex flex-col gap-1">
+              <Skeleton width="160px" height="18px" />
+              <Skeleton width="100px" height="14px" />
+            </div>
+          </div>
+          {#if i < 4}
+            <div class="h-px bg-ios-sep ml-[68px]"></div>
+          {/if}
+        {/each}
       </div>
     {:else if state.searchResults.length > 0}
       <div class="bg-ios-bg2 rounded-xl overflow-hidden mb-5">

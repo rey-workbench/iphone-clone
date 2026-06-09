@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { ChevronLeft, Image, Heart, Folder, Search, Loader2 } from '@lucide/svelte';
+  import { ChevronLeft, Image, Heart, Folder, Search } from '@lucide/svelte';
   import { AppPhotosState } from './PhotosState.svelte';
+  import Skeleton from '$lib/components/ui/Skeleton.svelte';
 
   const state = new AppPhotosState();
 
@@ -29,7 +30,13 @@
         <h1 class="text-[34px] font-bold text-white">Library</h1>
       </div>
       {#if state.loading}
-        <div class="flex justify-center py-10"><Loader2 class="animate-spin text-ios-label2" /></div>
+        <div class="grid grid-cols-3 gap-0.5 px-0.5">
+          {#each Array(21) as _}
+            <div class="aspect-square bg-ios-bg3">
+              <Skeleton width="100%" height="100%" borderRadius="0" />
+            </div>
+          {/each}
+        </div>
       {:else}
         <div class="grid grid-cols-3 gap-0.5 px-0.5">
           {#each state.photos as photo}

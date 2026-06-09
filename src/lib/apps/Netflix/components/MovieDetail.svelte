@@ -3,6 +3,7 @@
   import { netflixState } from "../NetflixState.svelte";
   import { ApiConfig } from "$lib/config/api";
   import { dialogState } from "$lib/states/dialogState.svelte";
+  import Skeleton from "$lib/components/ui/Skeleton.svelte";
 
   let media = $derived(netflixState.selectedMedia);
   let isTvShow = $derived(
@@ -31,6 +32,7 @@
   let seasons = $state<any[]>([]);
   let idleTimer: any;
   let currentServer = $state(1);
+  let isLoading = $state(true);
 
   let iframeSrc = $derived(
     isTvShow
@@ -56,6 +58,7 @@
 
   async function fetchDetails() {
     if (!media?.id) return;
+    isLoading = true;
     try {
       const type = isTvShow ? "tv" : "movie";
       const res = await fetch(
@@ -75,6 +78,8 @@
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -384,18 +389,35 @@
       </div>
 
       <!-- Synopsis -->
-      <p class="text-sm leading-snug text-white mt-1">
+      <div class="text-sm leading-snug text-white mt-1">
         <span class="font-bold">{isTvShow ? "S1:E1 " : ""}</span>
-        {media.overview || "No synopsis available. Tap Play to start watching."}
-      </p>
+        {#if isLoading}
+          <div class="flex flex-col gap-1 mt-1">
+            <Skeleton width="100%" height="14px" />
+            <Skeleton width="90%" height="14px" />
+            <Skeleton width="40%" height="14px" />
+          </div>
+        {:else}
+          {media.overview || "No synopsis available. Tap Play to start watching."}
+        {/if}
+      </div>
 
       <!-- Cast -->
-      <p class="text-[11px] text-gray-400 leading-tight">
+      <div class="text-[11px] text-gray-400 leading-tight">
         <span class="text-gray-300">Starring:</span>
-        {cast}<br />
+        {#if isLoading}
+          <Skeleton width="120px" height="12px" class="inline-block" />
+        {:else}
+          {cast}
+        {/if}
+        <br />
         <span class="text-gray-300">{isTvShow ? "Creator:" : "Director:"}</span>
-        {creator}
-      </p>
+        {#if isLoading}
+          <Skeleton width="80px" height="12px" class="inline-block" />
+        {:else}
+          {creator}
+        {/if}
+      </div>
 
       <!-- Actions: My List, Rate, Share -->
       <div class="flex items-center gap-8 mt-2 px-4">

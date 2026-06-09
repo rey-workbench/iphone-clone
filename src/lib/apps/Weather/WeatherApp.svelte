@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { WeatherState } from './WeatherState.svelte';
+  import Skeleton from '$lib/components/ui/Skeleton.svelte';
 
   const state = new WeatherState();
 
@@ -12,7 +13,23 @@
 <div class="h-full pt-[54px] pb-5 relative overflow-hidden">
   <div class="absolute inset-0 bg-linear-to-b from-[#4A90D9] via-[#6BB3F0] via-60% to-[#9DD1E8]"></div>
   <div class="relative z-10 h-full overflow-y-auto ">
-    <div class="text-center px-5 ">
+    {#if state.loading}
+      <div class="text-center px-5 flex flex-col items-center gap-2 pt-2">
+        <Skeleton width="120px" height="38px" className="mb-2" />
+        <Skeleton width="180px" height="96px" />
+        <Skeleton width="100px" height="24px" className="mt-2" />
+        <Skeleton width="140px" height="24px" />
+      </div>
+      <div class="px-4 pb-10 flex flex-col gap-2.5 mt-8">
+        <div class="rounded-[14px] p-3 px-4 bg-white/12 backdrop-blur-[20px] border border-white/20 h-[120px]">
+          <Skeleton width="100%" height="100%" />
+        </div>
+        <div class="rounded-[14px] p-3 px-4 bg-white/12 backdrop-blur-[20px] border border-white/20 h-[300px]">
+          <Skeleton width="100%" height="100%" />
+        </div>
+      </div>
+    {:else}
+      <div class="text-center px-5 ">
       <h1 class="text-[32px] font-normal text-white">{state.w.city}</h1>
       <div class="text-[96px] font-extralight text-white leading-none -my-1">{state.w.temp}°</div>
       <p class="text-lg text-white/90 mt-0.5">{state.w.condition}</p>
@@ -62,5 +79,6 @@
         {/each}
       </div>
     </div>
+    {/if}
   </div>
 </div>

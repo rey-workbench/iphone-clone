@@ -4,6 +4,7 @@
   import { callState } from './CallState.svelte';
   import IncomingCallScreen from './components/IncomingCallScreen.svelte';
   import ActiveCallScreen from './components/ActiveCallScreen.svelte';
+  import Skeleton from '$lib/components/ui/Skeleton.svelte';
 
   const state = new PhoneState();
 
@@ -54,7 +55,23 @@
       <div class="px-4">
         <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4">Recents</h1>
         <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-          {#each state.recents as call, i}
+          {#if state.loadingRecents}
+            {#each Array(5) as _, i}
+              <div class="flex items-center p-3 px-4">
+                <div class="flex-1 flex flex-col gap-1">
+                  <Skeleton width="120px" height="20px" />
+                  <div class="flex items-center gap-1">
+                    <Skeleton width="60px" height="14px" />
+                  </div>
+                </div>
+                <Skeleton width="20px" height="20px" borderRadius="50%" />
+              </div>
+              {#if i < 4}<div class="h-px bg-ios-sep ml-4"></div>{/if}
+            {/each}
+          {:else if state.recents.length === 0}
+            <div class="p-4 text-center text-ios-label2">No recent calls</div>
+          {:else}
+            {#each state.recents as call, i}
             <div class="flex items-center p-3 px-4">
               <div class="flex-1 flex flex-col gap-0.5">
                 <div class="flex items-center gap-1.5">
@@ -78,13 +95,29 @@
             </div>
             {#if i < state.recents.length - 1}<div class="h-px bg-ios-sep ml-4"></div>{/if}
           {/each}
+          {/if}
         </div>
       </div>
     {:else if state.tab === 'contacts'}
       <div class="px-4">
         <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4">Contacts</h1>
         <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-        {#each state.contacts as c, i}
+        {#if state.loadingContacts}
+          {#each Array(5) as _, i}
+            <div class="flex items-center gap-3 p-2.5 px-4">
+              <Skeleton width="36px" height="36px" borderRadius="50%" />
+              <div class="flex-1 flex flex-col gap-1">
+                <Skeleton width="120px" height="18px" />
+                <Skeleton width="80px" height="14px" />
+              </div>
+              <Skeleton width="32px" height="32px" borderRadius="50%" />
+            </div>
+            {#if i < 4}<div class="h-px bg-ios-sep ml-4"></div>{/if}
+          {/each}
+        {:else if state.contacts.length === 0}
+          <div class="p-4 text-center text-ios-label2">No contacts found</div>
+        {:else}
+          {#each state.contacts as c, i}
             <div class="flex items-center gap-3 p-2.5 px-4">
               <div class="w-9 h-9 rounded-full bg-ios-fill flex items-center justify-center text-[16px] font-semibold text-white">{c.name[0]}</div>
               <div class="flex-1 flex flex-col gap-0.5">
@@ -100,6 +133,7 @@
             </div>
             {#if i < state.contacts.length - 1}<div class="h-px bg-ios-sep ml-4"></div>{/if}
           {/each}
+          {/if}
         </div>
       </div>
     {:else}
