@@ -1,3 +1,47 @@
+<!-- Generated: 2026-06-09 | Updated: 2026-06-09 -->
+
+# reynisa-phone
+
+## Purpose
+A SvelteKit-based web application replicating an iPhone-like interface, featuring real-time chat, local database (libsql), and complex UI states.
+
+## Key Files
+| File | Description |
+|------|-------------|
+| `package.json` | Project dependencies, Vite/Svelte configurations |
+| `svelte.config.js` | Svelte configuration |
+| `vite.config.ts` | Vite bundler configuration |
+| `tsconfig.json` | TypeScript configuration |
+| `supabase_setup.sql` | Supabase initial setup script |
+
+## Subdirectories
+| Directory | Purpose |
+|-----------|---------|
+| `src/` | Application source code and Svelte components (see `src/AGENTS.md`) |
+| `static/` | Static assets, icons, and service workers (see `static/AGENTS.md`) |
+| `supabase/` | Supabase migrations (see `supabase/AGENTS.md`) |
+
+## For AI Agents
+
+### Working In This Directory
+- Use TypeScript strict mode.
+- Understand that this is a SvelteKit app (`npm run dev` to start).
+
+### Testing Requirements
+- Vitest and Svelte-check for validation.
+
+### Common Patterns
+- Use Vite and SvelteKit standard patterns.
+
+## Dependencies
+
+### Internal
+- `src/` for UI and logic.
+
+### External
+- `svelte`, `@sveltejs/kit`, `tailwindcss`, `@supabase/supabase-js`, `@libsql/client`.
+
+<!-- MANUAL: Any manually added notes below this line are preserved on regeneration -->
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
@@ -15,5 +59,5 @@ Rules:
 ## lean-ctx
 
 Prefer lean-ctx MCP tools over native equivalents for token savings.
-Full rules: @LEAN-CTX.md
+Full rules: @d:\Koding\Projek\Self\reynisa-phone\LEAN-CTX.md
 <!-- /lean-ctx -->
