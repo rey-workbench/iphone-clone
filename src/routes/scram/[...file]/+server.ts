@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   \`;
   document.head.appendChild(style);
 });
-\`;
+`;
         content = Buffer.from(mobileOverride + "\n" + content.toString('utf8'));
       }
 
