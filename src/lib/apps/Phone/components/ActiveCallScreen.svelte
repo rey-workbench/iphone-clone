@@ -86,7 +86,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  class="absolute inset-0 z-[9999] bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"
+  class="absolute inset-0 z-9999 bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"
   style="background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);"
   onclick={() => {
     if (callState.isVideo) showControls = !showControls;
@@ -199,7 +199,7 @@
         >
         <button
           onclick={() => callState.hangUp()}
-          class="w-12 h-12 rounded-full bg-[#FF3B30] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all"
+          class="w-12 h-12 rounded-full bg-ios-red flex items-center justify-center hover:opacity-80 active:scale-95 transition-all"
           ><PhoneOff size={20} color="white" /></button
         >
       </div>
@@ -255,7 +255,7 @@
     >
       <button
         onclick={() => callState.hangUp()}
-        class="w-[72px] h-[72px] rounded-full bg-[#FF3B30] flex items-center justify-center shadow-lg shadow-red-900/50 active:opacity-80 active:scale-95 transition-all text-white"
+        class="w-[72px] h-[72px] rounded-full bg-ios-red flex items-center justify-center shadow-lg shadow-red-900/50 active:opacity-80 active:scale-95 transition-all text-white"
         aria-label="hang up"
       >
         <PhoneOff size={32} />
