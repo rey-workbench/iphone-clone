@@ -76,8 +76,8 @@
           seasons = [];
         }
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      dialogState.show({ title: 'Details Error', message: e.message || 'Failed to fetch movie details', confirmText: 'OK' });
     } finally {
       isLoading = false;
     }

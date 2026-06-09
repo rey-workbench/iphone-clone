@@ -70,8 +70,7 @@ export class AppSafariState {
       if (!res.ok) throw new Error(data.error || 'Failed to search');
       this.searchResults = data.data || [];
     } catch (e: any) {
-      console.error('Search error:', e);
-      this.searchError = e.message;
+      dialogState.show({ title: 'Safari Error', message: e.message || 'Failed to search', confirmText: 'OK' });
     } finally {
       this.isSearching = false;
     }

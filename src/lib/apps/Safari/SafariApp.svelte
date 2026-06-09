@@ -1,6 +1,7 @@
 <script lang="ts">
   import { AppSafariState } from "./SafariState.svelte";
   import { onMount } from "svelte";
+  import { dialogState } from "$lib/states/dialogState.svelte";
   import Skeleton from "$lib/components/ui/Skeleton.svelte";
   import {
     ChevronLeft,
@@ -115,8 +116,7 @@
           }
         }
       } catch (err: any) {
-        console.error("[Scramjet] Initialization failed", err);
-        state.errorMessage = err.toString();
+        dialogState.show({ title: 'Safari Proxy Error', message: err.message || 'Scramjet initialization failed.', confirmText: 'OK' });
       }
     }
   });

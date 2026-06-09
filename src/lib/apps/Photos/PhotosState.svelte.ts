@@ -1,5 +1,6 @@
 import { photosDb, PhotosDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
+import { dialogState } from '$lib/states/dialogState.svelte';
 
 export class AppPhotosState {
   selectedPhoto: any | null = $state(null);
@@ -25,8 +26,8 @@ export class AppPhotosState {
         await photosDb.set(PhotosDBKey.PHOTOS, data.photos);
         this.photos = data;
       }
-    } catch(e) {
-      console.error(e);
+    } catch (e: any) {
+      dialogState.show({ title: 'Photos Error', message: e.message || 'Failed to load photos', confirmText: 'OK' });
     } finally {
       this.loading = false;
     }

@@ -1,4 +1,6 @@
 import { Bot } from '@lucide/svelte';
+import { authState } from "$lib/states/authState.svelte";
+import { dialogState } from "$lib/states/dialogState.svelte";
 import { supabase } from '$lib/config/supabase';
 import { systemState, usersState } from '$lib/states';
 import { notesDb, NotesDBKey } from '$lib/config/localdb';
@@ -163,7 +165,9 @@ export class MessagesState {
             sender_id: user.id, 
             receiver_id: receiverId 
         }]);
-        if (error) console.error("Supabase insert error:", error);
+        if (error) {
+            dialogState.show({ title: 'Message Error', message: error.message || 'Failed to send message', confirmText: 'OK' });
+        }
     }
 
     openChat(id: string, name: string) {

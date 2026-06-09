@@ -1,5 +1,6 @@
 import { ApiConfig } from "$lib/config/api";
 import { MusicItemType, type IMusicTrack, MusicAction } from "$lib/types/music";
+import { dialogState } from "$lib/states/dialogState.svelte";
 
 export class MusicState {
     activeTab = $state("listen_now");
@@ -146,8 +147,8 @@ export class MusicState {
                     this.current = this.tracks[0];
                     this.playTrack(this.current);
                 }
-            } catch (e) {
-                console.error(e);
+            } catch (e: any) {
+                dialogState.show({ title: 'Playback Error', message: e.message || 'Failed to load playlist.', confirmText: 'OK' });
             }
             return;
         }
@@ -211,8 +212,8 @@ export class MusicState {
             if (r && r.results && r.results.length > 0) {
                 this.tracks = r.results;
             }
-        } catch (e) {
-            console.error(e);
+        } catch (e: any) {
+            dialogState.show({ title: 'Up Next Error', message: e.message || 'Failed to load upcoming tracks.', confirmText: 'OK' });
         }
     }
 

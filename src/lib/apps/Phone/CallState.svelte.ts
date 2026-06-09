@@ -1,4 +1,5 @@
 import { systemState, webrtcState, type CallStatus } from '$lib/states';
+import { dialogState } from "$lib/states/dialogState.svelte";
 
 export class CallState {
     status = $state<CallStatus>('idle');
@@ -70,8 +71,7 @@ export class CallState {
                 from: { id: user.id, name: user.name }
             });
         } catch (e: any) {
-            console.error('Failed to initiate call:', e);
-            alert(`Call failed: ${e.message || 'Check microphone permissions'}`);
+            dialogState.show({ title: 'Call Error', message: e.message || 'Failed to initiate call', confirmText: 'OK' });
             this.cleanup();
         }
     }
@@ -134,8 +134,7 @@ export class CallState {
 
             this.pendingOffer = null;
         } catch (e: any) {
-            console.error('Failed to accept call:', e);
-            alert(`Call failed: ${e.message}`);
+            dialogState.show({ title: 'Call Error', message: e.message || 'Failed to accept call', confirmText: 'OK' });
             this.cleanup();
         }
     }

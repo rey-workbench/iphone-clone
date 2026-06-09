@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ChevronLeft, Laptop, Smartphone, Monitor } from "@lucide/svelte";
   import { systemState } from "$lib/states/systemState.svelte";
+  import { dialogState } from "$lib/states/dialogState.svelte";
   import { webrtcState } from "$lib/states/webrtcState.svelte";
   import { onMount } from "svelte";
   import { ApiConfig } from "$lib/config/api";
@@ -25,8 +26,8 @@
       if (data.devices) {
         devices = data.devices;
       }
-    } catch (e) {
-      console.error("Failed to fetch devices", e);
+    } catch (e: any) {
+      dialogState.show({ title: 'Device Error', message: e.message || 'Failed to fetch devices', confirmText: 'OK' });
     } finally {
       isLoading = false;
     }

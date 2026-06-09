@@ -5,6 +5,7 @@
   import Player from "./components/Player.svelte";
   import { onMount, getContext } from "svelte";
   import Skeleton from "$lib/components/ui/Skeleton.svelte";
+  import { dialogState } from "$lib/states/dialogState.svelte";
 
   const isPreview = getContext('isPreview');
 
@@ -39,8 +40,8 @@
             const data = await res.json();
             serverSearchResults = data.results || [];
           }
-        } catch (e) {
-          console.error("Search failed", e);
+        } catch (e: any) {
+          dialogState.show({ title: 'Search Error', message: e.message || 'Failed to search Netflix', confirmText: 'OK' });
         }
       }, 500);
       return () => clearTimeout(timeout);
