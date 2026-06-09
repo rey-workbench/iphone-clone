@@ -8,7 +8,7 @@
   }
 </script>
 
-<div class="absolute top-0 left-0 right-0 h-13.5 flex items-end justify-between px-9.5 pb-2 z-50 pointer-events-none text-white mix-blend-difference">
+<div class="absolute top-0 left-0 right-0 h-13.5 flex items-end justify-between px-9.5 pb-2 z-[9000] pointer-events-none text-white mix-blend-difference">
   <span class="text-[16px] font-semibold tracking-wide">{formatTime(systemState.currentTime)}</span>
   <div class="flex items-center gap-1.5">
     <Signal size={14} strokeWidth={2.5} />

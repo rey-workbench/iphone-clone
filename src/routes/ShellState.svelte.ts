@@ -9,6 +9,33 @@ export class ShellState {
   appTransition = $state(false);
   currentPage = $state(0);
 
+  // App swipe-to-close state
+  appSwipeY = $state(0);
+  isAppSwiping = $state(false);
+  appStartY = $state(0);
+
+  handleAppSwipeStart(e: TouchEvent | PointerEvent) {
+    this.isAppSwiping = true;
+    this.appStartY = 'touches' in e ? e.touches[0].clientY : (e as PointerEvent).clientY;
+    this.appSwipeY = 0;
+  }
+
+  handleAppSwipeMove(e: TouchEvent | PointerEvent) {
+    if (!this.isAppSwiping) return;
+    const currentY = 'touches' in e ? e.touches[0].clientY : (e as PointerEvent).clientY;
+    this.appSwipeY = Math.max(0, this.appStartY - currentY);
+  }
+
+  handleAppSwipeEnd() {
+    this.isAppSwiping = false;
+    if (this.appSwipeY > 50) {
+      if (systemState.activeApp) {
+        this.closeApp();
+      }
+    }
+    this.appSwipeY = 0;
+  }
+
   closeApp() {
     this.appTransition = true;
     setTimeout(() => {

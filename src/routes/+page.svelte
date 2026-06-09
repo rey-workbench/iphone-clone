@@ -99,7 +99,6 @@
           class="absolute inset-0 bg-linear-to-b from-[#1a1040] via-[#4a2c8a] via-45% to-[#f0c0a0]"
         ></div>
         <div class="relative z-10 h-full flex flex-col items-center">
-          <StatusBar />
           <div class="text-center" style="margin-top: 110px;">
             <div class="text-lg font-medium text-white/85 tracking-wide">
               {state.formatDate(systemState.currentTime)}
@@ -129,9 +128,8 @@
         style="display: {systemState.activeApp === 'music' ||
         (state.appTransition && systemState.activeApp === 'music')
           ? 'flex'
-          : 'none'}; z-index: 50;"
+          : 'none'}; z-index: 50; {(systemState.activeApp === 'music' && state.isAppSwiping) ? `transform: scale(${1 - Math.min(state.appSwipeY / 1500, 0.2)}) translateY(-${state.appSwipeY}px); border-radius: ${Math.min(state.appSwipeY / 2, 48)}px; overflow: hidden; transition: none;` : (systemState.activeApp === 'music' && !state.appTransition) ? 'transform: scale(1) translateY(0); border-radius: 0; overflow: hidden; transition: all 0.3s cubic-bezier(0.23,1,0.32,1);' : ''}"
       >
-        <StatusBar />
         <div class="flex-1 overflow-hidden relative flex flex-col">
           <div class="flex-1 overflow-hidden relative">
             <MusicApp />
@@ -142,11 +140,6 @@
           onclick={() => state.closeApp()}
           aria-label="Close app"
         ></button>
-        <button
-          class="absolute bottom-2 left-1/2 -translate-x-1/2 w-33.5 h-1.25 bg-white/30 rounded-full z-100 cursor-pointer border-none"
-          onclick={() => state.closeApp()}
-          aria-label="Home"
-        ></button>
       </div>
 
       {#if CurrentAppComponent && systemState.activeApp !== "music"}
@@ -155,8 +148,8 @@
           class="absolute inset-0 z-50 bg-black flex flex-col {state.appTransition
             ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]'
             : 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]'}"
+          style="{state.isAppSwiping ? `transform: scale(${1 - Math.min(state.appSwipeY / 1500, 0.2)}) translateY(-${state.appSwipeY}px); border-radius: ${Math.min(state.appSwipeY / 2, 48)}px; overflow: hidden; transition: none;` : !state.appTransition ? 'transform: scale(1) translateY(0); border-radius: 0; overflow: hidden; transition: all 0.3s cubic-bezier(0.23,1,0.32,1);' : ''}"
         >
-          <StatusBar />
           <div class="flex-1 overflow-hidden relative flex flex-col">
             <div class="flex-1 overflow-hidden relative">
               <CurrentAppComponent />
@@ -166,11 +159,6 @@
             class="absolute top-0 left-1/2 -translate-x-1/2 w-35 h-5 z-200 bg-transparent border-none cursor-pointer opacity-0"
             onclick={() => state.closeApp()}
             aria-label="Close app"
-          ></button>
-          <button
-            class="absolute bottom-2 left-1/2 -translate-x-1/2 w-33.5 h-1.25 bg-white/30 rounded-full z-100 cursor-pointer border-none"
-            onclick={() => state.closeApp()}
-            aria-label="Home"
           ></button>
         </div>
       {/if}
@@ -195,8 +183,6 @@
               class="absolute w-37.5 h-37.5 rounded-full bottom-[20%] left-[20%] bg-gradient-radial from-[#4facfe] to-[#00f2fe] blur-[60px] opacity-40 animate-[orbFloat_20s_ease-in-out_infinite_-14s]"
             ></div>
           </div>
-
-          <StatusBar />
 
           <div class="relative z-10 flex-1 flex flex-col px-4 overflow-hidden">
             <div
@@ -229,10 +215,34 @@
           </div>
 
           <Dock />
-          <div
-            class="absolute bottom-2 left-1/2 -translate-x-1/2 w-33.5 h-1.25 bg-white/30 rounded-full z-100"
-          ></div>
         </div>
+      {/if}
+    {/if}
+
+    {#if !systemState.isInitializing && systemState.currentUser}
+      <!-- Global Status Bar -->
+      <StatusBar />
+
+      <!-- Global Home Indicator Button -->
+      {#if !state.showLockScreen}
+        <button
+          class="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-6 max-[430px]:h-[calc(1.5rem+env(safe-area-inset-bottom))] z-[9000] bg-transparent border-none cursor-pointer flex flex-col justify-end items-center pb-1 max-[430px]:pb-[max(6px,env(safe-area-inset-bottom))] outline-none touch-none"
+          onclick={() => {
+            if (systemState.activeApp) {
+              state.closeApp();
+            }
+          }}
+          ontouchstart={(e) => systemState.activeApp && state.handleAppSwipeStart(e)}
+          ontouchmove={(e) => systemState.activeApp && state.handleAppSwipeMove(e)}
+          ontouchend={() => systemState.activeApp && state.handleAppSwipeEnd()}
+          onpointerdown={(e) => systemState.activeApp && state.handleAppSwipeStart(e)}
+          onpointermove={(e) => systemState.activeApp && state.handleAppSwipeMove(e)}
+          onpointerup={() => systemState.activeApp && state.handleAppSwipeEnd()}
+          onpointercancel={() => systemState.activeApp && state.handleAppSwipeEnd()}
+          aria-label="Home"
+        >
+          <div class="w-33.5 h-1.25 bg-white/30 rounded-full pointer-events-none"></div>
+        </button>
       {/if}
     {/if}
 
