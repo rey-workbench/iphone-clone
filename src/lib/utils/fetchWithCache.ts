@@ -1,13 +1,16 @@
-const globalCache = new Map<string, any>();
+const globalCache = new Map<string, { data: any; timestamp: number }>();
 
-export async function fetchWithCache(url: string, options?: RequestInit) {
+export async function fetchWithCache(url: string, options?: RequestInit, ttlMs?: number) {
     if (globalCache.has(url)) {
-        return globalCache.get(url);
+        const cached = globalCache.get(url)!;
+        if (!ttlMs || Date.now() - cached.timestamp < ttlMs) {
+            return cached.data;
+        }
     }
 
     const response = await fetch(url, options);
     const data = await response.json();
-    globalCache.set(url, data);
+    globalCache.set(url, { data, timestamp: Date.now() });
     return data;
 }
 

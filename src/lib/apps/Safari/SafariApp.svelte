@@ -57,26 +57,21 @@
         const transport = new LibcurlClient({ wisp: wispUrl });
         await transport.init();
 
-        console.log("[SafariApp] Loaded scripts successfully");
         const scramjetController = (window as any).$scramjetController;
         if (!scramjetController?.Controller) {
           throw new Error("Scramjet Controller not found on window.$scramjetController");
         }
         const { Controller } = scramjetController;
-        console.log("[SafariApp] Cleaning up old service workers...");
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (const r of registrations) {
           if (r.active?.scriptURL.includes('scramjet-sw.js') && r.scope === location.origin + '/') {
             await r.unregister();
-            console.log("[SafariApp] Unregistered old scramjet SW on / scope");
           }
         }
 
-        console.log("[SafariApp] Registering service worker with scope /scramjet/...");
         const reg = await navigator.serviceWorker.register("/scramjet-sw.js", {
           scope: "/scramjet/",
         });
-        console.log("[SafariApp] Service worker registered:", reg.active ? "active" : "not active");
 
         const waitForActive = (worker: ServiceWorker | null) =>
           new Promise<void>((resolve) => {
@@ -88,12 +83,10 @@
           });
 
         if (!reg.active) {
-          console.log("[SafariApp] Waiting for SW to activate...");
           await waitForActive(reg.installing || reg.waiting);
         }
 
         const serviceworker = reg.active!;
-        console.log("[SafariApp] Creating Scramjet Controller...");
 
         state.scramjet = new Controller({
           serviceworker,
@@ -106,9 +99,7 @@
           },
         });
 
-        console.log("[SafariApp] Awaiting state.scramjet.wait()...");
         await state.scramjet.wait();
-        console.log("[SafariApp] Scramjet is ready.");
 
         state.isReady = true;
 

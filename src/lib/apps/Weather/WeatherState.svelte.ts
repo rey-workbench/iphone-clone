@@ -1,6 +1,8 @@
 import { Sun, CloudSun, Cloud, CloudRain, Moon } from '@lucide/svelte';
 import { ApiConfig } from '$lib/config/api';
 import type { WeatherData, WeatherRange, WeatherHourly, WeatherDaily, WeatherTile } from '$lib/types';
+import { ApiEndpoints } from '$lib/config/api/endpoints';
+import { dialogState } from '$lib/states/dialogState.svelte';
 
 export class WeatherState {
     loading = $state(true);
@@ -19,16 +21,45 @@ export class WeatherState {
             let lon = -122.4194;
             let city = 'San Francisco';
             try {
-                const geoData = await ApiConfig.fetchWeatherIP();
-                if (geoData) {
-                    lat = geoData.latitude;
-                    lon = geoData.longitude;
-                    city = geoData.city;
-                }
-            } catch (e) { console.warn('Geolocation failed', e); }
+                // 1. Try Native Browser Geolocation first
+                const geoData = await new Promise<{lat: number, lon: number, city: string}>((resolve, reject) => {
+                    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+                        return reject(new Error("Geolocation not supported"));
+                    }
+                    navigator.geolocation.getCurrentPosition(
+                        async (pos) => {
+                            const latitude = pos.coords.latitude;
+                            const longitude = pos.coords.longitude;
+                            let cityName = 'Current Location';
+                            try {
+                                const res = await fetch(`${ApiEndpoints.NOMINATIM_REVERSE}?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
+                                const data = await res.json();
+                                cityName = data.address?.city || data.address?.town || data.address?.village || data.address?.county || 'Current Location';
+                            } catch (e) { /* ignore */ }
+                            resolve({ lat: latitude, lon: longitude, city: cityName });
+                        },
+                        (err) => reject(err),
+                        { timeout: 5000, maximumAge: 60000 } // 5 second timeout for native
+                    );
+                });
+                
+                lat = geoData.lat;
+                lon = geoData.lon;
+                city = geoData.city;
+            } catch (nativeError) { 
+                // 2. Fallback to IP location APIs if Native fails
+                try {
+                    const ipData = await ApiConfig.fetchWeatherIP();
+                    if (ipData && ipData.latitude !== undefined && ipData.longitude !== undefined) {
+                        lat = ipData.latitude;
+                        lon = ipData.longitude;
+                        city = ipData.city || city;
+                    }
+                } catch (ipError) { }
+            }
 
             const data = await ApiConfig.fetchWeatherForecast(lat, lon);
-            if (data) {
+            if (data && data.hourly && data.daily && data.current) {
                 
                 let hourly: WeatherHourly[] = [];
                 for (let i = 0; i < 8; i++) {
@@ -66,9 +97,13 @@ export class WeatherState {
                     ]
                 };
             }
-        } catch (e) {
-            console.error(e);
+        } catch (e: any) {
             this.w.condition = 'Error loading';
+            dialogState.show({
+                title: 'Weather Error',
+                message: e.message || 'Failed to fetch weather data. Please check your connection.',
+                confirmText: 'OK'
+            });
         } finally {
             this.loading = false;
         }

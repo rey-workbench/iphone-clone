@@ -50,7 +50,6 @@ export class WebRTCState {
         }
 
         const handleIfForMe = (payload: any, cb: (p: any) => void) => {
-            console.log('[WebRTC] Received broadcast:', payload);
             if (payload.to === systemState.currentUser?.id) {
                 // If it's targeted to a specific device, only process if it matches our deviceId
                 if (payload.toDeviceId && payload.toDeviceId !== systemState.deviceId) {
@@ -76,7 +75,6 @@ export class WebRTCState {
                 }
             })
             .subscribe((status: string) => {
-                console.log('[WebRTC] Supabase channel status:', status);
                 this.isSubscribed = status === 'SUBSCRIBED';
             });
     }
@@ -106,7 +104,6 @@ export class WebRTCState {
             return;
         }
 
-        console.log(`[WebRTC] Sending ${event} to ${toUserId}`);
         await this.channel.send({
             type: 'broadcast',
             event,
@@ -179,14 +176,12 @@ export class WebRTCState {
 
         this.pc.onconnectionstatechange = () => {
             const state = this.pc?.connectionState;
-            console.log('[WebRTC] Connection state changed to:', state);
             if (state === 'failed' || state === 'closed') {
                 onDisconnect();
             }
         };
 
         this.pc.oniceconnectionstatechange = () => {
-            console.log('[WebRTC] ICE Connection state:', this.pc?.iceConnectionState);
         };
 
         return this.pc;

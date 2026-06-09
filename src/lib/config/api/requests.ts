@@ -44,7 +44,29 @@ export const ApiRequests = {
     // Async Fetchers (Executes API Calls)
     // ==========================================
     async fetchWeatherIP(): Promise<any> {
-        return await fetchWithCache(ApiEndpoints.WEATHER_IP);
+        const providers = ApiEndpoints.WEATHER_IP_PROVIDERS;
+
+        for (const url of providers) {
+            try {
+                // Refresh cache every 10 seconds (10000 ms)
+                const data = await fetchWithCache(url, undefined, 10000);
+                if (!data || data.error || data.success === false || data.status === 'fail') continue;
+
+                let lat = data.latitude !== undefined ? data.latitude : data.lat;
+                let lon = data.longitude !== undefined ? data.longitude : data.lon;
+                let city = data.city || data.cityName;
+
+                if (typeof lat === 'string') lat = parseFloat(lat);
+                if (typeof lon === 'string') lon = parseFloat(lon);
+
+                if (lat !== undefined && lon !== undefined && !isNaN(lat) && !isNaN(lon)) {
+                    return { latitude: lat, longitude: lon, city: city || 'Unknown' };
+                }
+            } catch (e) {
+                console.warn(`[ApiConfig] Failed to fetch IP from ${url}`);
+            }
+        }
+        throw new Error("All IP geolocation providers failed");
     },
     async fetchWeatherForecast(lat: number, lon: number): Promise<any> {
         return await fetchWithCache(ApiDynamic.getWeatherForecast(lat, lon));

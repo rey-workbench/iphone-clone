@@ -9,7 +9,14 @@ export const ApiEndpoints = {
     MUSIC_SEARCH: '/api/ytsearch',
     
     // External API Routes
-    WEATHER_IP: 'https://ipapi.co/json/',
+    WEATHER_IP: 'https://ipwho.is/',
+    WEATHER_IP_PROVIDERS: [
+        'https://ipwho.is/',
+        'https://ipapi.co/json/',
+        'https://freeipapi.com/api/json/',
+        'http://ip-api.com/json/'
+    ] as readonly string[],
+    NOMINATIM_REVERSE: 'https://nominatim.openstreetmap.org/reverse',
     WEATHER_FORECAST: 'https://api.open-meteo.com/v1/forecast',
     PHOTOS_LIST: 'https://picsum.photos/v2/list',
     APP_STORE_PRODUCTS: 'https://dummyjson.com/products',

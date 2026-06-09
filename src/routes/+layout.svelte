@@ -12,7 +12,6 @@
         registerSW({
           immediate: true,
           onRegistered(r: any) {
-            console.log('SW Registered:', r);
           },
           onRegisterError(error: any) {
             console.error('SW Registration Error:', error);
