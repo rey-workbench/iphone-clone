@@ -1,4 +1,4 @@
-import { LocalDBKey } from '$lib/config/localdb';
+import { mailDb, MailDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 import { ApiConfig } from '$lib/config/api';
 import type { Email } from '$lib/types';
@@ -7,7 +7,7 @@ export class AppMailState extends SyncState<Email[]> {
   selected: Email | null = $state(null);
 
   constructor() {
-    super(LocalDBKey.MAIL_INBOX, [], async () => {
+    super(mailDb, MailDBKey.MAIL_INBOX, [], async () => {
       const data = await ApiConfig.fetchMailComments();
       if (data) {
         return data.map((item: any, i: number) => ({

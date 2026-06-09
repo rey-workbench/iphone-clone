@@ -140,7 +140,7 @@
   {:else}
     <!-- Audio Mode: Center Avatar & Name -->
     <div
-      class="flex flex-col items-center z-10 transition-opacity duration-300 opacity-100"
+      class="flex flex-col items-center z-10 transition-opacity duration-300 opacity-100 mt-16"
     >
       <div
         class="w-24 h-24 rounded-full bg-[#3a3a3a] flex items-center justify-center text-white text-4xl font-semibold mb-4 shadow-2xl ring-4 ring-white/10"

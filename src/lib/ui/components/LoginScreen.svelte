@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { systemState } from "$lib/states";
-  import { AuthState } from "$lib/states/authState.svelte";
+  import { systemState, authState } from "$lib/states";
   import { LoaderCircle, ChevronLeft, Handshake } from "@lucide/svelte";
 
-  const authState = new AuthState();
+
 
   async function handleLogin() {
     const user = await authState.login();

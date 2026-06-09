@@ -1,4 +1,4 @@
-import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
+import { photosDb, PhotosDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
 
 export class AppPhotosState {
@@ -13,7 +13,7 @@ export class AppPhotosState {
     this.loading = true;
     try {
       // 1. Load dari LocalDB dulu (instan)
-      const cached = await getSetting(LocalDBKey.PHOTOS, null);
+      const cached = await photosDb.get(PhotosDBKey.PHOTOS, null);
       if (cached) {
         this.photos = cached;
         this.loading = false;
@@ -22,7 +22,7 @@ export class AppPhotosState {
       // 2. Fetch terbaru di background
       const data = await ApiConfig.fetchPhotosList();
       if (data) {
-        await setSetting(LocalDBKey.PHOTOS, data);
+        await photosDb.set(PhotosDBKey.PHOTOS, data.photos);
         this.photos = data;
       }
     } catch(e) {

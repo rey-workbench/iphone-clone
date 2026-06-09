@@ -1,5 +1,4 @@
-import { systemState } from '$lib/states/systemState.svelte';
-import { webrtcState, type CallStatus } from '$lib/states/webrtcState.svelte';
+import { systemState, webrtcState, type CallStatus } from '$lib/states';
 
 export class CallState {
     status = $state<CallStatus>('idle');
@@ -244,7 +243,7 @@ export class CallState {
                 type = this.direction;
             }
 
-            const { saveCallHistory } = await import('./callHistoryDb');
+            const { saveCallHistory } = await import('$lib/config/localdb');
             await saveCallHistory({
                 id: crypto.randomUUID(),
                 contact_id: this.remoteContact.id,

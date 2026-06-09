@@ -3,9 +3,8 @@
   import { ChevronRight } from '@lucide/svelte';
   import { AppSettingsState } from './SettingsState.svelte';
   import LinkedDevices from './LinkedDevices.svelte';
-  import { AuthState } from '$lib/states/authState.svelte';
+  import { authState } from '$lib/states';
 
-  const authState = new AuthState();
   const appState = new AppSettingsState();
   let toggleItems = $derived(appState.getToggleItems(settingsState));
   
