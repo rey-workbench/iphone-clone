@@ -1,22 +1,16 @@
 export class AppSafariState {
-  url = $state('https://en.wikipedia.org/wiki/Main_Page');
-  inputUrl = $state('https://en.wikipedia.org/wiki/Main_Page');
+  url = $state('https://www.google.com/');
+  inputUrl = $state('https://www.google.com/');
   showInput = $state(false);
   searchResults = $state<any[] | null>(null);
   isSearching = $state(false);
   searchError = $state<string | null>(null);
   isReady = $state(false);
+  scramjet: any = null;
+  frameObj: any = null;
+  errorMessage = $state('');
 
   constructor() {}
-
-  get iframeUrl() {
-    if (!this.isReady) return '';
-    try {
-      return (window as any).__uv$config.prefix + (window as any).__uv$config.encodeUrl(this.url);
-    } catch {
-      return '';
-    }
-  }
 
   navigate() { 
     if (this.inputUrl.trim()) {
@@ -28,8 +22,24 @@ export class AppSafariState {
       } else {
         // It's a search term
         this.performSearch(input);
+        this.showInput = false; 
+        return;
       }
       this.showInput = false; 
+
+      if (this.isReady && this.scramjet) {
+        if (!this.frameObj) {
+          const iframe = document.createElement("iframe");
+          iframe.className = "absolute inset-0 w-full h-full border-none bg-white";
+          this.frameObj = this.scramjet.createFrame(iframe);
+          const container = document.getElementById('safari-container');
+          if (container) {
+            container.innerHTML = '';
+            container.appendChild(iframe);
+          }
+        }
+        this.frameObj.go(this.url);
+      }
     } 
   }
 

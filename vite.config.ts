@@ -3,7 +3,11 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import { defineConfig } from 'vite';
 import { server as wispServer } from '@mercuryworkshop/wisp-js';
+import http from 'node:http';
+import https from 'node:https';
+import { URL } from 'node:url';
 
+/** Wisp WebSocket tunnel (for WebSocket proxying via epoxy) */
 function wispServerPlugin() {
 	return {
 		name: 'wisp-server',
@@ -16,6 +20,7 @@ function wispServerPlugin() {
 		}
 	};
 }
+
 
 export default defineConfig({
 	plugins: [
