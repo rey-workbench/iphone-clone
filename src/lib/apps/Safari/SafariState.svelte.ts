@@ -40,17 +40,23 @@ export class AppSafariState {
 
   loadFrame() {
     if (this.isReady && this.scramjet) {
-      if (!this.frameObj) {
-        const iframe = document.createElement("iframe");
-        iframe.className = "absolute inset-0 w-full h-full border-none bg-white";
-        this.frameObj = this.scramjet.createFrame(iframe);
-        const container = document.getElementById('safari-container');
-        if (container) {
-          container.innerHTML = '';
-          container.appendChild(iframe);
+      setTimeout(() => {
+        if (!this.frameObj) {
+          const iframe = document.createElement("iframe");
+          iframe.className = "absolute inset-0 w-full h-full border-none bg-white";
+          this.frameObj = this.scramjet.createFrame(iframe);
+          const container = document.getElementById('safari-container');
+          if (container) {
+            container.innerHTML = '';
+            container.appendChild(iframe);
+          } else {
+            console.warn("[SafariState] safari-container still not found in DOM");
+          }
         }
-      }
-      this.frameObj.go(this.url);
+        if (this.frameObj) {
+          this.frameObj.go(this.url);
+        }
+      }, 0);
     }
   }
 

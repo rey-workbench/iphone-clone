@@ -31,20 +31,52 @@
         });
 
       try {
+        const origExports = (window as any).exports;
+        const origModule = (window as any).module;
+        const origDefine = (window as any).define;
+        (window as any).exports = undefined;
+        (window as any).module = undefined;
+        (window as any).define = undefined;
+
         await loadScript("/scram/scramjet_bundled.js");
         await loadScript("/scram/controller.api.js");
         await loadScript("/libcurl/index.js");
 
-        const LibcurlClient = (window as any).LibcurlTransport.default;
+        (window as any).exports = origExports;
+        (window as any).module = origModule;
+        (window as any).define = origDefine;
+
+        const LibcurlTransport = (window as any).LibcurlTransport;
+        if (!LibcurlTransport?.default) {
+          throw new Error("Scramjet/Libcurl scripts failed to load. Missing static/scram/ or static/libcurl/ files.");
+        }
+
+        const LibcurlClient = LibcurlTransport.default;
         const wispUrl = location.origin.replace(/^http/, "ws") + "/wisp/";
 
         const transport = new LibcurlClient({ wisp: wispUrl });
         await transport.init();
 
-        const { Controller } = (window as any).$scramjetController;
+        console.log("[SafariApp] Loaded scripts successfully");
+        const scramjetController = (window as any).$scramjetController;
+        if (!scramjetController?.Controller) {
+          throw new Error("Scramjet Controller not found on window.$scramjetController");
+        }
+        const { Controller } = scramjetController;
+        console.log("[SafariApp] Cleaning up old service workers...");
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const r of registrations) {
+          if (r.active?.scriptURL.includes('scramjet-sw.js') && r.scope === location.origin + '/') {
+            await r.unregister();
+            console.log("[SafariApp] Unregistered old scramjet SW on / scope");
+          }
+        }
+
+        console.log("[SafariApp] Registering service worker with scope /scramjet/...");
         const reg = await navigator.serviceWorker.register("/scramjet-sw.js", {
-          scope: "/",
+          scope: "/scramjet/",
         });
+        console.log("[SafariApp] Service worker registered:", reg.active ? "active" : "not active");
 
         const waitForActive = (worker: ServiceWorker | null) =>
           new Promise<void>((resolve) => {
@@ -56,10 +88,12 @@
           });
 
         if (!reg.active) {
+          console.log("[SafariApp] Waiting for SW to activate...");
           await waitForActive(reg.installing || reg.waiting);
         }
 
         const serviceworker = reg.active!;
+        console.log("[SafariApp] Creating Scramjet Controller...");
 
         state.scramjet = new Controller({
           serviceworker,
@@ -72,7 +106,9 @@
           },
         });
 
+        console.log("[SafariApp] Awaiting state.scramjet.wait()...");
         await state.scramjet.wait();
+        console.log("[SafariApp] Scramjet is ready.");
 
         state.isReady = true;
 
@@ -95,10 +131,10 @@
   });
 
   const favorites = [
-    { name: "Apple", icon: "🍏", url: "https://www.apple.com" },
-    { name: "YouTube", icon: "▶️", url: "https://www.youtube.com" },
-    { name: "Google", icon: "🔍", url: "https://www.google.com" },
-    { name: "Wikipedia", icon: "W", url: "https://en.wikipedia.org" },
+    { name: "Apple", url: "https://www.apple.com" },
+    { name: "YouTube", url: "https://www.youtube.com" },
+    { name: "Google", url: "https://www.google.com" },
+    { name: "Wikipedia", url: "https://en.wikipedia.org" },
   ];
 </script>
 
@@ -192,9 +228,9 @@
               }}
             >
               <div
-                class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl"
+                class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center overflow-hidden"
               >
-                {fav.icon}
+                <img src={`https://www.google.com/s2/favicons?domain=${new URL(fav.url).hostname}&sz=128`} alt={fav.name} class="w-10 h-10 object-contain rounded-md" />
               </div>
               <span
                 class="text-[11px] text-gray-500 truncate w-full text-center"

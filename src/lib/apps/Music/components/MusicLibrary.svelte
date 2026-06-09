@@ -18,8 +18,8 @@
           {#each Array(4) as _}
             <div class="min-w-[150px] text-left p-0">
               <Skeleton width="150px" height="150px" borderRadius="12px" />
-              <Skeleton width="120px" height="16px" className="mt-1.5" />
-              <Skeleton width="90px" height="14px" className="mt-1" />
+              <Skeleton width="120px" height="16px" class="mt-1.5" />
+              <Skeleton width="90px" height="14px" class="mt-1" />
             </div>
           {/each}
         </div>
@@ -27,7 +27,7 @@
       <div class="bg-ios-bg2 rounded-xl overflow-hidden mb-5">
         {#each Array(5) as _, i}
           <div class="flex gap-3 p-2 px-3 w-full items-center">
-            <Skeleton width="48px" height="48px" borderRadius="8px" className="shrink-0" />
+            <Skeleton width="48px" height="48px" borderRadius="8px" class="shrink-0" />
             <div class="flex-1 min-w-0 flex flex-col gap-1">
               <Skeleton width="160px" height="18px" />
               <Skeleton width="100px" height="14px" />
@@ -99,7 +99,7 @@
       <div class="bg-ios-bg2 rounded-xl overflow-hidden mt-4 mb-5">
         {#each Array(5) as _, i}
           <div class="flex gap-3 p-2 px-3 w-full items-center">
-            <Skeleton width="48px" height="48px" borderRadius="8px" className="shrink-0" />
+            <Skeleton width="48px" height="48px" borderRadius="8px" class="shrink-0" />
             <div class="flex-1 min-w-0 flex flex-col gap-1">
               <Skeleton width="160px" height="18px" />
               <Skeleton width="100px" height="14px" />

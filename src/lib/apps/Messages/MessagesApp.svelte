@@ -1,6 +1,8 @@
 <script lang="ts">
   import { ArrowUp, ChevronLeft } from '@lucide/svelte';
   import { MessagesState } from './MessagesState.svelte';
+  import { usersState } from '$lib/states';
+  import Skeleton from '$lib/components/ui/Skeleton.svelte';
 
   const state = new MessagesState();
 </script>
@@ -50,21 +52,36 @@
         }}>+</button>
       </div>
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-        {#each state.inbox as convo (convo.id)}
-          <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-white text-left border-b border-ios-sep last:border-b-0" onclick={() => state.openChat(convo.id, convo.name)}>
-            <div class="w-[45px] h-[45px] rounded-full flex items-center justify-center text-[16px] font-semibold text-white shrink-0" style="background:{convo.color}">
-              {#if convo.icon}
-                <convo.icon size={24} color="white" />
-              {:else}
-                {convo.initials}
-              {/if}
+        {#if usersState.loading}
+          {#each Array(4) as _}
+            <div class="flex gap-3 p-3 px-4 w-full border-b border-ios-sep last:border-b-0">
+              <Skeleton width="45px" height="45px" borderRadius="9999px" class="shrink-0" />
+              <div class="flex-1 min-w-0 flex flex-col justify-center gap-1.5">
+                <div class="flex justify-between mb-1">
+                  <Skeleton width="100px" height="16px" />
+                  <Skeleton width="40px" height="12px" />
+                </div>
+                <Skeleton width="80%" height="14px" />
+              </div>
             </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex justify-between mb-1"><span class="text-[17px] {convo.unread ? 'font-semibold' : ''}">{convo.name}</span><span class="text-[15px] text-ios-label2">{convo.time}</span></div>
-              <span class="text-[15px] text-ios-label2 truncate block">{convo.lastMsg}</span>
-            </div>
-          </button>
-        {/each}
+          {/each}
+        {:else}
+          {#each state.inbox as convo (convo.id)}
+            <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-white text-left border-b border-ios-sep last:border-b-0" onclick={() => state.openChat(convo.id, convo.name)}>
+              <div class="w-[45px] h-[45px] rounded-full flex items-center justify-center text-[16px] font-semibold text-white shrink-0" style="background:{convo.color}">
+                {#if convo.icon}
+                  <convo.icon size={24} color="white" />
+                {:else}
+                  {convo.initials}
+                {/if}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between mb-1"><span class="text-[17px] {convo.unread ? 'font-semibold' : ''}">{convo.name}</span><span class="text-[15px] text-ios-label2">{convo.time}</span></div>
+                <span class="text-[15px] text-ios-label2 truncate block">{convo.lastMsg}</span>
+              </div>
+            </button>
+          {/each}
+        {/if}
       </div>
     </div>
   {/if}

@@ -4,6 +4,7 @@
   import { AppSettingsState } from './SettingsState.svelte';
   import LinkedDevices from './LinkedDevices.svelte';
   import { authState } from '$lib/states';
+  import Skeleton from '$lib/components/ui/Skeleton.svelte';
 
   const appState = new AppSettingsState();
   let toggleItems = $derived(appState.getToggleItems(settingsState));
@@ -24,12 +25,21 @@
     <!-- Profile -->
     <div class="bg-ios-bg2 rounded-xl mb-5 overflow-hidden">
       <button class="flex items-center gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-left text-white">
-        <div class="w-14 h-14 rounded-full bg-linear-to-br from-ios-blue to-ios-indigo flex items-center justify-center text-xl font-semibold text-white shrink-0">{appState.profile.initials}</div>
-        <div class="flex-1 flex flex-col gap-0.5">
-          <span class="text-lg font-medium">{appState.profile.name}</span>
-          <span class="text-[13px] text-ios-label2">Apple Account, iCloud & more</span>
-        </div>
-        <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+        {#if settingsState.isLoading}
+          <Skeleton width="56px" height="56px" borderRadius="9999px" class="shrink-0" />
+          <div class="flex-1 flex flex-col gap-1.5 justify-center">
+            <Skeleton width="120px" height="18px" />
+            <Skeleton width="160px" height="14px" />
+          </div>
+          <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+        {:else}
+          <div class="w-14 h-14 rounded-full bg-linear-to-br from-ios-blue to-ios-indigo flex items-center justify-center text-xl font-semibold text-white shrink-0">{appState.profile.initials}</div>
+          <div class="flex-1 flex flex-col gap-0.5">
+            <span class="text-lg font-medium">{appState.profile.name}</span>
+            <span class="text-[13px] text-ios-label2">Apple Account, iCloud & more</span>
+          </div>
+          <ChevronRight size={16} color="rgba(255,255,255,0.3)" />
+        {/if}
       </button>
     </div>
     <!-- Connectivity -->
