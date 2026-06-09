@@ -1,14 +1,17 @@
 <script lang="ts">
-  import { onMount, untrack } from "svelte";
+  import { onMount, untrack, getContext } from "svelte";
   import { MusicState } from "./MusicState.svelte";
   import MusicPlayer from "./components/MusicPlayer.svelte";
   import MusicLibrary from "./components/MusicLibrary.svelte";
   import MusicBottomNav from "./components/MusicBottomNav.svelte";
   import MusicMiniPlayer from "./components/MusicMiniPlayer.svelte";
 
+  const isPreview = getContext('isPreview');
   const state = new MusicState();
 
   onMount(() => {
+    if (isPreview) return;
+
     // Load YouTube API
     if (!(window as any).YT) {
       const tag = document.createElement("script");
@@ -31,6 +34,7 @@
   $effect(() => {
     const tab = state.activeTab;
     untrack(() => {
+      if (isPreview) return;
       if (tab === "listen_now") state.fetchTab("");
       else if (tab === "browse") state.fetchTab("browse");
       else if (tab === "radio") state.fetchTab("radio");
@@ -41,6 +45,7 @@
   $effect(() => {
     const current = state.current;
     untrack(() => {
+      if (isPreview) return;
       if (current && !state.lyricsCache.has(current.id)) {
         state.backgroundFetchLyrics(current);
       }
@@ -50,6 +55,7 @@
   $effect(() => {
     const q = state.searchQuery;
     untrack(() => {
+      if (isPreview) return;
       state.handleSearchInput();
     });
   });

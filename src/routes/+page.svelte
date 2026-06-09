@@ -5,6 +5,7 @@
   import { systemState } from "$lib/states";
   import { homeScreenApps } from "$lib/config/apps";
   import LoginScreen from "$lib/ui/components/LoginScreen.svelte";
+  import { untrack } from "svelte";
 
   import CalculatorApp from "$lib/apps/Calculator/CalculatorApp.svelte";
   import WeatherApp from "$lib/apps/Weather/WeatherApp.svelte";
@@ -26,6 +27,7 @@
   import IncomingCallScreen from "$lib/apps/Phone/components/IncomingCallScreen.svelte";
   import ActiveCallScreen from "$lib/apps/Phone/components/ActiveCallScreen.svelte";
   import DialogModal from "$lib/ui/components/DialogModal.svelte";
+  import AppSwitcher from "$lib/ui/components/AppSwitcher.svelte";
 
   import { ShellState } from "./ShellState.svelte";
 
@@ -49,6 +51,15 @@
 
   const state = new ShellState();
 
+  $effect(() => {
+    const currentApp = systemState.activeApp;
+    if (currentApp) {
+      untrack(() => {
+        systemState.addRecentApp(currentApp);
+      });
+    }
+  });
+
   let CurrentAppComponent = $derived(
     systemState.activeApp ? appComponents[systemState.activeApp] : null,
   );
@@ -63,6 +74,19 @@
 <svelte:head>
   <title>IPhone</title>
 </svelte:head>
+
+<svelte:window 
+  onpointermove={(e) => {
+    if (state.isAppSwiping) {
+      state.handleAppSwipeMove(e);
+    }
+  }}
+  onpointerup={(e) => {
+    if (state.isAppSwiping) {
+      state.handleAppSwipeEnd();
+    }
+  }}
+/>
 
 <div
   class="w-screen h-dvh flex items-center justify-center bg-[#0a0a0a] overflow-hidden"
@@ -125,10 +149,10 @@
           : systemState.activeApp === 'music' && !state.appTransition
             ? 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]'
             : ''}"
-        style="display: {systemState.activeApp === 'music' ||
+        style="display: {(systemState.activeApp === 'music' && !state.showAppSwitcher) ||
         (state.appTransition && systemState.activeApp === 'music')
           ? 'flex'
-          : 'none'}; z-index: 50; {(systemState.activeApp === 'music' && state.isAppSwiping) ? `transform: scale(${1 - Math.min(state.appSwipeY / 1500, 0.2)}) translateY(-${state.appSwipeY}px); border-radius: ${Math.min(state.appSwipeY / 2, 48)}px; overflow: hidden; transition: none;` : (systemState.activeApp === 'music' && !state.appTransition) ? 'transform: scale(1) translateY(0); border-radius: 0; overflow: hidden; transition: all 0.3s cubic-bezier(0.23,1,0.32,1);' : ''}"
+          : 'none'}; z-index: 50; {(systemState.activeApp === 'music' && state.isAppSwiping) ? `transform: scale(${Math.max(0.465, 1 - state.appSwipeY / 500)}) translateY(-${state.appSwipeY * 0.6}px); border-radius: ${Math.min(state.appSwipeY / 2, 48)}px; overflow: hidden; transition: none;` : (systemState.activeApp === 'music' && !state.appTransition) ? 'transform: scale(1) translateY(0); border-radius: 0; overflow: hidden; transition: all 0.3s cubic-bezier(0.23,1,0.32,1);' : ''}"
       >
         <div class="flex-1 overflow-hidden relative flex flex-col">
           <div class="flex-1 overflow-hidden relative">
@@ -148,7 +172,7 @@
           class="absolute inset-0 z-50 bg-black flex flex-col {state.appTransition
             ? 'animate-[appClose_0.3s_cubic-bezier(0.23,1,0.32,1)_forwards]'
             : 'animate-[appOpen_0.35s_cubic-bezier(0.23,1,0.32,1)]'}"
-          style="{state.isAppSwiping ? `transform: scale(${1 - Math.min(state.appSwipeY / 1500, 0.2)}) translateY(-${state.appSwipeY}px); border-radius: ${Math.min(state.appSwipeY / 2, 48)}px; overflow: hidden; transition: none;` : !state.appTransition ? 'transform: scale(1) translateY(0); border-radius: 0; overflow: hidden; transition: all 0.3s cubic-bezier(0.23,1,0.32,1);' : ''}"
+          style="display: {!state.showAppSwitcher ? 'flex' : 'none'}; {state.isAppSwiping ? `transform: scale(${Math.max(0.465, 1 - state.appSwipeY / 500)}) translateY(-${state.appSwipeY * 0.6}px); border-radius: ${Math.min(state.appSwipeY / 2, 48)}px; overflow: hidden; transition: none;` : !state.appTransition ? 'transform: scale(1) translateY(0); border-radius: 0; overflow: hidden; transition: all 0.3s cubic-bezier(0.23,1,0.32,1);' : ''}"
         >
           <div class="flex-1 overflow-hidden relative flex flex-col">
             <div class="flex-1 overflow-hidden relative">
@@ -226,24 +250,21 @@
       <!-- Global Home Indicator Button -->
       {#if !state.showLockScreen}
         <button
-          class="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-6 max-[430px]:h-[calc(1.5rem+env(safe-area-inset-bottom))] z-[9000] bg-transparent border-none cursor-pointer flex flex-col justify-end items-center pb-1 max-[430px]:pb-[max(6px,env(safe-area-inset-bottom))] outline-none touch-none"
+          class="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-6 max-[430px]:h-[calc(1.5rem+env(safe-area-inset-bottom))] z-9000 bg-transparent border-none cursor-pointer flex flex-col justify-end items-center pb-1 max-[430px]:pb-[max(6px,env(safe-area-inset-bottom))] outline-none touch-none"
           onclick={() => {
             if (systemState.activeApp) {
               state.closeApp();
             }
           }}
-          ontouchstart={(e) => systemState.activeApp && state.handleAppSwipeStart(e)}
-          ontouchmove={(e) => systemState.activeApp && state.handleAppSwipeMove(e)}
-          ontouchend={() => systemState.activeApp && state.handleAppSwipeEnd()}
-          onpointerdown={(e) => systemState.activeApp && state.handleAppSwipeStart(e)}
-          onpointermove={(e) => systemState.activeApp && state.handleAppSwipeMove(e)}
-          onpointerup={() => systemState.activeApp && state.handleAppSwipeEnd()}
-          onpointercancel={() => systemState.activeApp && state.handleAppSwipeEnd()}
+          ontouchstart={(e) => state.handleAppSwipeStart(e)}
+          onpointerdown={(e) => state.handleAppSwipeStart(e)}
           aria-label="Home"
         >
           <div class="w-33.5 h-1.25 bg-white/30 rounded-full pointer-events-none"></div>
         </button>
       {/if}
+
+      <AppSwitcher shellState={state} {appComponents} />
     {/if}
 
     <!-- Global WebRTC Audio Element -->

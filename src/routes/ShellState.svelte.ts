@@ -3,6 +3,7 @@ import { systemState } from '$lib/states';
 export class ShellState {
   showPlayer = $state(false);
   showLockScreen = $state(true);
+  showAppSwitcher = $state(false);
   lockScreenY = $state(0);
   isDragging = $state(false);
   startY = $state(0);
@@ -28,12 +29,22 @@ export class ShellState {
 
   handleAppSwipeEnd() {
     this.isAppSwiping = false;
-    if (this.appSwipeY > 50) {
-      if (systemState.activeApp) {
+    if (this.appSwipeY > 200) {
+      if (this.showAppSwitcher) {
+        this.closeAppSwitcher();
+      } else if (systemState.activeApp) {
         this.closeApp();
+      }
+    } else if (this.appSwipeY > 50) {
+      if (!this.showAppSwitcher) {
+        this.showAppSwitcher = true;
       }
     }
     this.appSwipeY = 0;
+  }
+
+  closeAppSwitcher() {
+    this.showAppSwitcher = false;
   }
 
   closeApp() {

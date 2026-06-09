@@ -3,8 +3,10 @@
   import MovieDetail from "./components/MovieDetail.svelte";
   import { systemState } from "$lib/states";
   import Player from "./components/Player.svelte";
-  import { onMount } from "svelte";
+  import { onMount, getContext } from "svelte";
   import Skeleton from "$lib/components/ui/Skeleton.svelte";
+
+  const isPreview = getContext('isPreview');
 
   let headerOpacity = $state(0);
   let activeTab = $state("home"); // 'home', 'search'
@@ -28,6 +30,7 @@
   );
 
   $effect(() => {
+    if (isPreview) return;
     if (searchQuery.trim().length > 2) {
       const timeout = setTimeout(async () => {
         try {

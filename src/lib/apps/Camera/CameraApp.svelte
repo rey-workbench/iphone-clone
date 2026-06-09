@@ -1,11 +1,15 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, getContext } from 'svelte';
   import { RefreshCw } from '@lucide/svelte';
   import { AppCameraState } from './CameraState.svelte';
 
+  const isPreview = getContext('isPreview');
   const state = new AppCameraState();
 
-  onMount(() => state.startCamera());
+  onMount(() => {
+    if (isPreview) return;
+    state.startCamera();
+  });
   onDestroy(() => state.stopCamera());
 </script>
 

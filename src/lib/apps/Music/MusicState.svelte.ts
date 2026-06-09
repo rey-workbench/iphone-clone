@@ -42,6 +42,7 @@ export class MusicState {
                 disablekb: 1,
                 fs: 0,
                 rel: 0,
+                origin: windowObj.location.origin,
             },
             events: {
                 onStateChange: (event: any) => this.onPlayerStateChange(event, windowObj),
