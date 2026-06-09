@@ -1,5 +1,4 @@
-import { dialogState } from '$lib/states/dialogState.svelte';
-import { systemState } from '$lib/states/systemState.svelte';
+import { dialogState, systemState } from '$lib/states';
 
 /**
  * Request camera permission (for future FaceTime or Camera app)

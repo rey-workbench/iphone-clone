@@ -75,7 +75,9 @@
       class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-black rounded-b-3xl z-10000"
     ></div>
 
-    {#if !systemState.currentUser}
+    {#if systemState.isInitializing}
+      <div class="absolute inset-0 bg-[#0a0a0a] z-50"></div>
+    {:else if !systemState.currentUser}
       <LoginScreen />
     {:else if state.showLockScreen}
       <!-- Lock Screen -->

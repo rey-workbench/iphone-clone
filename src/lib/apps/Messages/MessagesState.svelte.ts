@@ -1,7 +1,7 @@
 import { Bot } from '@lucide/svelte';
 import { supabase } from '$lib/config/supabase';
 import { systemState, usersState } from '$lib/states';
-import { getSetting, setSetting, LocalDBKey } from '$lib/config/localdb';
+import { notesDb, NotesDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
 
 export class MessagesState {
@@ -59,7 +59,7 @@ export class MessagesState {
         if (!user || !this.currentChatId) return;
 
         if (this.currentChatId === 'ai-bot') {
-            this.messages = await getSetting(LocalDBKey.AI_MESSAGES(user.id), []);
+            this.messages = await notesDb.get(NotesDBKey.AI_MESSAGES(user.id), []);
             if (this.messages.length === 0) {
                 this.messages = [
                     { id: '1', content: "Hey! I'm your AI assistant. Ask me anything.", isUser: false, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }
@@ -117,7 +117,7 @@ export class MessagesState {
         this.inputText = ''; 
         
         if (receiverId === 'ai-bot') {
-                await setSetting(LocalDBKey.AI_MESSAGES(user.id), this.messages);
+                await notesDb.set(NotesDBKey.AI_MESSAGES(user.id), this.messages);
             this.isTyping = true;
             const apiMessages = this.messages.map(m => ({
                 role: m.isUser ? 'user' : 'assistant',
@@ -143,7 +143,7 @@ export class MessagesState {
                 const aiMsg = { id: String(Date.now()), content: aiText, isUser: false, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) };
                 
                 this.messages = [...this.messages, aiMsg]; 
-                    await setSetting(LocalDBKey.AI_MESSAGES(user.id), this.messages);
+                    await notesDb.set(NotesDBKey.AI_MESSAGES(user.id), this.messages);
                 
                 const contactIndex = this.inbox.findIndex(c => c.id === this.currentChatId);
                 if (contactIndex !== -1) {

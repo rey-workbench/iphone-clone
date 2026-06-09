@@ -1,12 +1,12 @@
 import { ApiConfig } from '$lib/config/api';
-import { LocalDBKey } from '$lib/config/localdb';
+import { userDb, UserDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 
 export class UsersState extends SyncState<any[]> {
     private updateCallback?: (users: any[]) => void;
 
     constructor() {
-        super(LocalDBKey.USERS_LIST, [], async () => {
+        super(userDb, UserDBKey.USERS_LIST, [], async () => {
             const res = await fetch(ApiConfig.USERS);
             if (!res.ok) throw new Error("Failed to fetch users");
             const data = await res.json();
@@ -15,7 +15,12 @@ export class UsersState extends SyncState<any[]> {
     }
 
     async fetchUsers(onUpdate?: (users: any[]) => void) {
-        this.updateCallback = onUpdate;
+        if (onUpdate && this.isLoaded && this.data) {
+            onUpdate(this.data);
+        }
+        if (onUpdate) {
+            this.updateCallback = onUpdate;
+        }
         await this.load();
     }
 

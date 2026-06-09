@@ -25,7 +25,7 @@ export class PhoneState {
     }
 
     async loadRecents() {
-        const { getCallHistory } = await import('./callHistoryDb');
+        const { getCallHistory } = await import('$lib/config/localdb');
         const history = await getCallHistory();
         
         const now = new Date();
@@ -59,12 +59,15 @@ export class PhoneState {
     }
 
     updateContacts(users: any[]) {
-        this.contacts = users.map(u => ({
-            id: u.id,
-            name: u.name,
-            username: u.username,
-            initials: u.name.substring(0, 2).toUpperCase(),
-        }));
+        this.contacts = users.map(u => {
+            const displayName = u.name || u.username || 'Unknown';
+            return {
+                id: u.id,
+                name: displayName,
+                username: u.username || displayName,
+                initials: displayName.substring(0, 2).toUpperCase(),
+            };
+        });
     }
 
     appendNumber(n: string) {

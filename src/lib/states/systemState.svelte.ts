@@ -1,4 +1,5 @@
 import { ApiConfig } from '$lib/config/api';
+import { sessionDb, SessionDBKey } from '$lib/config/localdb';
 
 export class SystemState {
   activeApp = $state<string | null>(null);
@@ -7,21 +8,11 @@ export class SystemState {
   deviceId = $state<string>('');
 
   deviceName = $state<string>('Unknown Device');
+  isInitializing = $state(true);
 
   constructor() {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('reynisa_currentUser');
-      if (saved) {
-        try { this.currentUser = JSON.parse(saved); } catch (e) {}
-      }
-
-      // Handle Device ID persistence
-      let savedDeviceId = localStorage.getItem('reynisa_deviceId');
-      if (!savedDeviceId) {
-          savedDeviceId = crypto.randomUUID();
-          localStorage.setItem('reynisa_deviceId', savedDeviceId);
-      }
-      this.deviceId = savedDeviceId;
+      this.init();
 
       // Simple user agent parser for device name
       const ua = navigator.userAgent;
@@ -46,19 +37,35 @@ export class SystemState {
       }, 1000);
 
       // Keepalive ping
-      fetch(ApiConfig.SYSTEM_KEEPALIVE).catch(() => {});
+      fetch(ApiConfig.SYSTEM_KEEPALIVE).catch(() => { });
       setInterval(() => {
-        fetch(ApiConfig.SYSTEM_KEEPALIVE).catch(() => {});
+        fetch(ApiConfig.SYSTEM_KEEPALIVE).catch(() => { });
       }, 30 * 60 * 1000);
     }
   }
 
-  saveUser() {
+  async init() {
+    try {
+      this.currentUser = await sessionDb.get(SessionDBKey.CURRENT_USER, null);
+
+      let devId = await sessionDb.get<string | null>('device_id', null);
+      if (!devId) {
+        devId = crypto.randomUUID();
+        await sessionDb.set('device_id', devId);
+      }
+      this.deviceId = devId;
+    } finally {
+      this.isInitializing = false;
+    }
+  }
+
+  async saveUser() {
     if (typeof window !== 'undefined') {
       if (this.currentUser) {
-        localStorage.setItem('reynisa_currentUser', JSON.stringify($state.snapshot(this.currentUser)));
+        const snap = $state.snapshot(this.currentUser);
+        await sessionDb.set(SessionDBKey.CURRENT_USER, snap);
       } else {
-        localStorage.removeItem('reynisa_currentUser');
+        await sessionDb.set(SessionDBKey.CURRENT_USER, undefined);
       }
     }
   }

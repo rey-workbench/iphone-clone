@@ -1,5 +1,5 @@
 import { Smartphone } from '@lucide/svelte';
-import { LocalDBKey } from '$lib/config/localdb';
+import { appstoreDb, AppStoreDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 import { ApiConfig } from '$lib/config/api';
 import type { AppStoreTabId } from '$lib/types';
@@ -10,7 +10,7 @@ export class AppStoreState extends SyncState<any> {
     topApps: any[] = $state([]);
 
     constructor() {
-        super(LocalDBKey.APPSTORE_PRODUCTS, null, async () => {
+        super(appstoreDb, AppStoreDBKey.APPSTORE_PRODUCTS, null, async () => {
             const data = await ApiConfig.fetchAppStoreProducts();
             return data;
         });

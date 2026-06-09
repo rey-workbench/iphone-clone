@@ -64,3 +64,6 @@ export class AuthState {
         window.location.reload();
     }
 }
+
+export const authState = new AuthState();
+
