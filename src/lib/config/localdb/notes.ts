@@ -1,5 +1,5 @@
 import { LocalDBAdapter } from './core';
-export const notesDb = new LocalDBAdapter('myphone_notes_db', 'notes');
+export const notesDb = new LocalDBAdapter('notes');
 
 export const NotesDBKey = {
   NOTES: 'notes',

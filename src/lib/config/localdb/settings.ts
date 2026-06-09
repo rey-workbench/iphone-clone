@@ -1,5 +1,5 @@
 import { LocalDBAdapter } from './core';
-export const settingsDb = new LocalDBAdapter('myphone_settings_db', 'settings');
+export const settingsDb = new LocalDBAdapter('settings');
 
 export const SettingsDBKey = {
   SETTINGS: 'settings',

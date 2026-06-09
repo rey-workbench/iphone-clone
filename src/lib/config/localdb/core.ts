@@ -1,23 +1,45 @@
 import { openDB, type IDBPDatabase } from 'idb';
 
-export class LocalDBAdapter {
-  private dbPromise: Promise<IDBPDatabase> | null = null;
+const DB_NAME = 'myphone_local_db';
+const DB_VERSION = 1;
+const STORES = [
+  'appstore',
+  'mail',
+  'notes',
+  'call_history',
+  'photos',
+  'session',
+  'settings',
+  'users'
+];
 
-  constructor(public dbName: string, public storeName: string = 'data', public version: number = 1) { }
+let globalDbPromise: Promise<IDBPDatabase> | null = null;
+
+function getGlobalDB(): Promise<IDBPDatabase> | null {
+  if (typeof window === 'undefined') return null; // Avoid running on SSR
+  if (!globalDbPromise) {
+    globalDbPromise = openDB(DB_NAME, DB_VERSION, {
+      upgrade: (db) => {
+        for (const store of STORES) {
+          if (!db.objectStoreNames.contains(store)) {
+            db.createObjectStore(store);
+          }
+        }
+      },
+    });
+  }
+  return globalDbPromise;
+}
+
+export class LocalDBAdapter {
+  public storeName: string;
+
+  constructor(dbNameOrStoreName: string, storeName?: string) {
+    this.storeName = storeName || dbNameOrStoreName;
+  }
 
   async init() {
-    if (typeof window === 'undefined') return null; // Avoid running on SSR
-
-    if (!this.dbPromise) {
-      this.dbPromise = openDB(this.dbName, this.version, {
-        upgrade: (db) => {
-          if (!db.objectStoreNames.contains(this.storeName)) {
-            db.createObjectStore(this.storeName);
-          }
-        },
-      });
-    }
-    return this.dbPromise;
+    return getGlobalDB();
   }
 
   async set(key: string, val: any) {
@@ -38,5 +60,11 @@ export class LocalDBAdapter {
 
     const val = await db.get(this.storeName, key);
     return val !== undefined ? val : defaultValue;
+  }
+
+  async getAll<T>(): Promise<T[]> {
+    const db = await this.init();
+    if (!db) return [];
+    return db.getAll(this.storeName) as Promise<T[]>;
   }
 }

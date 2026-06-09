@@ -1,5 +1,5 @@
 import { LocalDBAdapter } from './core';
-export const appstoreDb = new LocalDBAdapter('myphone_appstore_db', 'appstore');
+export const appstoreDb = new LocalDBAdapter('appstore');
 
 export const AppStoreDBKey = {
   APPSTORE_PRODUCTS: 'appstore_products',

@@ -1,5 +1,5 @@
 import { LocalDBAdapter } from './core';
-export const phoneDb = new LocalDBAdapter('myphone_phone_db', 'call_history');
+export const phoneDb = new LocalDBAdapter('call_history');
 
 export type CallHistoryEntry = {
   id: string;
