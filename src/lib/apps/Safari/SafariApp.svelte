@@ -49,12 +49,20 @@
 
         const LibcurlTransport = (window as any).LibcurlTransport;
         if (!LibcurlTransport?.default) {
-          throw new Error("Scramjet/Libcurl scripts failed to load. Missing static/scram/ or static/libcurl/ files.");
+          throw new Error(
+            "Scramjet/Libcurl scripts failed to load. Missing static/scram/ or static/libcurl/ files.",
+          );
         }
 
         const LibcurlClient = LibcurlTransport.default;
-        const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        const wispUrl = isLocal 
+        const isLocal =
+          location.hostname === "localhost" ||
+          location.hostname === "127.0.0.1" ||
+          location.hostname.startsWith("192.168.") ||
+          location.hostname.startsWith("10.") ||
+          location.hostname.endsWith(".local") ||
+          location.hostname.startsWith("172.");
+        const wispUrl = isLocal
           ? location.origin.replace(/^http/, "ws") + "/wisp/"
           : "wss://wisp.mercurywork.shop/";
 
@@ -63,12 +71,17 @@
 
         const scramjetController = (window as any).$scramjetController;
         if (!scramjetController?.Controller) {
-          throw new Error("Scramjet Controller not found on window.$scramjetController");
+          throw new Error(
+            "Scramjet Controller not found on window.$scramjetController",
+          );
         }
         const { Controller } = scramjetController;
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (const r of registrations) {
-          if (r.active?.scriptURL.includes('scramjet-sw.js') && r.scope === location.origin + '/') {
+          if (
+            r.active?.scriptURL.includes("scramjet-sw.js") &&
+            r.scope === location.origin + "/"
+          ) {
             await r.unregister();
           }
         }
@@ -119,7 +132,11 @@
           }
         }
       } catch (err: any) {
-        dialogState.show({ title: 'Safari Proxy Error', message: err.message || 'Scramjet initialization failed.', confirmText: 'OK' });
+        dialogState.show({
+          title: "Safari Proxy Error",
+          message: err.message || "Scramjet initialization failed.",
+          confirmText: "OK",
+        });
       }
     }
   });
@@ -167,7 +184,12 @@
           <div class="flex flex-col gap-2">
             <Skeleton width="33%" height="16px" borderRadius="4px" />
             <Skeleton width="75%" height="20px" borderRadius="4px" />
-            <Skeleton width="100%" height="40px" borderRadius="4px" class="mt-1" />
+            <Skeleton
+              width="100%"
+              height="40px"
+              borderRadius="4px"
+              class="mt-1"
+            />
           </div>
         {/each}
       </div>
@@ -224,7 +246,11 @@
               <div
                 class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center overflow-hidden"
               >
-                <img src={`https://www.google.com/s2/favicons?domain=${new URL(fav.url).hostname}&sz=128`} alt={fav.name} class="w-10 h-10 object-contain rounded-md" />
+                <img
+                  src={`https://www.google.com/s2/favicons?domain=${new URL(fav.url).hostname}&sz=128`}
+                  alt={fav.name}
+                  class="w-10 h-10 object-contain rounded-md"
+                />
               </div>
               <span
                 class="text-[11px] text-gray-500 truncate w-full text-center"

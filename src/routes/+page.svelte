@@ -5,6 +5,7 @@
   import { systemState } from "$lib/states";
   import { homeScreenApps } from "$lib/config/apps";
   import LoginScreen from "$lib/ui/components/LoginScreen.svelte";
+  import NotificationBanner from "$lib/ui/components/NotificationBanner.svelte";
   import { untrack } from "svelte";
 
   import CalculatorApp from "$lib/apps/Calculator/CalculatorApp.svelte";
@@ -284,5 +285,8 @@
 
     <!-- Global Dialog Overlays -->
     <DialogModal />
+
+    <!-- Global Notification Banner -->
+    <NotificationBanner />
   </div>
 </div>

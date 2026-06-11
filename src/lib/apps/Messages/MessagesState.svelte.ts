@@ -1,5 +1,6 @@
 import { Bot } from '@lucide/svelte';
 import { authState } from "$lib/states/authState.svelte";
+import { notificationState } from "$lib/states/notificationState.svelte";
 import { dialogState } from "$lib/states/dialogState.svelte";
 import { supabase } from '$lib/config/supabase';
 import { systemState, usersState } from '$lib/states';
@@ -24,9 +25,31 @@ export class MessagesState {
         return [...this.inbox].sort((a, b) => b.timestamp - a.timestamp);
     }
 
+    get totalUnread() {
+        return this.inbox.reduce((sum, convo) => sum + (convo.unread || 0), 0);
+    }
+
+    private initializedForUser = '';
+
     constructor() {
-        usersState.fetchUsers((users) => this.updateInboxWithUsers(users));
-        this.initRealtime();
+        if (typeof window !== 'undefined') {
+            $effect.root(() => {
+                $effect(() => {
+                    const user = systemState.currentUser;
+                    if (user && this.initializedForUser !== user.id) {
+                        this.initializedForUser = user.id;
+                        usersState.fetchUsers((users) => this.updateInboxWithUsers(users));
+                        this.initRealtime();
+                    } else if (!user && this.initializedForUser) {
+                        this.destroy();
+                        this.initializedForUser = '';
+                        this.messages = [];
+                        // Keep only AI bot in inbox
+                        this.inbox = this.inbox.filter(c => c.id === 'ai-bot');
+                    }
+                });
+            });
+        }
     }
 
     updateInboxWithUsers(users: any[]) {
@@ -195,6 +218,16 @@ export class MessagesState {
                             this.inbox[contactIndex].timestamp = new Date(msg.created_at).getTime();
                             if (msg.sender_id !== user.id && this.currentChatId !== otherPersonId) {
                                 this.inbox[contactIndex].unread = (this.inbox[contactIndex].unread || 0) + 1;
+                                
+                                notificationState.show({
+                                    title: this.inbox[contactIndex].name,
+                                    message: msg.content,
+                                    icon: '/assets/icons/com.apple.MobileSMS-large.png',
+                                    onClick: () => {
+                                        systemState.activeApp = 'messages';
+                                        this.openChat(otherPersonId, this.inbox[contactIndex].name);
+                                    }
+                                });
                             }
                         }
                     }
@@ -310,3 +343,5 @@ export class MessagesState {
         }
     }
 }
+
+export const messagesState = new MessagesState();
