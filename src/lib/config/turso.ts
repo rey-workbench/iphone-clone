@@ -36,10 +36,12 @@ export async function setupDatabase() {
     INSERT OR IGNORE INTO users (id, username, password, name) VALUES 
     ('e1b74c2e-4b6c-48c9-8d76-15b561c8f1ea', 'nisa', 'nisa', 'Annisaa Putri Purnomo'),
     ('f2a5b1c3-2d5f-4a8b-9e4c-34f781d9d1bc', 'rey', 'rey', 'Reynald Silva Baktiar'),
-    ('test-user-id-1234-5678-90ab', 'tes', 'tes', 'Tes User');
+    ('034a2253-5118-4d14-a0a0-dc0a2bc04d2b', 'yus', 'yus', 'Yusriyah Firjatullah');
+    ('034a2253-5118-4d14-a0a0-dc0a2bc04d2b', 'arya', 'arya', ' Arya Bagus');
     
     UPDATE users SET name = 'Annisaa Putri Purnomo' WHERE username = 'nisa';
     UPDATE users SET name = 'Reynald Silva Baktiar' WHERE username = 'rey';
-    UPDATE users SET name = 'Tes User' WHERE username = 'tes';
+    UPDATE users SET name = 'Yusriyah Firjatullah' WHERE username = 'yus';
+    UPDATE users SET name = 'Arya Bagus' WHERE username = 'arya';
   `);
 }
