@@ -33,6 +33,7 @@ export default defineConfig({
 				enabled: true,
 				suppressWarnings: true
 			},
+			disable: process.env.VERCEL === '1',
 			manifest: {
 				name: 'MyPhone',
 				short_name: 'MyPhone',
