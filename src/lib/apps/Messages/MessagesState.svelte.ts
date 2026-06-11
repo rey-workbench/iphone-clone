@@ -102,6 +102,55 @@ export class MessagesState {
                 this.inbox[contactIndex].time = lastMsg.time;
             }
         }
+
+        this.initRealtime();
+    }
+
+    private realtimeChannel: any = null;
+
+    initRealtime() {
+        const user = systemState.currentUser;
+        if (!user || this.realtimeChannel) return;
+
+        this.realtimeChannel = supabase
+            .channel('messages_realtime')
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'messages' },
+                (payload) => {
+                    const msg = payload.new;
+                    // Check if it's relevant to the current user
+                    if (msg.sender_id === user.id || msg.receiver_id === user.id) {
+                        const otherPersonId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
+                        
+                        // If we are currently chatting with this person
+                        if (this.currentChatId === otherPersonId) {
+                           
+                            const isOptimisticDuplicate = msg.sender_id === user.id && this.messages.some(m => m.content === msg.content && m.isUser);
+                            
+                            if (!isOptimisticDuplicate && !this.messages.find(m => m.id === msg.id)) {
+                                this.messages = [...this.messages, {
+                                    id: msg.id,
+                                    content: msg.content,
+                                    isUser: msg.sender_id === user.id,
+                                    time: new Date(msg.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+                                }];
+                            }
+                        }
+
+                        // Update inbox last message
+                        const contactIndex = this.inbox.findIndex(c => c.id === otherPersonId);
+                        if (contactIndex !== -1) {
+                            this.inbox[contactIndex].lastMsg = msg.content;
+                            this.inbox[contactIndex].time = new Date(msg.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                            if (msg.sender_id !== user.id && this.currentChatId !== otherPersonId) {
+                                this.inbox[contactIndex].unread = true;
+                            }
+                        }
+                    }
+                }
+            )
+            .subscribe();
     }
 
     async send() {
