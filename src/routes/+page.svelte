@@ -251,7 +251,7 @@
       <!-- Global Home Indicator Button -->
       {#if !state.showLockScreen}
         <button
-          class="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-6 max-[430px]:h-[calc(1.5rem+env(safe-area-inset-bottom))] z-9000 bg-transparent border-none cursor-pointer flex flex-col justify-end items-center pb-1 max-[430px]:pb-[max(6px,env(safe-area-inset-bottom))] outline-none touch-none"
+          class="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-10 max-[430px]:h-[calc(2.5rem+env(safe-area-inset-bottom))] z-9000 bg-transparent border-none cursor-pointer flex flex-col justify-end items-center pb-3 max-[430px]:pb-[max(12px,env(safe-area-inset-bottom))] outline-none touch-none"
           onclick={() => {
             if (systemState.activeApp) {
               state.closeApp();
