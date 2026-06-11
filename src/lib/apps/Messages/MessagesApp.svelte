@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { ArrowUp, ChevronLeft } from '@lucide/svelte';
   import { MessagesState } from './MessagesState.svelte';
   import { usersState, dialogState } from '$lib/states';
@@ -13,6 +14,10 @@
         if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
       }, 50);
     }
+  });
+
+  onDestroy(() => {
+    appState.destroy();
   });
 </script>
 

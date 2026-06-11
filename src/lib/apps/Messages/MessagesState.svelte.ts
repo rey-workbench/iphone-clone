@@ -53,6 +53,47 @@ export class MessagesState {
         });
 
         this.inbox = newInbox;
+        this.loadInboxStates();
+    }
+
+    async loadInboxStates() {
+        const user = systemState.currentUser;
+        if (!user) return;
+
+        // Load AI Bot messages
+        const aiMessages = await notesDb.get(NotesDBKey.AI_MESSAGES(user.id), []);
+        if (aiMessages.length > 0) {
+            const lastMsg = aiMessages[aiMessages.length - 1];
+            const aiContact = this.inbox.find(c => c.id === 'ai-bot');
+            if (aiContact) {
+                aiContact.lastMsg = lastMsg.content;
+                aiContact.time = lastMsg.time;
+                aiContact.timestamp = parseInt(lastMsg.id) || Date.now();
+            }
+        }
+
+        // Load Supabase messages
+        const { data, error } = await supabase
+            .from('messages')
+            .select('*')
+            .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+            .order('created_at', { ascending: false });
+
+        if (!error && data) {
+            const processedUsers = new Set();
+            data.forEach(msg => {
+                const otherPersonId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
+                if (!processedUsers.has(otherPersonId)) {
+                    processedUsers.add(otherPersonId);
+                    const contact = this.inbox.find(c => c.id === otherPersonId);
+                    if (contact) {
+                        contact.lastMsg = msg.content;
+                        contact.time = new Date(msg.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                        contact.timestamp = new Date(msg.created_at).getTime();
+                    }
+                }
+            });
+        }
     }
 
     addContact(id: string) {
@@ -121,7 +162,7 @@ export class MessagesState {
         if (!user || this.realtimeChannel) return;
 
         this.realtimeChannel = supabase
-            .channel('messages_realtime')
+            .channel(`messages_realtime_${Date.now()}`)
             .on(
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'messages' },
@@ -259,6 +300,13 @@ export class MessagesState {
         const { error } = await supabase.from('messages').delete().eq('id', msgId).eq('sender_id', user.id);
         if (error) {
             dialogState.show({ title: 'Delete Error', message: 'Failed to delete message: ' + error.message, confirmText: 'OK' });
+        }
+    }
+
+    destroy() {
+        if (this.realtimeChannel) {
+            supabase.removeChannel(this.realtimeChannel);
+            this.realtimeChannel = null;
         }
     }
 }
