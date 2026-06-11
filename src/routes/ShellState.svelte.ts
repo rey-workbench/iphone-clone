@@ -69,12 +69,26 @@ export class ShellState {
     this.isDragging = false;
     if (this.lockScreenY > 120) {
       this.showLockScreen = false;
+      this.enterFullscreen();
     }
     this.lockScreenY = 0;
   }
 
   handleLockClick() {
     this.showLockScreen = false;
+    this.enterFullscreen();
+  }
+
+  enterFullscreen() {
+    try {
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      }
+    } catch (e) {
+      // Ignore
+    }
   }
 
   formatDate(d: Date) {
