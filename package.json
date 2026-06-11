@@ -7,7 +7,7 @@
 		"dev": "cross-env NODE_OPTIONS=--disable-warning=DEP0205 vite dev",
 		"build": "cross-env NODE_OPTIONS=--disable-warning=DEP0205 vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "node scripts/copy-scramjet.js && svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
