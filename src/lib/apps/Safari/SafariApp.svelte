@@ -53,7 +53,10 @@
         }
 
         const LibcurlClient = LibcurlTransport.default;
-        const wispUrl = location.origin.replace(/^http/, "ws") + "/wisp/";
+        const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        const wispUrl = isLocal 
+          ? location.origin.replace(/^http/, "ws") + "/wisp/"
+          : "wss://ruby.rubynetwork.co/wisp/";
 
         const transport = new LibcurlClient({ wisp: wispUrl });
         await transport.init();
