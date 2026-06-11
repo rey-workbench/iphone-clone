@@ -1,26 +1,35 @@
 <script lang="ts">
   import { ArrowUp, ChevronLeft } from '@lucide/svelte';
   import { MessagesState } from './MessagesState.svelte';
-  import { usersState } from '$lib/states';
+  import { usersState, dialogState } from '$lib/states';
   import Skeleton from '$lib/components/ui/Skeleton.svelte';
 
-  const state = new MessagesState();
+  const appState = new MessagesState();
+  let chatEl: HTMLDivElement | null = $state(null);
+
+  $effect(() => {
+    if (appState.messages.length > 0 && chatEl) {
+      setTimeout(() => {
+        if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
+      }, 50);
+    }
+  });
 </script>
 
 <div class="h-full pt-[54px] pb-0 bg-black flex flex-col ">
-  {#if state.chatView}
+  {#if appState.chatView}
     <div class="flex-1 flex flex-col min-h-0">
       <div class="relative flex items-center justify-between px-4 py-2 border-b border-ios-sep h-12">
-        <button class="absolute left-4 bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center shrink-0 z-10" onclick={() => state.closeChat()}>
+        <button class="absolute left-4 bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center shrink-0 z-10" onclick={() => appState.closeChat()}>
           <ChevronLeft size={20} class="mr-1" /> Messages
         </button>
         <div class="w-full text-center px-[100px]">
-          <span class="text-[17px] font-semibold text-white truncate block">{state.currentChatName}</span>
+          <span class="text-[17px] font-semibold text-white truncate block">{appState.currentChatName.split(' ')[0]}</span>
         </div>
       </div>
-      <div class="flex-1 overflow-y-auto p-3 pb-2 flex flex-col gap-1 min-h-0">
-        {#each state.messages as msg, i}
-          {@const isLastInGroup = i === state.messages.length - 1 || state.messages[i + 1].isUser !== msg.isUser}
+      <div class="flex-1 overflow-y-auto p-3 pb-2 flex flex-col gap-1 min-h-0" bind:this={chatEl}>
+        {#each appState.messages as msg, i}
+          {@const isLastInGroup = i === appState.messages.length - 1 || appState.messages[i + 1].isUser !== msg.isUser}
           <div class="flex {msg.isUser ? 'justify-end' : ''}">
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div 
@@ -28,9 +37,14 @@
               oncontextmenu={(e) => {
                 if (msg.isUser) {
                   e.preventDefault();
-                  if (confirm('Delete this message?')) {
-                    state.deleteMessage(msg.id);
-                  }
+                  dialogState.show({
+                    title: 'Delete Message',
+                    message: 'Are you sure you want to delete this message?',
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel'
+                  }).then(confirmed => {
+                    if (confirmed) appState.deleteMessage(msg.id);
+                  });
                 }
               }}
             >
@@ -38,7 +52,7 @@
             </div>
           </div>
         {/each}
-        {#if state.isTyping}
+        {#if appState.isTyping}
           <div class="flex"><div class="bg-ios-bg3 text-white rounded-2xl rounded-bl-[4px] px-4 py-3 flex gap-1 items-center">
             <span class="w-1.5 h-1.5 rounded-full bg-white/50 animate-[dotPulse_1.2s_infinite]"></span>
             <span class="w-1.5 h-1.5 rounded-full bg-white/50 animate-[dotPulse_1.2s_infinite_0.2s]"></span>
@@ -47,10 +61,10 @@
         {/if}
       </div>
       <div class="flex items-center gap-2 px-3 pt-2 pb-8 border-t border-ios-sep bg-[rgba(30,30,30,0.95)]">
-        <input bind:value={state.inputText} placeholder="iMessage" onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && state.send()}
+        <input bind:value={appState.inputText} placeholder="iMessage" onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && appState.send()}
           class="flex-1 h-9 rounded-[18px] border border-ios-sep bg-transparent text-white px-4 text-[17px] outline-none" />
-        {#if state.inputText}
-          <button class="w-[30px] h-[30px] rounded-full bg-ios-blue border-none text-white text-[16px] font-bold cursor-pointer flex items-center justify-center" onclick={() => state.send()}>
+        {#if appState.inputText}
+          <button class="w-[30px] h-[30px] rounded-full bg-ios-blue border-none text-white text-[16px] font-bold cursor-pointer flex items-center justify-center" onclick={() => appState.send()}>
             <ArrowUp size={18} color="white" />
           </button>
         {/if}
@@ -62,7 +76,7 @@
         <h1 class="text-[34px] font-bold text-white">Messages</h1>
         <button class="w-[30px] h-[30px] rounded-full bg-ios-blue border-none text-white text-[20px] font-bold cursor-pointer flex items-center justify-center" onclick={() => {
           const id = prompt('Enter User ID to chat with (e.g. user2):');
-          if (id) state.addContact(id);
+          if (id) appState.addContact(id);
         }}>+</button>
       </div>
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
@@ -80,8 +94,8 @@
             </div>
           {/each}
         {:else}
-          {#each state.sortedInbox as convo (convo.id)}
-            <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-white text-left border-b border-ios-sep last:border-b-0" onclick={() => state.openChat(convo.id, convo.name)}>
+          {#each appState.sortedInbox as convo (convo.id)}
+            <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-white text-left border-b border-ios-sep last:border-b-0" onclick={() => appState.openChat(convo.id, convo.name)}>
               <div class="w-[45px] h-[45px] rounded-full flex items-center justify-center text-[16px] font-semibold text-white shrink-0" style="background:{convo.color}">
                 {#if convo.icon}
                   <convo.icon size={24} color="white" />

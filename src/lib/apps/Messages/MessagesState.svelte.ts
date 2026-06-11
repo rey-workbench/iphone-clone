@@ -26,6 +26,7 @@ export class MessagesState {
 
     constructor() {
         usersState.fetchUsers((users) => this.updateInboxWithUsers(users));
+        this.initRealtime();
     }
 
     updateInboxWithUsers(users: any[]) {
@@ -111,8 +112,6 @@ export class MessagesState {
                 this.inbox[contactIndex].timestamp = new Date(lastDate).getTime();
             }
         }
-
-        this.initRealtime();
     }
 
     private realtimeChannel: any = null;
