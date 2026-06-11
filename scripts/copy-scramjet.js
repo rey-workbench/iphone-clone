@@ -3,9 +3,13 @@ import path from 'node:path';
 
 const controllerPath = path.join(process.cwd(), 'node_modules', '@mercuryworkshop', 'scramjet-controller', 'dist');
 const scramjetPath = path.join(process.cwd(), 'node_modules', '@mercuryworkshop', 'scramjet', 'dist');
-const dest = path.join(process.cwd(), 'static', 'scram');
+const libcurlPath = path.join(process.cwd(), 'node_modules', '@mercuryworkshop', 'libcurl-transport', 'dist');
 
-fs.mkdirSync(dest, { recursive: true });
+const destScram = path.join(process.cwd(), 'static', 'scram');
+const destLibcurl = path.join(process.cwd(), 'static', 'libcurl');
+
+fs.mkdirSync(destScram, { recursive: true });
+fs.mkdirSync(destLibcurl, { recursive: true });
 
 function copyDir(src, destination) {
     if (!fs.existsSync(src)) return;
@@ -43,9 +47,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const style = document.createElement('style');
   style.innerHTML = \`
     ::-webkit-scrollbar {
-      display: none;
       width: 0px;
       background: transparent;
+    }
+    * {
       -ms-overflow-style: none;  /* IE and Edge */
       scrollbar-width: none;  /* Firefox */
     }
@@ -60,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 }
 
-copyDir(controllerPath, dest);
-copyDir(scramjetPath, dest);
-console.log("Copied Scramjet files to static/scram");
+copyDir(controllerPath, destScram);
+copyDir(scramjetPath, destScram);
+copyDir(libcurlPath, destLibcurl);
+console.log("Copied Scramjet and Libcurl files to static/");

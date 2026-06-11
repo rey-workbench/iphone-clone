@@ -23,9 +23,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const style = document.createElement('style');
   style.innerHTML = `
     ::-webkit-scrollbar {
-      display: none;
       width: 0px;
       background: transparent;
+    }
+    * {
       -ms-overflow-style: none;  /* IE and Edge */
       scrollbar-width: none;  /* Firefox */
     }

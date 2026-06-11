@@ -29,6 +29,9 @@ export default defineConfig({
 		sveltekit(),
 		SvelteKitPWA({
 			registerType: 'autoUpdate',
+			workbox: {
+				maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+			},
 			devOptions: {
 				enabled: true,
 				suppressWarnings: true
