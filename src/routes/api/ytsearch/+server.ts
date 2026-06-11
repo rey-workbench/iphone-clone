@@ -104,8 +104,8 @@ async function handleSearchOrBrowse(query: string | null, action: string | null)
     if (!query || action === 'browse' || action === 'library' || action === 'radio') {
         const sections = await ytmusic.getHomeSections();
         sections.forEach((section: any) => {
-            section.contents.forEach((item: any) => {
-                if (['SONG', 'VIDEO', 'PLAYLIST', 'ALBUM', 'ARTIST'].includes(item.type)) {
+            section.contents?.forEach((item: any) => {
+                if (item && item.type && ['SONG', 'VIDEO', 'PLAYLIST', 'ALBUM', 'ARTIST'].includes(item.type)) {
                     songs.push(item);
                 }
             });
