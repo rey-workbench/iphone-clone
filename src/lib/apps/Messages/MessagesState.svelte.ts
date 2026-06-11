@@ -17,8 +17,12 @@ export class MessagesState {
     currentChatName = $state('');
 
     inbox: any[] = $state([
-        { id: 'ai-bot', name: 'Buddy Bard', icon: Bot, color: '#007AFF', lastMsg: "Hey! I'm your AI assistant.", time: '12:00 PM', unread: false, initials: 'BB' }
+        { id: 'ai-bot', name: 'Buddy Bard', icon: Bot, color: '#007AFF', lastMsg: "Hey! I'm your AI assistant.", time: '12:00 PM', timestamp: Date.now(), unread: 0, initials: 'BB' }
     ]);
+
+    get sortedInbox() {
+        return [...this.inbox].sort((a, b) => b.timestamp - a.timestamp);
+    }
 
     constructor() {
         usersState.fetchUsers((users) => this.updateInboxWithUsers(users));
@@ -28,7 +32,7 @@ export class MessagesState {
         const currentUser = systemState.currentUser;
         
         const newInbox: any[] = [
-            { id: 'ai-bot', name: 'Buddy Bard', icon: Bot, color: '#007AFF', lastMsg: "Hey! I'm your AI assistant.", time: '12:00 PM', unread: false, initials: 'BB' }
+            { id: 'ai-bot', name: 'Buddy Bard', icon: Bot, color: '#007AFF', lastMsg: "Hey! I'm your AI assistant.", time: '12:00 PM', timestamp: Date.now(), unread: 0, initials: 'BB' }
         ];
 
         users.forEach((u: any) => {
@@ -42,7 +46,8 @@ export class MessagesState {
                 color: existing ? existing.color : '#8E8E93',
                 lastMsg: existing ? existing.lastMsg : 'Tap to chat',
                 time: existing ? existing.time : '',
-                unread: existing ? existing.unread : false
+                timestamp: existing ? existing.timestamp : 0,
+                unread: existing ? existing.unread : 0
             });
         });
 
@@ -52,7 +57,7 @@ export class MessagesState {
     addContact(id: string) {
         if (!id || this.inbox.find(c => c.id === id)) return;
         this.inbox = [...this.inbox, {
-            id, name: id, initials: id.substring(0, 2).toUpperCase(), color: '#8E8E93', lastMsg: 'Tap to chat', time: '', unread: false
+            id, name: id, initials: id.substring(0, 2).toUpperCase(), color: '#8E8E93', lastMsg: 'Tap to chat', time: '', timestamp: Date.now(), unread: 0
         }];
     }
 
@@ -72,6 +77,7 @@ export class MessagesState {
                 const lastMsg = this.messages[this.messages.length - 1];
                 this.inbox[contactIndex].lastMsg = lastMsg.content;
                 this.inbox[contactIndex].time = lastMsg.time;
+                this.inbox[contactIndex].timestamp = Date.now();
             }
             return;
         }
@@ -100,6 +106,9 @@ export class MessagesState {
                 const lastMsg = this.messages[this.messages.length - 1];
                 this.inbox[contactIndex].lastMsg = lastMsg.content;
                 this.inbox[contactIndex].time = lastMsg.time;
+                // If it's loaded from DB, use the latest created_at for timestamp
+                const lastDate = chatData[chatData.length - 1].created_at;
+                this.inbox[contactIndex].timestamp = new Date(lastDate).getTime();
             }
         }
 
@@ -143,8 +152,9 @@ export class MessagesState {
                         if (contactIndex !== -1) {
                             this.inbox[contactIndex].lastMsg = msg.content;
                             this.inbox[contactIndex].time = new Date(msg.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                            this.inbox[contactIndex].timestamp = new Date(msg.created_at).getTime();
                             if (msg.sender_id !== user.id && this.currentChatId !== otherPersonId) {
-                                this.inbox[contactIndex].unread = true;
+                                this.inbox[contactIndex].unread = (this.inbox[contactIndex].unread || 0) + 1;
                             }
                         }
                     }
@@ -200,6 +210,7 @@ export class MessagesState {
                 if (contactIndex !== -1) {
                     this.inbox[contactIndex].lastMsg = aiText;
                     this.inbox[contactIndex].time = aiMsg.time;
+                    this.inbox[contactIndex].timestamp = Date.now();
                 }
             })
             .catch(() => { 
@@ -224,11 +235,31 @@ export class MessagesState {
         this.currentChatName = name;
         this.chatView = true;
         this.messages = []; // Clear previous messages
+        
+        // Mark as read
+        const contactIndex = this.inbox.findIndex(c => c.id === id);
+        if (contactIndex !== -1) {
+            this.inbox[contactIndex].unread = 0;
+        }
+
         this.loadMessages(); 
     }
 
     closeChat() {
         this.chatView = false;
         this.currentChatId = '';
+    }
+
+    async deleteMessage(msgId: string) {
+        if (!msgId || this.currentChatId === 'ai-bot') return; // Currently not supporting delete AI msg
+        const user = systemState.currentUser;
+        if (!user) return;
+        
+        this.messages = this.messages.filter(m => m.id !== msgId);
+        
+        const { error } = await supabase.from('messages').delete().eq('id', msgId).eq('sender_id', user.id);
+        if (error) {
+            dialogState.show({ title: 'Delete Error', message: 'Failed to delete message: ' + error.message, confirmText: 'OK' });
+        }
     }
 }

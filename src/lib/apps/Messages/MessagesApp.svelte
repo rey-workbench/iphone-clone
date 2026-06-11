@@ -10,18 +10,32 @@
 <div class="h-full pt-[54px] pb-0 bg-black flex flex-col ">
   {#if state.chatView}
     <div class="flex-1 flex flex-col min-h-0">
-      <div class="flex items-center justify-between px-4 py-2 border-b border-ios-sep">
-        <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center" onclick={() => state.closeChat()}>
+      <div class="relative flex items-center justify-between px-4 py-2 border-b border-ios-sep h-12">
+        <button class="absolute left-4 bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center shrink-0 z-10" onclick={() => state.closeChat()}>
           <ChevronLeft size={20} class="mr-1" /> Messages
         </button>
-        <span class="text-[17px] font-semibold text-white">{state.currentChatName}</span>
-        <span class="w-24"></span>
+        <div class="w-full text-center px-[100px]">
+          <span class="text-[17px] font-semibold text-white truncate block">{state.currentChatName}</span>
+        </div>
       </div>
       <div class="flex-1 overflow-y-auto p-3 pb-2 flex flex-col gap-1 min-h-0">
         {#each state.messages as msg, i}
           {@const isLastInGroup = i === state.messages.length - 1 || state.messages[i + 1].isUser !== msg.isUser}
           <div class="flex {msg.isUser ? 'justify-end' : ''}">
-            <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-[17px] leading-snug whitespace-pre-wrap wrap-break-word {msg.isUser ? `bg-linear-to-b from-ios-blue to-[#0051D5] text-white ${isLastInGroup ? 'rounded-br-[4px]' : 'rounded-br-xl'}` : `bg-ios-bg3 text-white ${isLastInGroup ? 'rounded-bl-[4px]' : 'rounded-bl-xl'}`}">{msg.content}</div>
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div 
+              class="max-w-[75%] px-4 py-2.5 rounded-2xl text-[17px] leading-snug whitespace-pre-wrap wrap-break-word {msg.isUser ? `bg-linear-to-b from-ios-blue to-[#0051D5] text-white ${isLastInGroup ? 'rounded-br-[4px]' : 'rounded-br-xl'}` : `bg-ios-bg3 text-white ${isLastInGroup ? 'rounded-bl-[4px]' : 'rounded-bl-xl'}`}"
+              oncontextmenu={(e) => {
+                if (msg.isUser) {
+                  e.preventDefault();
+                  if (confirm('Delete this message?')) {
+                    state.deleteMessage(msg.id);
+                  }
+                }
+              }}
+            >
+              {msg.content}
+            </div>
           </div>
         {/each}
         {#if state.isTyping}
@@ -66,7 +80,7 @@
             </div>
           {/each}
         {:else}
-          {#each state.inbox as convo (convo.id)}
+          {#each state.sortedInbox as convo (convo.id)}
             <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-white text-left border-b border-ios-sep last:border-b-0" onclick={() => state.openChat(convo.id, convo.name)}>
               <div class="w-[45px] h-[45px] rounded-full flex items-center justify-center text-[16px] font-semibold text-white shrink-0" style="background:{convo.color}">
                 {#if convo.icon}
@@ -76,8 +90,16 @@
                 {/if}
               </div>
               <div class="flex-1 min-w-0">
-                <div class="flex justify-between mb-1"><span class="text-[17px] {convo.unread ? 'font-semibold' : ''}">{convo.name}</span><span class="text-[15px] text-ios-label2">{convo.time}</span></div>
-                <span class="text-[15px] text-ios-label2 truncate block">{convo.lastMsg}</span>
+                <div class="flex justify-between mb-1">
+                  <span class="text-[17px] {convo.unread ? 'font-semibold' : ''}">{convo.name}</span>
+                  <span class="text-[15px] {convo.unread ? 'text-ios-blue font-medium' : 'text-ios-label2'}">{convo.time}</span>
+                </div>
+                <div class="flex justify-between items-center gap-2">
+                  <span class="text-[15px] {convo.unread ? 'text-white font-medium' : 'text-ios-label2'} truncate block flex-1">{convo.lastMsg}</span>
+                  {#if convo.unread > 0}
+                    <span class="px-1.5 h-5 min-w-[20px] rounded-full bg-ios-blue text-white text-[12px] font-medium flex items-center justify-center shrink-0">{convo.unread}</span>
+                  {/if}
+                </div>
               </div>
             </button>
           {/each}
