@@ -1,10 +1,11 @@
 <script lang="ts">
-  ;
   import { 
     Gamepad2, CalendarDays, Smartphone, Search 
   } from '@lucide/svelte';
   import { AppStoreState } from './AppStoreState.svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
+  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
+  import IOSList from '$lib/os/components/ui/IOSList.svelte';
 
   const state = new AppStoreState();
 
@@ -25,7 +26,7 @@
   };
 </script>
 
-<div class="h-full pt-13.5 pb-0 bg-black flex flex-col ">
+<AppContainer paddingBottom="pb-0">
   <div class="flex-1 overflow-y-auto px-4 ">
     <div class="px-1 py-2 pb-4">
       <span class="text-[13px] text-ios-label2 uppercase tracking-wider font-semibold">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
@@ -54,7 +55,7 @@
     </div>
     <h2 class="text-[22px] font-bold text-white mb-3 px-1">Top Free Apps</h2>
     {#if state.loading}
-      <div class="bg-ios-bg2 rounded-xl overflow-hidden">
+      <IOSList>
         {#each Array(5) as _, i (i)}
           <div class="flex items-center gap-3 p-2.5 px-4">
             <Skeleton width="16px" height="20px" class="w-4" />
@@ -69,9 +70,9 @@
           </div>
           {#if i < 4}<div class="h-px bg-ios-sep ml-19"></div>{/if}
         {/each}
-      </div>
+      </IOSList>
     {:else}
-      <div class="bg-ios-bg2 rounded-xl overflow-hidden">
+      <IOSList>
         {#each state.topApps as app, i (i)}
           <div class="flex items-center gap-3 p-2.5 px-4">
             <span class="text-[17px] text-ios-label2 w-4 text-right font-medium">{app.rank}</span>
@@ -83,7 +84,7 @@
           </div>
           {#if i < state.topApps.length - 1}<div class="h-px bg-ios-sep ml-19"></div>{/if}
         {/each}
-      </div>
+      </IOSList>
     {/if}
   </div>
   <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep pt-1.5 pb-8 shrink-0 justify-around">
@@ -94,4 +95,4 @@
       </button>
     {/each}
   </div>
-</div>
+</AppContainer>

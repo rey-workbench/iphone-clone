@@ -22,7 +22,7 @@
     >
     <input
       type="text"
-      class="bg-transparent border-none outline-none text-white text-[17px] w-full placeholder:text-[#8E8E93]"
+      class="bg-transparent border-none outline-none text-white text-[17px] w-full placeholder:text-ios-gray"
       placeholder="Search"
     />
     <button

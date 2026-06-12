@@ -2,26 +2,26 @@ import { Sun, CloudSun, Cloud, CloudRain, Moon } from '@lucide/svelte';
 import { ApiConfig } from '$lib/config/api';
 import type { WeatherData, WeatherRange, WeatherHourly, WeatherDaily, WeatherTile } from '$lib/types';
 import { ApiEndpoints } from '$lib/config/api/endpoints';
-import { dialogState } from '$lib/states/dialogState.svelte';
+import { SyncState } from '$lib/utils/SyncState.svelte';
+import { settingsDb } from '$lib/config/localdb';
 
-export class WeatherState {
-    loading = $state(true);
-    w = $state<WeatherData>({
+type WeatherCache = { w: WeatherData; wRange: WeatherRange };
+
+const defaultData: WeatherCache = {
+    w: {
         city: 'San Francisco', temp: 18, condition: 'Partly Cloudy', high: 21, low: 13,
         hourly: [], daily: [], tiles: []
-    });
-    wRange = $state<WeatherRange>({ min: 8, range: 17 });
+    },
+    wRange: { min: 8, range: 17 }
+};
 
-    constructor() {}
-
-    async init() {
-        this.loading = true;
-        try {
+export class WeatherState extends SyncState<WeatherCache> {
+    constructor() {
+        super(settingsDb, 'app_weather', defaultData, async () => {
             let lat = 37.7749;
             let lon = -122.4194;
             let city = 'San Francisco';
             try {
-                // 1. Try Native Browser Geolocation first
                 const geoData = await new Promise<{lat: number, lon: number, city: string}>((resolve, reject) => {
                     if (typeof navigator === 'undefined' || !navigator.geolocation) {
                         return reject(new Error("Geolocation not supported"));
@@ -39,7 +39,7 @@ export class WeatherState {
                             resolve({ lat: latitude, lon: longitude, city: cityName });
                         },
                         (err) => reject(err),
-                        { timeout: 5000, maximumAge: 60000 } // 5 second timeout for native
+                        { timeout: 5000, maximumAge: 60000 }
                     );
                 });
                 
@@ -47,7 +47,6 @@ export class WeatherState {
                 lon = geoData.lon;
                 city = geoData.city;
             } catch (nativeError) { 
-                // 2. Fallback to IP location APIs if Native fails
                 try {
                     const ipData = await ApiConfig.fetchWeatherIP();
                     if (ipData && ipData.latitude !== undefined && ipData.longitude !== undefined) {
@@ -59,54 +58,74 @@ export class WeatherState {
             }
 
             const data = await ApiConfig.fetchWeatherForecast(lat, lon);
-            if (data && data.hourly && data.daily && data.current) {
-                
-                let hourly: WeatherHourly[] = [];
-                for (let i = 0; i < 8; i++) {
-                    const timeStr = i === 0 ? 'Now' : new Date(data.hourly.time[i]).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }).replace(' ', '');
-                    const isNight = new Date(data.hourly.time[i]).getHours() < 6 || new Date(data.hourly.time[i]).getHours() > 18;
-                    hourly.push({ time: timeStr, temp: Math.round(data.hourly.temperature_2m[i]), icon: this.getIcon(data.hourly.weather_code[i], isNight) });
-                }
-
-                let daily: WeatherDaily[] = [];
-                for (let i = 0; i < 7; i++) {
-                    const dateObj = new Date(data.daily.time[i]);
-                    const dayStr = i === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-                    daily.push({ day: dayStr, high: Math.round(data.daily.temperature_2m_max[i]), low: Math.round(data.daily.temperature_2m_min[i]), icon: this.getIcon(data.daily.weather_code[i]) });
-                }
-
-                const absMin = Math.min(...daily.map(d => d.low));
-                const absMax = Math.max(...daily.map(d => d.high));
-                this.wRange = { min: absMin, range: Math.max(1, absMax - absMin) };
-
-                this.w = {
-                    city,
-                    temp: Math.round(data.current.temperature_2m),
-                    condition: this.conditionDesc(data.current.weather_code),
-                    high: daily[0].high,
-                    low: daily[0].low,
-                    hourly,
-                    daily,
-                    tiles: [
-                        { title: 'UV INDEX', value: Math.round(data.daily.uv_index_max[0] || 0).toString(), desc: 'Moderate' },
-                        { title: 'WIND', value: `${Math.round(data.current.wind_speed_10m)} km/h`, desc: 'Wind' },
-                        { title: 'FEELS LIKE', value: `${Math.round(data.current.temperature_2m)}°`, desc: 'Similar' },
-                        { title: 'HUMIDITY', value: `${Math.round(data.current.relative_humidity_2m)}%`, desc: 'Dew pt' },
-                        { title: 'VISIBILITY', value: '10 km', desc: 'Clear' },
-                        { title: 'PRESSURE', value: Math.round(data.current.surface_pressure).toString(), desc: 'hPa' },
-                    ]
-                };
+            if (!data || !data.hourly || !data.daily || !data.current) {
+                throw new Error("Invalid weather data");
             }
-        } catch (e: any) {
-            this.w.condition = 'Error loading';
-            dialogState.show({
-                title: 'Weather Error',
-                message: e.message || 'Failed to fetch weather data. Please check your connection.',
-                confirmText: 'OK'
-            });
-        } finally {
-            this.loading = false;
-        }
+                
+            let hourly: WeatherHourly[] = [];
+            for (let i = 0; i < 8; i++) {
+                const timeStr = i === 0 ? 'Now' : new Date(data.hourly.time[i]).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }).replace(' ', '');
+                const isNight = new Date(data.hourly.time[i]).getHours() < 6 || new Date(data.hourly.time[i]).getHours() > 18;
+                hourly.push({ time: timeStr, temp: Math.round(data.hourly.temperature_2m[i]), icon: WeatherState.getIconStatic(data.hourly.weather_code[i], isNight) });
+            }
+
+            let daily: WeatherDaily[] = [];
+            for (let i = 0; i < 7; i++) {
+                const dateObj = new Date(data.daily.time[i]);
+                const dayStr = i === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                daily.push({ day: dayStr, high: Math.round(data.daily.temperature_2m_max[i]), low: Math.round(data.daily.temperature_2m_min[i]), icon: WeatherState.getIconStatic(data.daily.weather_code[i]) });
+            }
+
+            const absMin = Math.min(...daily.map(d => d.low));
+            const absMax = Math.max(...daily.map(d => d.high));
+            const wRange = { min: absMin, range: Math.max(1, absMax - absMin) };
+
+            const w = {
+                city,
+                temp: Math.round(data.current.temperature_2m),
+                condition: WeatherState.conditionDescStatic(data.current.weather_code),
+                high: daily[0].high,
+                low: daily[0].low,
+                hourly,
+                daily,
+                tiles: [
+                    { title: 'UV INDEX', value: Math.round(data.daily.uv_index_max[0] || 0).toString(), desc: 'Moderate' },
+                    { title: 'WIND', value: `${Math.round(data.current.wind_speed_10m)} km/h`, desc: 'Wind' },
+                    { title: 'FEELS LIKE', value: `${Math.round(data.current.temperature_2m)}°`, desc: 'Similar' },
+                    { title: 'HUMIDITY', value: `${Math.round(data.current.relative_humidity_2m)}%`, desc: 'Dew pt' },
+                    { title: 'VISIBILITY', value: '10 km', desc: 'Clear' },
+                    { title: 'PRESSURE', value: Math.round(data.current.surface_pressure).toString(), desc: 'hPa' },
+                ]
+            };
+            
+            return { w, wRange };
+        });
+    }
+
+    async init() {
+        await this.load();
+    }
+
+    get w() {
+        return this.data?.w || defaultData.w;
+    }
+
+    get wRange() {
+        return this.data?.wRange || defaultData.wRange;
+    }
+
+    static getIconStatic(code: number, isNight = false) {
+        if (code === 0) return isNight ? Moon : Sun;
+        if (code >= 1 && code <= 3) return isNight ? Cloud : CloudSun;
+        if (code >= 51 && code <= 82 || code >= 95) return CloudRain;
+        return Cloud;
+    }
+
+    static conditionDescStatic(code: number) {
+        if (code === 0) return 'Clear';
+        if (code >= 1 && code <= 3) return 'Partly Cloudy';
+        if (code >= 51 && code <= 82 || code >= 95) return 'Rain';
+        return 'Cloudy';
     }
 
     getIcon(code: number, isNight = false) {

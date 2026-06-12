@@ -2,6 +2,10 @@
   import { Trash2, SquarePen, ChevronLeft } from '@lucide/svelte';
   import { AppNotesState } from './NotesState.svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
+  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
+  import AppHeader from '$lib/os/components/ui/AppHeader.svelte';
+  import IOSList from '$lib/os/components/ui/IOSList.svelte';
+
   const state = new AppNotesState();
 
   $effect(() => {
@@ -20,7 +24,7 @@
   const handleAddNote = () => state.addNote();
 </script>
 
-<div class="h-full pt-13.5 pb-0 bg-black flex flex-col ">
+<AppContainer paddingBottom="pb-0">
   {#if state.selectedNote}
     <div class="flex-1 flex flex-col">
       <div class="flex justify-between items-center px-4 py-2 border-b border-ios-sep">
@@ -46,7 +50,7 @@
       </div>
       <div class="flex-1 overflow-y-auto px-4">
         {#if state.loading}
-          <div class="bg-ios-bg2 rounded-xl overflow-hidden">
+          <IOSList>
             {#each Array(4) as _, i (i)}
               <div class="w-full text-left p-3 px-4 flex flex-col gap-1.5 {i < 3 ? 'border-b border-ios-sep' : ''}">
                 <Skeleton width="120px" height="20px" />
@@ -56,17 +60,19 @@
                 </div>
               </div>
             {/each}
-          </div>
+          </IOSList>
         {:else}
-          {#each state.notes as note (note.id || note)}
-            <button data-id={note.id} class="w-full text-left p-3 px-4 bg-ios-bg2 border-none text-white cursor-pointer border-b border-ios-sep first:rounded-t-xl last:rounded-b-xl last:border-b-0" onclick={handleSelectNote}>
-              <div class="text-[17px] font-semibold mb-1">{note.title}</div>
-              <div class="flex gap-2 text-[13px] text-ios-label2">
-                <span>{state.fmtDate(note.date)}</span>
-                <span class="truncate flex-1">{note.content.substring(0, 50)}</span>
-              </div>
-            </button>
-          {/each}
+          <IOSList>
+            {#each state.notes as note, i (i)}
+              <button data-id={note.id} class="w-full text-left p-3 px-4 bg-ios-bg2 border-none text-white cursor-pointer {i < state.notes.length - 1 ? 'border-b border-ios-sep' : ''}" onclick={handleSelectNote}>
+                <div class="text-[17px] font-semibold mb-1">{note.title}</div>
+                <div class="flex gap-2 text-[13px] text-ios-label2">
+                  <span>{state.fmtDate(note.date)}</span>
+                  <span class="truncate flex-1">{note.content.substring(0, 50)}</span>
+                </div>
+              </button>
+            {/each}
+          </IOSList>
         {/if}
       </div>
       <div class="flex justify-between items-center px-4 pt-2 pb-8 bg-[rgba(30,30,30,0.95)] border-t border-ios-sep">
@@ -78,4 +84,4 @@
       </div>
     </div>
   {/if}
-</div>
+</AppContainer>

@@ -1,71 +1,41 @@
 import { Plane, Wifi, Bluetooth, Antenna, Link, Bell, Volume2, Moon, Hourglass, Settings, Sun, LayoutGrid, Accessibility, Image, Battery, Lock } from '@lucide/svelte';
 import { systemState } from '$lib/states';
 import { settingsDb, SettingsDBKey } from '$lib/config/localdb';
+import { PersistedState } from '$lib/utils/PersistedState.svelte';
 
-class SettingsState {
-  airplaneMode = $state(false);
-  wifi = $state(true);
-  bluetooth = $state(true);
-  cellularData = $state(true);
-  batteryLevel = $state(100);
-  isCharging = $state(false);
-  brightness = $state(80);
-  volume = $state(50);
-  doNotDisturb = $state(false);
-  locationServices = $state(true);
-  autoBrightness = $state(true);
-  lowPowerMode = $state(false);
+type SettingsData = {
+  airplaneMode: boolean;
+  wifi: boolean;
+  bluetooth: boolean;
+  cellularData: boolean;
+  batteryLevel: number;
+  isCharging: boolean;
+  brightness: number;
+  volume: number;
+  doNotDisturb: boolean;
+  locationServices: boolean;
+  autoBrightness: boolean;
+  lowPowerMode: boolean;
+};
 
-  isLoading = $state(false);
+const defaultSettings: SettingsData = {
+  airplaneMode: false,
+  wifi: true,
+  bluetooth: true,
+  cellularData: true,
+  batteryLevel: 100,
+  isCharging: false,
+  brightness: 80,
+  volume: 50,
+  doNotDisturb: false,
+  locationServices: true,
+  autoBrightness: true,
+  lowPowerMode: false
+};
 
+class SettingsState extends PersistedState<SettingsData> {
   constructor() {
-    if (typeof window !== 'undefined') {
-      this.init();
-    }
-  }
-
-  async init() {
-    this.isLoading = true;
-    try {
-      const data = await settingsDb.get(SettingsDBKey.SETTINGS, {
-        airplaneMode: false,
-        wifi: true,
-        bluetooth: true,
-        cellularData: true,
-        batteryLevel: 100,
-        isCharging: false,
-        brightness: 80,
-        volume: 50,
-        doNotDisturb: false,
-        locationServices: true,
-        autoBrightness: true,
-        lowPowerMode: false
-      });
-      Object.assign(this, data);
-      this.isLoading = false;
-    } catch (e) {
-      this.isLoading = false;
-    }
-  }
-
-  async save() {
-    if (typeof window !== 'undefined') {
-      const data = {
-        airplaneMode: this.airplaneMode,
-        wifi: this.wifi,
-        bluetooth: this.bluetooth,
-        cellularData: this.cellularData,
-        batteryLevel: this.batteryLevel,
-        isCharging: this.isCharging,
-        brightness: this.brightness,
-        volume: this.volume,
-        doNotDisturb: this.doNotDisturb,
-        locationServices: this.locationServices,
-        autoBrightness: this.autoBrightness,
-        lowPowerMode: this.lowPowerMode
-      };
-      await settingsDb.set(SettingsDBKey.SETTINGS, data);
-    }
+    super(settingsDb, SettingsDBKey.SETTINGS, defaultSettings);
   }
 }
 
@@ -104,18 +74,19 @@ export class AppSettingsState {
   constructor() { }
 
   toggle(id: string) {
-    if (id === 'airplane') settingsState.airplaneMode = !settingsState.airplaneMode;
-    if (id === 'wifi') settingsState.wifi = !settingsState.wifi;
-    if (id === 'bluetooth') settingsState.bluetooth = !settingsState.bluetooth;
+    if (!settingsState.data) return;
+    if (id === 'airplane') settingsState.data.airplaneMode = !settingsState.data.airplaneMode;
+    if (id === 'wifi') settingsState.data.wifi = !settingsState.data.wifi;
+    if (id === 'bluetooth') settingsState.data.bluetooth = !settingsState.data.bluetooth;
     settingsState.save();
   }
 
-  // Since these derived values depend on global store, we provide a getter or return it explicitly in UI
-  getToggleItems(globalSettings: any) {
+  getToggleItems(globalSettings: typeof settingsState) {
+    const d = globalSettings.data || defaultSettings;
     return [
-      { id: 'airplane', icon: Plane, bg: '#FF9500', label: 'Airplane Mode', toggle: true, value: globalSettings.airplaneMode },
-      { id: 'wifi', icon: Wifi, bg: '#007AFF', label: 'Wi-Fi', detail: globalSettings.wifi ? 'Home' : 'Off' },
-      { id: 'bluetooth', icon: Bluetooth, bg: '#007AFF', label: 'Bluetooth', detail: globalSettings.bluetooth ? 'On' : 'Off' },
+      { id: 'airplane', icon: Plane, bg: '#FF9500', label: 'Airplane Mode', toggle: true, value: d.airplaneMode },
+      { id: 'wifi', icon: Wifi, bg: '#007AFF', label: 'Wi-Fi', detail: d.wifi ? 'Home' : 'Off' },
+      { id: 'bluetooth', icon: Bluetooth, bg: '#007AFF', label: 'Bluetooth', detail: d.bluetooth ? 'On' : 'Off' },
       { id: 'cellular', icon: Antenna, bg: '#34C759', label: 'Cellular', detail: '' },
       { id: 'hotspot', icon: Link, bg: '#34C759', label: 'Personal Hotspot', detail: 'Off' },
     ];

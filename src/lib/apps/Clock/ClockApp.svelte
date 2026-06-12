@@ -19,7 +19,8 @@
     { city: 'Sydney', offset: 11, label: 'Tomorrow, +15HRS' },
   ];
 
-  let alarms = $derived(clockState.alarms);
+  const emptyAlarms: any[] = [];
+  let alarms = $derived(clockState.data?.alarms || emptyAlarms);
 
   function getTime(offset: number) {
     const d = new Date(), utc = d.getTime() + d.getTimezoneOffset() * 60000;

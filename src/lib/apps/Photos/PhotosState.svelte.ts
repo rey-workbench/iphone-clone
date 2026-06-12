@@ -1,36 +1,24 @@
 import { photosDb, PhotosDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
-import { dialogState } from '$lib/states/dialogState.svelte';
+import { SyncState } from '$lib/utils/SyncState.svelte';
 
-export class AppPhotosState {
+export class AppPhotosState extends SyncState<any[]> {
   selectedPhoto: any | null = $state(null);
   tab: 'library' | 'foryou' | 'albums' | 'search' = $state('library');
-  photos: any[] = $state([]);
-  loading = $state(true);
 
-  constructor() {}
+  constructor() {
+    super(photosDb, PhotosDBKey.PHOTOS, [], async () => {
+      const data = await ApiConfig.fetchPhotosList();
+      return data ? data.photos : [];
+    });
+  }
 
   async fetchPhotos() {
-    this.loading = true;
-    try {
-      // 1. Load dari LocalDB dulu (instan)
-      const cached = await photosDb.get(PhotosDBKey.PHOTOS, null);
-      if (cached) {
-        this.photos = cached;
-        this.loading = false;
-      }
+    await this.load();
+  }
 
-      // 2. Fetch terbaru di background
-      const data = await ApiConfig.fetchPhotosList();
-      if (data) {
-        await photosDb.set(PhotosDBKey.PHOTOS, data.photos);
-        this.photos = data;
-      }
-    } catch (e: any) {
-      dialogState.show({ title: 'Photos Error', message: e.message || 'Failed to load photos', confirmText: 'OK' });
-    } finally {
-      this.loading = false;
-    }
+  get photos() {
+    return this.data || [];
   }
 
   selectPhoto(photo: any) {
