@@ -2,6 +2,7 @@
   import "../app.css";
   import { pwaInfo } from 'virtual:pwa-info';
   import { onMount } from 'svelte';
+  import PwaInstallPrompt from '$lib/components/PwaInstallPrompt.svelte';
 
   let { children } = $props();
 
@@ -29,3 +30,4 @@
 </svelte:head>
 
 {@render children()}
+<PwaInstallPrompt />
