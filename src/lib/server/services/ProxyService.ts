@@ -33,12 +33,19 @@ export class ProxyService {
         
         // Allow all origins
         headers.set('access-control-allow-origin', '*');
+        
+        // Node's fetch automatically decompresses the body, so we MUST remove content-encoding
+        // otherwise the browser will try to decompress already-decompressed data and crash.
+        headers.delete('content-encoding');
+        headers.delete('content-length');
 
         if ([301, 302, 303, 307, 308].includes(res.status)) {
             const location = headers.get('location');
             if (location) {
+                // Ensure the redirect is an absolute URL
+                const absLocation = new URL(location, targetUrl).href;
                 // Return a 200 with a custom header so the SW can catch it and redirect properly
-                headers.set('x-proxy-redirect', location);
+                headers.set('x-proxy-redirect', absLocation);
                 return { body: '', status: 200, headers };
             }
         }
@@ -47,15 +54,8 @@ export class ProxyService {
         if (contentType.includes('text/html')) {
             let html = await res.text();
             
-            // Re-write base tag to be absolute target so relative assets fetch properly
-            const origin = new URL(targetUrl).origin;
-            if (html.includes('<head>')) {
-                 html = html.replace('<head>', `<head><base href="${origin}/">`);
-            }
             body = html;
             headers.set('content-type', 'text/html; charset=utf-8');
-            headers.delete('content-length');
-            headers.delete('content-encoding');
         }
 
         return { body, status: res.status, headers };

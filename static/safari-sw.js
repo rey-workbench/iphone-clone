@@ -18,7 +18,7 @@ self.addEventListener('fetch', (event) => {
 
     let targetUrl = '';
 
-    // 1. If the request is explicitly prefixed (e.g. initial iframe load)
+    // 1. If the request is explicitly prefixed (e.g. initial iframe load or already rewritten link)
     if (reqUrl.origin === location.origin && reqUrl.pathname.startsWith(PREFIX)) {
         targetUrl = reqUrl.pathname.substring(PREFIX.length) + reqUrl.search + reqUrl.hash;
         
@@ -30,7 +30,34 @@ self.addEventListener('fetch', (event) => {
             }
         } catch (e) {}
     } 
-    // 2. If it's any other request (relative assets that escaped, or cross-origin requests)
+    // 2. If it's a request to our domain but not prefixed (e.g. a relative link like /search)
+    else if (reqUrl.origin === location.origin && !reqUrl.pathname.startsWith(PREFIX)) {
+        const referrer = event.request.referrer;
+        if (referrer && referrer.includes(PREFIX)) {
+            const proxyRef = referrer.substring(referrer.indexOf(PREFIX) + PREFIX.length);
+            try {
+                let refUrl = proxyRef;
+                if (!refUrl.startsWith('http')) {
+                    refUrl = decodeURIComponent(refUrl);
+                }
+                const refOrigin = new URL(refUrl).origin;
+                // Append the requested path to the original origin
+                targetUrl = refOrigin + reqUrl.pathname + reqUrl.search + reqUrl.hash;
+                
+                // For navigation requests, we MUST redirect the browser to the proper prefixed URL
+                // so that the address bar and future referrers are correct!
+                if (event.request.mode === 'navigate') {
+                    event.respondWith(Response.redirect(location.origin + PREFIX + targetUrl, 302));
+                    return;
+                }
+            } catch(e) {
+                targetUrl = reqUrl.href;
+            }
+        } else {
+            targetUrl = reqUrl.href;
+        }
+    }
+    // 3. Cross-origin requests (e.g. absolute links or CDN assets)
     else {
         targetUrl = reqUrl.href;
     }
@@ -51,7 +78,7 @@ self.addEventListener('fetch', (event) => {
             if (res.headers.has('x-proxy-redirect')) {
                 const newLocation = res.headers.get('x-proxy-redirect');
                 if (newLocation) {
-                    return Response.redirect(PREFIX + newLocation, 302);
+                    return Response.redirect(location.origin + PREFIX + newLocation, 302);
                 }
             }
             return res;
