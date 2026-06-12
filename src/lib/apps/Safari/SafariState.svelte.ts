@@ -8,7 +8,6 @@ export class AppSafariState {
   isSearching = $state(false);
   searchError = $state<string | null>(null);
   isReady = $state(false);
-  scramjet: any = null;
   frameObj: any = null;
   errorMessage = $state('');
 
@@ -16,73 +15,17 @@ export class AppSafariState {
 
   async initEngine() {
     if ("serviceWorker" in navigator) {
-      const loadScript = (src: string) =>
-        new Promise<void>((resolve, reject) => {
-          if (document.querySelector(`script[src="${src}"]`)) return resolve();
-          const script = document.createElement("script");
-          script.src = src;
-          script.onload = () => resolve();
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-
       try {
-        const origExports = (window as any).exports;
-        const origModule = (window as any).module;
-        const origDefine = (window as any).define;
-        (window as any).exports = undefined;
-        (window as any).module = undefined;
-        (window as any).define = undefined;
-
-        await loadScript("/scram/scramjet_bundled.js");
-        await loadScript("/scram/controller.api.js");
-        await loadScript("/libcurl/index.js");
-
-        (window as any).exports = origExports;
-        (window as any).module = origModule;
-        (window as any).define = origDefine;
-
-        const LibcurlTransport = (window as any).LibcurlTransport;
-        if (!LibcurlTransport?.default) {
-          throw new Error(
-            "Scramjet/Libcurl scripts failed to load. Missing static/scram/ or static/libcurl/ files.",
-          );
-        }
-
-        const LibcurlClient = LibcurlTransport.default;
-        const isLocal =
-          location.hostname === "localhost" ||
-          location.hostname === "127.0.0.1" ||
-          location.hostname.startsWith("192.168.") ||
-          location.hostname.startsWith("10.") ||
-          location.hostname.endsWith(".local") ||
-          location.hostname.startsWith("172.");
-        const wispUrl = isLocal
-          ? location.origin.replace(/^http/, "ws") + "/wisp/"
-          : "wss://wisp.mercurywork.shop/";
-
-        const transport = new LibcurlClient({ wisp: wispUrl });
-        await transport.init();
-
-        const scramjetController = (window as any).$scramjetController;
-        if (!scramjetController?.Controller) {
-          throw new Error(
-            "Scramjet Controller not found on window.$scramjetController",
-          );
-        }
-        const { Controller } = scramjetController;
+        // Unregister any old scramjet workers
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (const r of registrations) {
-          if (
-            r.active?.scriptURL.includes("scramjet-sw.js") &&
-            r.scope === location.origin + "/"
-          ) {
+          if (r.active?.scriptURL.includes("scramjet-sw.js")) {
             await r.unregister();
           }
         }
 
-        const reg = await navigator.serviceWorker.register("/scramjet-sw.js", {
-          scope: "/scramjet/",
+        const reg = await navigator.serviceWorker.register("/safari-sw.js", {
+          scope: "/__proxy/",
         });
 
         const waitForActive = (worker: ServiceWorker | null) =>
@@ -98,30 +41,27 @@ export class AppSafariState {
           await waitForActive(reg.installing || reg.waiting);
         }
 
-        const serviceworker = reg.active!;
-
-        this.scramjet = new Controller({
-          serviceworker,
-          transport,
-          config: {
-            prefix: "/scramjet/",
-            scramjetPath: "/scram/scramjet_bundled.js",
-            injectPath: "/scram/controller.inject.js",
-            wasmPath: "/scram/scramjet.wasm",
-          },
-        });
-
-        await this.scramjet.wait();
-
         this.isReady = true;
 
         // Initialize the frame
         if (!this.frameObj && document.getElementById("safari-container")) {
           const iframe = document.createElement("iframe");
-          iframe.className =
-            "absolute inset-0 w-full h-full border-none bg-white";
-          this.frameObj = this.scramjet.createFrame(iframe);
+          iframe.className = "absolute inset-0 w-full h-full border-none bg-white";
+          iframe.id = "safari-iframe";
+          
+          // Add a load listener to handle history state if needed
+          iframe.addEventListener("load", () => {
+             // Optional: Handle title updates or location sync
+          });
+
+          this.frameObj = {
+              go: (url: string) => {
+                  iframe.src = '/__proxy/' + url;
+              }
+          };
+
           document.getElementById("safari-container")!.appendChild(iframe);
+          
           if (this.url) {
             this.frameObj.go(this.url);
           }
@@ -129,7 +69,7 @@ export class AppSafariState {
       } catch (err: any) {
         dialogState.show({
           title: "Safari Proxy Error",
-          message: err.message || "Scramjet initialization failed.",
+          message: err.message || "Failed to initialize Safari proxy.",
           confirmText: "OK",
         });
       }
@@ -163,12 +103,19 @@ export class AppSafariState {
   }
 
   loadFrame() {
-    if (this.isReady && this.scramjet) {
+    if (this.isReady) {
       setTimeout(() => {
         if (!this.frameObj) {
           const iframe = document.createElement("iframe");
           iframe.className = "absolute inset-0 w-full h-full border-none bg-white";
-          this.frameObj = this.scramjet.createFrame(iframe);
+          iframe.id = "safari-iframe";
+          
+          this.frameObj = {
+              go: (url: string) => {
+                  iframe.src = '/__proxy/' + url;
+              }
+          };
+
           const container = document.getElementById('safari-container');
           if (container) {
             container.innerHTML = '';
