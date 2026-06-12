@@ -100,48 +100,8 @@
       class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-black rounded-b-3xl z-10000"
     ></div>
 
-    {#if systemState.isInitializing}
-      <div class="absolute inset-0 bg-[#0a0a0a] z-50"></div>
-    {:else if !systemState.currentUser}
-      <LoginScreen />
-    {:else if state.showLockScreen}
-      <!-- Lock Screen -->
-      <div
-        class="absolute inset-0 z-30 cursor-pointer transition-opacity duration-300"
-        style="transform: translateY(-{state.lockScreenY}px); opacity: {1 -
-          state.lockScreenY / 400}"
-        ontouchstart={(e) => state.handleLockTouchStart(e)}
-        ontouchmove={(e) => state.handleLockTouchMove(e)}
-        ontouchend={() => state.handleLockTouchEnd()}
-        onclick={() => state.handleLockClick()}
-        onkeydown={(e: KeyboardEvent) => {
-          if (e.key === "Enter" || e.key === " ") state.handleLockClick();
-        }}
-        role="button"
-        tabindex="0"
-      >
-        <div
-          class="absolute inset-0 bg-linear-to-b from-[#1a1040] via-[#4a2c8a] via-45% to-[#f0c0a0]"
-        ></div>
-        <div class="relative z-10 h-full flex flex-col items-center">
-          <div class="text-center" style="margin-top: 110px;">
-            <div class="text-lg font-medium text-white/85 tracking-wide">
-              {state.formatDate(systemState.currentTime)}
-            </div>
-            <div
-              class="text-[82px] font-bold text-white leading-none mt-1 tracking-[-2px]"
-            >
-              {state.formatLockTime(systemState.currentTime)}
-            </div>
-          </div>
-          <div
-            class="absolute bottom-10 animate-[bounceUp_2s_ease-in-out_infinite]"
-          >
-            <div class="w-33.5 h-1.25 bg-white/40 rounded-full"></div>
-          </div>
-        </div>
-      </div>
-    {:else}
+    <!-- OS Layers (Home Screen, Apps) - Render unconditionally to preload images/components -->
+    {#if !systemState.isInitializing}
       <!-- Music App (Always mounted to keep music playing in background) -->
       <div
         class="absolute inset-0 bg-black flex-col {state.appTransition &&
@@ -242,6 +202,57 @@
           <Dock />
         </div>
       {/if}
+    {/if}
+
+    <!-- Lock Screen Overlay -->
+    {#if !systemState.isInitializing && systemState.currentUser && state.showLockScreen}
+      <div
+        class="absolute inset-0 z-[150] cursor-pointer transition-opacity duration-300"
+        style="transform: translateY(-{state.lockScreenY}px); opacity: {1 -
+          state.lockScreenY / 400}"
+        ontouchstart={(e) => state.handleLockTouchStart(e)}
+        ontouchmove={(e) => state.handleLockTouchMove(e)}
+        ontouchend={() => state.handleLockTouchEnd()}
+        onclick={() => state.handleLockClick()}
+        onkeydown={(e: KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") state.handleLockClick();
+        }}
+        role="button"
+        tabindex="0"
+      >
+        <div
+          class="absolute inset-0 bg-linear-to-b from-[#1a1040] via-[#4a2c8a] via-45% to-[#f0c0a0]"
+        ></div>
+        <div class="relative z-10 h-full flex flex-col items-center">
+          <div class="text-center" style="margin-top: 110px;">
+            <div class="text-lg font-medium text-white/85 tracking-wide">
+              {state.formatDate(systemState.currentTime)}
+            </div>
+            <div
+              class="text-[82px] font-bold text-white leading-none mt-1 tracking-[-2px]"
+            >
+              {state.formatLockTime(systemState.currentTime)}
+            </div>
+          </div>
+          <div
+            class="absolute bottom-10 animate-[bounceUp_2s_ease-in-out_infinite]"
+          >
+            <div class="w-33.5 h-1.25 bg-white/40 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    {/if}
+
+    <!-- Login Screen Overlay -->
+    {#if !systemState.isInitializing && !systemState.currentUser}
+      <div class="absolute inset-0 z-[200]">
+        <LoginScreen />
+      </div>
+    {/if}
+
+    <!-- Initialization Screen Overlay (Topmost) -->
+    {#if systemState.isInitializing}
+      <div class="absolute inset-0 bg-[#0a0a0a] z-[1000]"></div>
     {/if}
 
     {#if !systemState.isInitializing && systemState.currentUser}
