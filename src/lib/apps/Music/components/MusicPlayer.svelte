@@ -42,6 +42,27 @@
     state.volume = pos * 100;
     state.player.setVolume(state.volume);
   }
+
+  const closePlayer = () => state.showPlayer = false;
+  const seekToLyric = (e: MouseEvent) => {
+    const time = Number((e.currentTarget as HTMLElement).dataset.time);
+    if (state.player && typeof state.player.seekTo === "function" && !isNaN(time)) {
+      state.player.seekTo(time, true);
+    }
+  };
+  const handlePlayNextPrev = () => state.playNext(-1);
+  const handleTogglePlay = () => state.togglePlay();
+  const handlePlayNextForward = () => state.playNext(1);
+  const handleFetchLyrics = () => state.fetchLyrics();
+  const handleFetchUpNext = () => state.fetchUpNext();
+  const adjustLyricsPositive = () => state.adjustLyricsOffset(0.5);
+  const adjustLyricsNegative = () => state.adjustLyricsOffset(-0.5);
+  const handleSeekKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") handleSeek(e as any);
+  };
+  const handleVolumeKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") handleVolume(e as any);
+  };
 </script>
 
 <!-- Background Blur -->
@@ -59,8 +80,8 @@
   <!-- Header -->
   <div class="relative flex justify-between items-center mb-8 shrink-0">
     <button
-      class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition-all cursor-pointer"
-      onclick={() => (state.showPlayer = false)}
+      class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition-all cursor-pointer border-none"
+      onclick={closePlayer}
     >
       <ChevronDown class="w-6 h-6 text-white" />
     </button>
@@ -86,18 +107,16 @@
         </div>
       {:else if state.isSynced && state.parsedLyrics.length > 0}
         <div class="space-y-6 py-32">
-          {#each state.parsedLyrics as line, i}
+          {#each state.parsedLyrics as line, i (i)}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <p
+              data-time={line.time}
               class="transition-all duration-300 ease-out cursor-pointer {i ===
               state.activeLyricIndex
                 ? 'text-white opacity-100 active-lyric'
                 : 'text-white opacity-40 blur-[0.5px]'}"
-              onclick={() => {
-                if (state.player && typeof state.player.seekTo === "function")
-                  state.player.seekTo(line.time, true);
-              }}
+              onclick={seekToLyric}
             >
               {line.text || "♪"}
             </p>
@@ -137,6 +156,7 @@
       </div>
       <button
         class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0 border-none cursor-pointer"
+        aria-label="More options"
       >
         <MoreHorizontal size={18} />
       </button>
@@ -144,13 +164,14 @@
 
     <!-- Progress -->
     <div class="w-full mb-6">
-      <div
-        class="w-full h-1.5 bg-white/20 rounded-full relative cursor-pointer"
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <button
+        type="button"
+        class="w-full h-1.5 bg-white/20 rounded-full relative cursor-pointer border-none p-0"
         onclick={handleSeek}
-        onkeydown={(e) => {
-          if (e.key === "Enter" || e.key === " ") handleSeek(e as any);
-        }}
+        onkeydown={handleSeekKeydown}
         role="slider"
+        aria-label="Seek"
         aria-valuenow={state.progress}
         aria-valuemin={0}
         aria-valuemax={100}
@@ -158,13 +179,13 @@
       >
         <div
           class="absolute top-0 left-0 h-full bg-white rounded-full transition-[width] duration-200"
-          style="width:{state.progress}%"
+          style:width="{state.progress}%"
         ></div>
         <div
           class="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-md scale-[1.5] pointer-events-none"
-          style="left: calc({state.progress}% - 4px)"
+          style:left="calc({state.progress}% - 4px)"
         ></div>
-      </div>
+      </button>
       <div
         class="flex justify-between mt-2.5 text-[11px] text-white/60 font-medium pointer-events-none"
       >
@@ -195,13 +216,13 @@
     <div class="flex items-center justify-between px-6 mb-6">
       <button
         class="bg-transparent border-none cursor-pointer text-white hover:scale-110 transition-transform active:scale-95"
-        onclick={() => state.playNext(-1)}
+        onclick={handlePlayNextPrev}
       >
         <SkipBack size={44} fill="white" />
       </button>
       <button
         class="bg-transparent border-none cursor-pointer flex items-center justify-center text-white hover:scale-110 transition-transform active:scale-95"
-        onclick={() => state.togglePlay()}
+        onclick={handleTogglePlay}
       >
         {#if state.isPlaying}
           <Pause size={56} fill="white" />
@@ -211,7 +232,7 @@
       </button>
       <button
         class="bg-transparent border-none cursor-pointer text-white hover:scale-110 transition-transform active:scale-95"
-        onclick={() => state.playNext(1)}
+        onclick={handlePlayNextForward}
       >
         <SkipForward size={44} fill="white" />
       </button>
@@ -220,13 +241,14 @@
     <!-- Volume -->
     <div class="flex items-center gap-3 text-white/50 mb-4">
       <Volume1 size={14} />
-      <div
-        class="flex-1 h-1.5 bg-white/20 rounded-full relative cursor-pointer"
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <button
+        type="button"
+        class="flex-1 h-1.5 bg-white/20 rounded-full relative cursor-pointer border-none p-0"
         onclick={handleVolume}
-        onkeydown={(e) => {
-          if (e.key === "Enter" || e.key === " ") handleVolume(e as any);
-        }}
+        onkeydown={handleVolumeKeydown}
         role="slider"
+        aria-label="Volume"
         aria-valuenow={state.volume}
         aria-valuemin={0}
         aria-valuemax={100}
@@ -234,13 +256,13 @@
       >
         <div
           class="absolute top-0 left-0 h-full bg-white rounded-full pointer-events-none"
-          style="width: {state.volume}%"
+          style:width="{state.volume}%"
         ></div>
         <div
           class="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-md scale-[1.5] pointer-events-none"
-          style="left: calc({state.volume}% - 4px)"
+          style:left="calc({state.volume}% - 4px)"
         ></div>
-      </div>
+      </button>
       <Volume2 size={20} />
     </div>
 
@@ -250,7 +272,7 @@
         {#if state.showLyrics && state.isSynced}
           <button
             class="text-[10px] font-bold border border-white/20 px-2 py-1 rounded bg-black/20 hover:bg-white/10 text-white/70 transition-colors"
-            onclick={() => state.adjustLyricsOffset(-0.5)}
+            onclick={adjustLyricsNegative}
             title="Mundurkan lirik 0.5 detik"
           >-0.5s</button>
         {/if}
@@ -258,14 +280,14 @@
           class="bg-transparent border-none cursor-pointer {state.showLyrics
             ? 'text-ios-pink'
             : 'text-current hover:text-white'}"
-          onclick={() => state.fetchLyrics()}
+          onclick={handleFetchLyrics}
         >
           <MessageSquareQuote size={20} />
         </button>
         {#if state.showLyrics && state.isSynced}
           <button
             class="text-[10px] font-bold border border-white/20 px-2 py-1 rounded bg-black/20 hover:bg-white/10 text-white/70 transition-colors"
-            onclick={() => state.adjustLyricsOffset(0.5)}
+            onclick={adjustLyricsPositive}
             title="Majukan lirik 0.5 detik"
           >+0.5s</button>
         {/if}
@@ -276,7 +298,7 @@
       >
       <button
         class="bg-transparent border-none text-current cursor-pointer hover:text-white active:text-ios-pink"
-        onclick={() => state.fetchUpNext()}><ListMusic size={22} /></button
+        onclick={handleFetchUpNext}><ListMusic size={22} /></button
       >
     </div>
   </div>

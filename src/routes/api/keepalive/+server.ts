@@ -8,7 +8,7 @@ export function GET() {
         try {
             return await keepaliveService.ping();
         } catch (error: any) {
-            console.error('Keepalive error:', error);
+            // console.error('Keepalive error:', error);
             throw new ApiError(500, error.message);
         }
     });

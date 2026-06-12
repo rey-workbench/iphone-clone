@@ -1,7 +1,7 @@
 <script lang="ts">
   import { AppSafariState } from "./SafariState.svelte";
-  import { onMount } from "svelte";
-  import Skeleton from "$lib/components/ui/Skeleton.svelte";
+  ;
+  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import {
     ChevronLeft,
     ChevronRight,
@@ -13,13 +13,16 @@
 
   const state = new AppSafariState();
 
-  onMount(async () => {
-    // Add debugging for page unloads
-    window.addEventListener("beforeunload", (e) => {
-      console.trace("[Scramjet Debug] Page is reloading or unloading. Trace:");
-    });
+  $effect(() => {
+    const listener = (e: BeforeUnloadEvent) => {
+      // console.trace("[Scramjet Debug] Page is reloading or unloading. Trace:");
+    };
+    window.addEventListener("beforeunload", listener);
+    return () => window.removeEventListener("beforeunload", listener);
+  });
 
-    await state.initEngine();
+  $effect(() => {
+    state.initEngine();
   });
 
   const favorites = [
@@ -28,6 +31,36 @@
     { name: "Google", url: "https://www.google.com" },
     { name: "Wikipedia", url: "https://en.wikipedia.org" },
   ];
+
+  const handleSearchKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Enter") state.navigate();
+  };
+  const closeInput = () => state.showInput = false;
+
+  const handleResultClick = (e: MouseEvent) => {
+    const url = (e.currentTarget as HTMLElement).dataset.url;
+    if (url) state.navigate(url);
+  };
+  const handleResultKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      const url = (e.currentTarget as HTMLElement).dataset.url;
+      if (url) state.navigate(url);
+    }
+  };
+
+  const handleFavClick = (e: MouseEvent) => {
+    const url = (e.currentTarget as HTMLElement).dataset.url;
+    if (url) {
+      state.inputUrl = url;
+      state.url = url;
+      state.navigate();
+    }
+  };
+
+  const handleToggleInput = () => state.toggleInput();
+  const handleGoBack = () => state.goBack();
+  const handleGoForward = () => state.goForward();
 </script>
 
 <div class="h-full pt-13.5 flex flex-col bg-[#f2f2f6] relative">
@@ -39,14 +72,13 @@
       >
         <input
           bind:value={state.inputUrl}
-          onkeydown={(e: KeyboardEvent) =>
-            e.key === "Enter" && state.navigate()}
+          onkeydown={handleSearchKeydown}
           class="flex-1 bg-transparent border-none text-black text-[17px] outline-none"
         />
       </div>
       <button
         class="bg-transparent border-none text-ios-blue text-[17px] font-medium cursor-pointer px-1"
-        onclick={() => (state.showInput = false)}
+        onclick={closeInput}
       >
         Cancel
       </button>
@@ -61,7 +93,7 @@
   >
     {#if state.isSearching}
       <div class="p-6 flex flex-col gap-6">
-        {#each Array(5) as _}
+        {#each Array(5) as _, i (i)}
           <div class="flex flex-col gap-2">
             <Skeleton width="33%" height="16px" borderRadius="4px" />
             <Skeleton width="75%" height="20px" borderRadius="4px" />
@@ -78,20 +110,14 @@
       <div class="p-6 text-red-500 font-medium">Error: {state.searchError}</div>
     {:else if state.searchResults}
       <div class="p-4 flex flex-col gap-6 bg-white min-h-full">
-        {#each state.searchResults as result}
+        {#each state.searchResults as result, i (i)}
           <div
             role="button"
             tabindex="0"
+            data-url={result.url}
             class="flex flex-col gap-1 cursor-pointer"
-            onclick={() => {
-              state.navigate(result.url);
-            }}
-            onkeydown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                state.navigate(result.url);
-              }
-            }}
+            onclick={handleResultClick}
+            onkeydown={handleResultKeydown}
           >
             <div class="text-[12px] text-gray-500 truncate">{result.url}</div>
             <div
@@ -115,14 +141,11 @@
       <div class="p-6">
         <h1 class="text-2xl font-bold mb-6 text-black">Favorites</h1>
         <div class="grid grid-cols-4 gap-y-6 gap-x-2">
-          {#each favorites as fav}
+          {#each favorites as fav (fav.url)}
             <button
+              data-url={fav.url}
               class="flex flex-col items-center gap-2 bg-transparent border-none cursor-pointer"
-              onclick={() => {
-                state.inputUrl = fav.url;
-                state.url = fav.url;
-                state.navigate();
-              }}
+              onclick={handleFavClick}
             >
               <div
                 class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center overflow-hidden"
@@ -177,7 +200,7 @@
       <div class="px-3">
         <button
           class="w-full h-11 rounded-[12px] bg-white shadow-sm flex items-center justify-center gap-2 text-black text-[15px] cursor-pointer border border-gray-200"
-          onclick={() => state.toggleInput()}
+          onclick={handleToggleInput}
         >
           <span class="flex items-center justify-center text-gray-400">
             <Lock size={14} />
@@ -197,13 +220,13 @@
       <div class="flex items-center justify-between px-5 pt-1 pb-1">
         <button
           class="text-ios-blue bg-transparent border-none p-2 cursor-pointer disabled:opacity-30"
-          onclick={() => state.goBack()}
+          onclick={handleGoBack}
         >
           <ChevronLeft size={24} />
         </button>
         <button
           class="text-ios-blue bg-transparent border-none p-2 cursor-pointer disabled:opacity-30"
-          onclick={() => state.goForward()}
+          onclick={handleGoForward}
         >
           <ChevronRight size={24} />
         </button>

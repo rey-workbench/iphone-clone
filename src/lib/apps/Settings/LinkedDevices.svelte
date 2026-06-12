@@ -1,17 +1,23 @@
 <script lang="ts">
   import { ChevronLeft, Laptop, Smartphone, Monitor } from "@lucide/svelte";
   import { systemState } from "$lib/states/systemState.svelte";
-  import { onMount } from "svelte";
-  import Skeleton from "$lib/components/ui/Skeleton.svelte";
+  ;
+  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import { AppLinkedDevicesState } from "./LinkedDevicesState.svelte";
 
   let { onBack } = $props<{ onBack: () => void }>();
 
   const state = new AppLinkedDevicesState();
 
-  onMount(async () => {
-    await state.fetchDevices();
+  $effect(() => {
+    state.fetchDevices();
   });
+
+
+  const handleRevoke = (e: MouseEvent) => {
+    const id = (e.currentTarget as HTMLElement).dataset.id;
+    if (id) state.revokeDevice(id);
+  };
 
   function getDeviceIcon(name: string) {
     const lower = name.toLowerCase();
@@ -56,7 +62,7 @@
     </div>
     <div class="bg-ios-bg2 rounded-xl mb-5 overflow-hidden">
       {#if state.isLoading}
-        {#each Array(3) as _, i}
+        {#each Array(3) as _, i (i)}
           <div class="flex items-center gap-3 py-3 px-4 w-full">
             <div class="w-10 h-10 rounded-md shrink-0">
               <Skeleton width="100%" height="100%" borderRadius="6px" />
@@ -74,7 +80,7 @@
           No linked devices found.
         </div>
       {:else}
-        {#each state.devices as device, i}
+        {#each state.devices as device, i (i)}
           {@const isCurrent = device.device_id === systemState.deviceId}
           {@const Icon = getDeviceIcon(device.device_name)}
           <div class="flex items-center gap-3 py-3 px-4 w-full text-left">
@@ -94,8 +100,9 @@
             </div>
             {#if !isCurrent}
               <button
+                data-id={device.device_id}
                 class="px-3 py-1.5 rounded-full bg-ios-red/20 text-ios-red text-[14px] font-medium active:bg-ios-red/30 border-none cursor-pointer"
-                onclick={() => state.revokeDevice(device.device_id)}
+                onclick={handleRevoke}
               >
                 Log Out
               </button>

@@ -1,7 +1,7 @@
 import { systemState } from "$lib/states/systemState.svelte";
 import { dialogState } from "$lib/states/dialogState.svelte";
 
-export class NetflixState {
+class NetflixState {
   view = $state<'home' | 'detail' | 'player'>('home');
   selectedMedia = $state<any | null>(null);
 
@@ -17,6 +17,16 @@ export class NetflixState {
 
   searchQuery = $state("");
   serverSearchResults = $state<any[]>([]);
+
+  // Local client-side filter — only runs when movies/tvShows/searchQuery change
+  localSearchResults = $derived.by(() => {
+    const q = this.searchQuery.toLowerCase();
+    return [
+      ...this.movies.filter((m: any) => (m.title || m.name || '').toLowerCase().includes(q)),
+      ...this.tvShows.filter((m: any) => (m.title || m.name || '').toLowerCase().includes(q))
+    ];
+  });
+
 
   details = $state({
     cast: "Loading...",

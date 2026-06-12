@@ -15,7 +15,8 @@ export async function requestCamera(): Promise<boolean> {
         }
     }
 
-    const activeAppId = systemState.activeApp || 'App';
+    const path = typeof window !== 'undefined' ? window.location.pathname.replace('/', '') : '';
+    const activeAppId = path || 'App';
     const appName = activeAppId.charAt(0).toUpperCase() + activeAppId.slice(1);
 
     const allowed = await dialogState.show({
@@ -31,7 +32,7 @@ export async function requestCamera(): Promise<boolean> {
             stream.getTracks().forEach(track => track.stop());
             return true;
         } catch (err) {
-            console.error("Camera access denied by browser system:", err);
+            // console.error("Camera access denied by browser system:", err);
             return false;
         }
     }

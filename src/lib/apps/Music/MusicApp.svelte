@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, untrack, getContext } from "svelte";
+  import { untrack, getContext } from 'svelte';
   import { MusicState } from "./MusicState.svelte";
   import MusicPlayer from "./components/MusicPlayer.svelte";
   import MusicLibrary from "./components/MusicLibrary.svelte";
@@ -9,7 +9,7 @@
   const isPreview = getContext('isPreview');
   const state = new MusicState();
 
-  onMount(() => {
+  $effect(() => {
     if (isPreview) return;
 
     // Load YouTube API

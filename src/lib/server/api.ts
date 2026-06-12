@@ -16,7 +16,7 @@ export async function apiHandler(callback: () => Promise<any> | any) {
         // Otherwise, wrap in { success: true, ...result } if it's an object
         return json({ success: true, ...(typeof result === 'object' ? result : {}) });
     } catch (e: any) {
-        console.error('API Error:', e);
+        // console.error('API Error:', e);
         const status = e instanceof ApiError ? e.status : (e.status || 500);
         return json({ success: false, error: e.message || String(e) }, { status });
     }

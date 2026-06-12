@@ -1,21 +1,32 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  ;
   import { ChevronLeft, Image, Heart, Folder, Search } from '@lucide/svelte';
   import { AppPhotosState } from './PhotosState.svelte';
-  import Skeleton from '$lib/components/ui/Skeleton.svelte';
+  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
 
   const state = new AppPhotosState();
 
-  onMount(() => {
+  $effect(() => {
     state.fetchPhotos();
   });
+
+  const handleClosePhoto = () => state.closePhoto();
+  const handleSelectPhoto = (e: MouseEvent) => {
+    const id = (e.currentTarget as HTMLElement).dataset.id;
+    const photo = state.photos.find(p => String(p.id) === id);
+    if (photo) state.selectPhoto(photo);
+  };
+  const handleSetTab = (e: MouseEvent) => {
+    const tab = (e.currentTarget as HTMLElement).dataset.tab;
+    if (tab) state.setTab(tab as any);
+  };
 </script>
 
 <div class="h-full pt-[54px] pb-0 bg-black flex flex-col ">
   {#if state.selectedPhoto}
     <div class="flex-1 flex flex-col">
       <div class="flex items-center px-4 py-2 border-b border-ios-sep">
-        <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center" onclick={() => state.closePhoto()}>
+        <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer flex items-center" onclick={handleClosePhoto}>
           <ChevronLeft size={20} class="mr-1" /> Photos
         </button>
       </div>
@@ -31,7 +42,7 @@
       </div>
       {#if state.loading}
         <div class="grid grid-cols-3 gap-0.5 px-0.5">
-          {#each Array(21) as _}
+          {#each Array(21) as _, i (i)}
             <div class="aspect-square bg-ios-bg3">
               <Skeleton width="100%" height="100%" borderRadius="0" />
             </div>
@@ -39,8 +50,8 @@
         </div>
       {:else}
         <div class="grid grid-cols-3 gap-0.5 px-0.5">
-          {#each state.photos as photo}
-            <button class="aspect-square overflow-hidden border-none p-0 cursor-pointer bg-ios-bg3" onclick={() => state.selectPhoto(photo)}>
+          {#each state.photos as photo (photo.id || photo)}
+            <button data-id={photo.id} class="aspect-square overflow-hidden border-none p-0 cursor-pointer bg-ios-bg3" onclick={handleSelectPhoto}>
               <img src={photo.download_url} alt="" class="w-full h-full object-cover" loading="lazy" />
             </button>
           {/each}
@@ -54,7 +65,7 @@
         { id: 'albums', icon: Folder, label: 'Albums' },
         { id: 'search', icon: Search, label: 'Search' }
       ] as { id, icon: IconComponent, label }}
-        <button class="flex-1 flex flex-col items-center gap-0.5 border-none bg-transparent cursor-pointer py-1 {state.tab === id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => state.setTab(id as any)}>
+        <button data-tab={id} class="flex-1 flex flex-col items-center gap-0.5 border-none bg-transparent cursor-pointer py-1 {state.tab === id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={handleSetTab}>
           <IconComponent size={22} color={state.tab === id ? '#007AFF' : '#8E8E93'} />
           <span class="text-[10px] font-medium">{label}</span>
         </button>

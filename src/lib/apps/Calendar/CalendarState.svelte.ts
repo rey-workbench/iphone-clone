@@ -1,4 +1,4 @@
-export class AppCalendarState {
+export class CalendarState {
   selectedDate = $state(new Date());
 
   year = $derived(this.selectedDate.getFullYear());

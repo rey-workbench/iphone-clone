@@ -11,6 +11,10 @@ const destLibcurl = path.join(process.cwd(), 'static', 'libcurl');
 fs.mkdirSync(destScram, { recursive: true });
 fs.mkdirSync(destLibcurl, { recursive: true });
 
+/**
+ * @param {string} src
+ * @param {string} destination
+ */
 function copyDir(src, destination) {
     if (!fs.existsSync(src)) return;
     const files = fs.readdirSync(src);
@@ -68,4 +72,4 @@ document.addEventListener("DOMContentLoaded", () => {
 copyDir(controllerPath, destScram);
 copyDir(scramjetPath, destScram);
 copyDir(libcurlPath, destLibcurl);
-console.log("Copied Scramjet and Libcurl files to static/");
+// console.log("Copied Scramjet and Libcurl files to static/");

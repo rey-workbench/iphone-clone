@@ -17,8 +17,9 @@ export async function requestMicrophone(): Promise<boolean> {
         }
     }
 
-    // Dapatkan nama aplikasi yang sedang aktif untuk judul dialog yang dinamis
-    const activeAppId = systemState.activeApp || 'App';
+    // Dapatkan nama aplikasi dari path saat ini jika di browser
+    const path = typeof window !== 'undefined' ? window.location.pathname.replace('/', '') : '';
+    const activeAppId = path || 'App';
     const appName = activeAppId.charAt(0).toUpperCase() + activeAppId.slice(1);
 
     // Tampilkan modal izin khas iOS
@@ -37,7 +38,7 @@ export async function requestMicrophone(): Promise<boolean> {
             stream.getTracks().forEach(track => track.stop());
             return true;
         } catch (err) {
-            console.error("Microphone access denied by browser system:", err);
+            // console.error("Microphone access denied by browser system:", err);
             // Jika user mengizinkan di UI tapi menolak di prompt browser
             return false;
         }

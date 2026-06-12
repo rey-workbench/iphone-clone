@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  ;
   import { WeatherState } from "./WeatherState.svelte";
-  import Skeleton from "$lib/components/ui/Skeleton.svelte";
+  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import WeatherDailyForecast from "./components/WeatherDailyForecast.svelte";
 
   const state = new WeatherState();
 
-  onMount(() => {
+  $effect(() => {
     state.init();
   });
 </script>
@@ -57,7 +58,7 @@
           <div
             class="flex gap-5 overflow-x-auto [&::-webkit-scrollbar]:hidden pb-1"
           >
-            {#each state.w.hourly as h}
+            {#each state.w.hourly as h (h.time || h)}
               <div class="flex flex-col items-center gap-1.5 min-w-[44px]">
                 <span class="text-[13px] font-medium text-white">{h.time}</span>
                 <div class="h-[22px] flex items-center justify-center">
@@ -72,44 +73,9 @@
             {/each}
           </div>
         </div>
-        <div
-          class="rounded-[14px] p-3 px-4 bg-white/12 backdrop-blur-[20px] border border-white/20"
-        >
-          <div
-            class="text-xs font-semibold text-white/50 tracking-wider mb-2.5"
-          >
-            10-DAY FORECAST
-          </div>
-          {#each state.w.daily as d, i}
-            <div class="flex items-center py-1.5 gap-2">
-              <span class="text-[16px] font-medium text-white w-11"
-                >{d.day}</span
-              >
-              <div class="w-7 flex justify-center">
-                {#if d.icon}
-                  <d.icon size={20} color="white" />
-                {/if}
-              </div>
-              <span class="text-[16px] text-white/60 w-8 text-right"
-                >{d.low}°</span
-              >
-              <div class="flex-1 h-1 bg-white/15 rounded-sm relative">
-                <div
-                  class="absolute h-full rounded-sm bg-linear-to-r from-[#4CD964] via-[#FFCC00] to-[#FF6B35]"
-                  style={state.bar(d.low, d.high)}
-                ></div>
-              </div>
-              <span class="text-[16px] text-white w-8 text-right"
-                >{d.high}°</span
-              >
-            </div>
-            {#if i < state.w.daily.length - 1}<div
-                class="h-px bg-white/15"
-              ></div>{/if}
-          {/each}
-        </div>
+        <WeatherDailyForecast {state} />
         <div class="grid grid-cols-2 gap-2.5">
-          {#each state.w.tiles as t}
+          {#each state.w.tiles as t (t.title || t)}
             <div
               class="rounded-[14px] p-3.5 bg-white/12 backdrop-blur-[20px] border border-white/20 min-h-[100px] flex flex-col"
             >

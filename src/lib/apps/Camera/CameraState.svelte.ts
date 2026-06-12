@@ -18,7 +18,7 @@ export class AppCameraState {
       
       const hasPerm = await requestCamera();
       if (!hasPerm) {
-        console.warn("Camera permission denied.");
+         // console.warn("Camera permission denied.");
         return;
       }
 

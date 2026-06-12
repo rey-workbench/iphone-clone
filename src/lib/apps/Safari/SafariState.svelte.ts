@@ -174,7 +174,7 @@ export class AppSafariState {
             container.innerHTML = '';
             container.appendChild(iframe);
           } else {
-            console.warn("[SafariState] safari-container still not found in DOM");
+            // console.warn("[SafariState] safari-container still not found in DOM");
           }
         }
         if (this.frameObj) {

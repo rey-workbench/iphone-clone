@@ -14,7 +14,7 @@ export async function fetchWithCache(url: string, options?: RequestInit, ttlMs?:
     return data;
 }
 
-export function clearCache(url?: string) {
+function clearCache(url?: string) {
     if (url) {
         globalCache.delete(url);
     } else {

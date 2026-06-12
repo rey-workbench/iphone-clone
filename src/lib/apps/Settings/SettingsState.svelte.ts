@@ -2,7 +2,7 @@ import { Plane, Wifi, Bluetooth, Antenna, Link, Bell, Volume2, Moon, Hourglass, 
 import { systemState } from '$lib/states';
 import { settingsDb, SettingsDBKey } from '$lib/config/localdb';
 
-export class SettingsState {
+class SettingsState {
   airplaneMode = $state(false);
   wifi = $state(true);
   bluetooth = $state(true);
@@ -85,20 +85,20 @@ export class AppSettingsState {
 
   general = [
     { id: 'linked_devices', icon: Link, bg: '#34C759', label: 'Linked Devices' },
-    { icon: Bell, bg: '#FF3B30', label: 'Notifications' },
-    { icon: Volume2, bg: '#FF2D55', label: 'Sounds & Haptics' },
-    { icon: Moon, bg: '#5856D6', label: 'Focus' },
-    { icon: Hourglass, bg: '#5856D6', label: 'Screen Time' },
+    { id: 'notifications', icon: Bell, bg: '#FF3B30', label: 'Notifications' },
+    { id: 'sounds', icon: Volume2, bg: '#FF2D55', label: 'Sounds & Haptics' },
+    { id: 'focus', icon: Moon, bg: '#5856D6', label: 'Focus' },
+    { id: 'screen_time', icon: Hourglass, bg: '#5856D6', label: 'Screen Time' },
   ];
 
   settings = [
-    { icon: Settings, bg: '#8E8E93', label: 'General' },
-    { icon: Sun, bg: '#007AFF', label: 'Display & Brightness' },
-    { icon: LayoutGrid, bg: '#007AFF', label: 'Home Screen & App Library' },
-    { icon: Accessibility, bg: '#007AFF', label: 'Accessibility' },
-    { icon: Image, bg: '#34C759', label: 'Wallpaper' },
-    { icon: Battery, bg: '#34C759', label: 'Battery' },
-    { icon: Lock, bg: '#007AFF', label: 'Privacy & Security' },
+    { id: 'general', icon: Settings, bg: '#8E8E93', label: 'General' },
+    { id: 'display', icon: Sun, bg: '#007AFF', label: 'Display & Brightness' },
+    { id: 'home_screen', icon: LayoutGrid, bg: '#007AFF', label: 'Home Screen & App Library' },
+    { id: 'accessibility', icon: Accessibility, bg: '#007AFF', label: 'Accessibility' },
+    { id: 'wallpaper', icon: Image, bg: '#34C759', label: 'Wallpaper' },
+    { id: 'battery', icon: Battery, bg: '#34C759', label: 'Battery' },
+    { id: 'privacy', icon: Lock, bg: '#007AFF', label: 'Privacy & Security' },
   ];
 
   constructor() { }

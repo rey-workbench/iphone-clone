@@ -1,6 +1,6 @@
 <script lang="ts">
   import { netflixState } from "../NetflixState.svelte";
-  import { onMount } from "svelte";
+  ;
 
   let media = $derived(netflixState.selectedMedia);
   let isTvShow = $derived(
@@ -9,7 +9,7 @@
 
   let iframeUrl = $state("");
 
-  onMount(() => {
+  $effect(() => {
     if (media) {
       if (isTvShow) {
         iframeUrl = `https://vidsrc.cc/v2/embed/tv/${media.id}/1/1`;
@@ -18,6 +18,8 @@
       }
     }
   });
+
+  const handleGoBack = () => netflixState.goBack();
 </script>
 
 <div class="absolute inset-0 bg-black z-50 flex items-center justify-center animate-[fadeIn_0.3s_ease] overflow-hidden">
@@ -27,7 +29,7 @@
     <button
       aria-label="Back"
       class="absolute top-8 left-12 z-50 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white border-none hover:bg-black/70 transition-colors"
-      onclick={() => netflixState.goBack()}
+      onclick={handleGoBack}
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
     </button>

@@ -1,23 +1,26 @@
 <script lang="ts">
   import { callState } from "../CallState.svelte";
   import { Bell, MessageSquare, PhoneOff, Phone } from "@lucide/svelte";
-  import { onMount } from "svelte";
+  ;
 
   let audioEl: HTMLAudioElement;
 
-  onMount(() => {
+  $effect(() => {
     if (audioEl) {
-      audioEl.play().catch(e => console.warn("Ringtone autoplay blocked by browser:", e));
+      audioEl.play().catch(e => { /* ignore */ });
     }
   });
+
+  const handleDecline = () => callState.declineCall();
+  const handleAccept = () => callState.acceptCall();
 </script>
 
 <!-- Incoming Ringtone -->
-<audio bind:this={audioEl} src="/assets/ringtone/incoming-call.mp3" loop style="display:none"></audio>
+<audio bind:this={audioEl} src="/assets/ringtone/incoming-call.mp3" loop style:display="none"></audio>
 <!-- Full-screen overlay -->
 <div
   class="absolute inset-0 z-9999 bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"
-  style="background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);"
+  style:background="linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%)"
 >
   <!-- Top spacer -->
   <div class="h-16"></div>
@@ -66,7 +69,7 @@
       <!-- Decline -->
       <div class="flex flex-col items-center gap-2">
         <button
-          onclick={() => callState.declineCall()}
+          onclick={handleDecline}
           class="w-[72px] h-[72px] rounded-full bg-ios-red flex items-center justify-center shadow-lg shadow-red-900/40 active:opacity-80 transition-opacity text-white"
           aria-label="Decline"
         >
@@ -78,7 +81,7 @@
       <!-- Accept -->
       <div class="flex flex-col items-center gap-2">
         <button
-          onclick={() => callState.acceptCall()}
+          onclick={handleAccept}
           class="w-[72px] h-[72px] rounded-full bg-ios-green flex items-center justify-center shadow-lg shadow-green-900/40 active:opacity-80 transition-opacity text-white"
           aria-label="Accept"
         >

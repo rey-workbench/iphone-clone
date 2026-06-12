@@ -17,7 +17,7 @@ type SignalCallback = {
  * WebRTCState — Pure WebRTC & Supabase signaling layer.
  * Focuses only on connection logic, devoid of UI states.
  */
-export class WebRTCState {
+class WebRTCState {
     // ─── Core WebRTC ──────────────────────────────────────────────────────────
     private pc: RTCPeerConnection | null = null;
     localStream = $state<MediaStream | null>(null);
@@ -69,7 +69,7 @@ export class WebRTCState {
             .on('broadcast', { event: 'call_answered_elsewhere' }, ({ payload }: any) => handleIfForMe(payload, callbacks.onAnsweredElsewhere))
             .on('broadcast', { event: 'force_logout' }, ({ payload }: any) => {
                 if (payload.to === systemState.currentUser?.id && payload.toDeviceId === systemState.deviceId) {
-                    console.warn('[System] Received force_logout. Logging out...');
+                    // console.warn('[System] Received force_logout. Logging out...');
                     localStorage.removeItem('reynisa_currentUser');
                     window.location.reload();
                 }
@@ -100,7 +100,7 @@ export class WebRTCState {
     async sendSignal(toUserId: string, event: string, payload: any = {}, toDeviceId?: string) {
         const ready = await this.waitForSubscription();
         if (!this.channel || !ready) {
-            console.warn('[WebRTC] Cannot send signal, channel not subscribed yet');
+            // console.warn('[WebRTC] Cannot send signal, channel not subscribed yet');
             return;
         }
 
@@ -169,7 +169,7 @@ export class WebRTCState {
                 if (audio) {
                     if (!audio.srcObject) audio.srcObject = new MediaStream();
                     (audio.srcObject as MediaStream).addTrack(event.track);
-                    audio.play().catch(console.error);
+                    audio.play().catch(() => {});
                 }
             }
         };
@@ -219,7 +219,7 @@ export class WebRTCState {
     async setRemoteAnswer(answer: RTCSessionDescriptionInit) {
         if (!this.pc) throw new Error('No peer connection');
         if (this.pc.signalingState !== 'have-local-offer') {
-            console.warn('[WebRTC] Ignoring duplicate/invalid answer. Current state:', this.pc.signalingState);
+            // console.warn('[WebRTC] Ignoring duplicate/invalid answer. Current state:', this.pc.signalingState);
             return;
         }
         await this.pc.setRemoteDescription(new RTCSessionDescription(answer));
@@ -239,7 +239,7 @@ export class WebRTCState {
         while (this.iceQueue.length > 0) {
             const candidate = this.iceQueue.shift();
             if (candidate) {
-                await this.pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(console.error);
+                await this.pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(() => {});
             }
         }
     }
@@ -289,7 +289,7 @@ export class WebRTCState {
             
             return true;
         } catch (e) {
-            console.error("Failed to toggle video", e);
+            // console.error("Failed to toggle video", e);
             return false;
         }
     }

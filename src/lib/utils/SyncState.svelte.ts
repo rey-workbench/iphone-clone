@@ -49,7 +49,7 @@ export class SyncState<T> {
             await this.saveCache();
         } catch (e: unknown) {
             const message = e instanceof Error ? e.message : String(e);
-            console.error(`[SyncState] Failed to fetch data for ${this.key}:`, e);
+            // console.error(`[SyncState] Failed to fetch data for ${this.key}:`, e);
             this.error = message;
         } finally {
             this.loading = false;
@@ -78,7 +78,7 @@ export class SyncState<T> {
 
         } catch (e: unknown) {
             const message = e instanceof Error ? e.message : String(e);
-            console.error(`[SyncState] Optimistic Mutation failed for ${this.key}, reverting...`, e);
+            // console.error(`[SyncState] Optimistic Mutation failed for ${this.key}, reverting...`, e);
             this.error = message;
             
             // 3. Revert

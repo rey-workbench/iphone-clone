@@ -6,8 +6,9 @@ import { supabase } from '$lib/config/supabase';
 import { systemState, usersState } from '$lib/states';
 import { notesDb, NotesDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
+import { goto } from '$app/navigation';
 
-export class MessagesState {
+class MessagesState {
     messages = $state<any[]>([]);
     inputText = $state('');
     isTyping = $state(false);
@@ -224,7 +225,7 @@ export class MessagesState {
                                     message: msg.content,
                                     icon: '/assets/icons/com.apple.MobileSMS-large.png',
                                     onClick: () => {
-                                        systemState.activeApp = 'messages';
+                                        goto('/messages');
                                         this.openChat(otherPersonId, this.inbox[contactIndex].name);
                                     }
                                 });

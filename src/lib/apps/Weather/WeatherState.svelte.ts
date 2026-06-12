@@ -126,6 +126,6 @@ export class WeatherState {
     bar(low: number, high: number) {
         const l = Math.max(0, ((low - this.wRange.min) / this.wRange.range) * 100);
         const wi = Math.max(0, Math.min(100 - l, ((high - low) / this.wRange.range) * 100));
-        return `left:${l}%;width:${wi}%`;
+        return { left: l, width: wi };
     }
 }

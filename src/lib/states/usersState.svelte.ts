@@ -2,7 +2,7 @@ import { ApiConfig } from '$lib/config/api';
 import { userDb, UserDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 
-export class UsersState extends SyncState<any[]> {
+class UsersState extends SyncState<any[]> {
     private updateCallback?: (users: any[]) => void;
 
     constructor() {

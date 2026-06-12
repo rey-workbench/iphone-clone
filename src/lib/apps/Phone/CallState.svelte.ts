@@ -1,7 +1,7 @@
 import { systemState, webrtcState, type CallStatus } from '$lib/states';
 import { dialogState } from "$lib/states/dialogState.svelte";
 
-export class CallState {
+class CallState {
     status = $state<CallStatus>('idle');
     remoteContact = $state<any>(null);
     duration = $state(0);
@@ -87,7 +87,6 @@ export class CallState {
                     const answer = await webrtcState.setRemoteOffer(payload.offer);
                     await webrtcState.sendSignal(this.remoteContact.id, 'call_answer', { answer }, this.remoteDeviceId || undefined);
                 } catch (e) {
-                    console.error('Failed to renegotiate:', e);
                 }
                 return;
             }
@@ -162,7 +161,6 @@ export class CallState {
             this.status = 'active';
             this.startTimer();
         } catch (e) {
-            console.error('Failed to set answer:', e);
         }
     }
 
@@ -171,7 +169,6 @@ export class CallState {
         try {
             await webrtcState.addIceCandidate(payload.candidate);
         } catch (e) {
-            console.error('Failed to add ICE candidate:', e);
         }
     }
 

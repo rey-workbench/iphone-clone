@@ -1,7 +1,7 @@
 import { ApiConfig } from '$lib/config/api';
 import { systemState } from '$lib/states/systemState.svelte';
 
-export class AuthState {
+class AuthState {
     username = $state('');
     password = $state('');
     isLoading = $state(false);
@@ -56,7 +56,7 @@ export class AuthState {
                 )
             );
         } catch (e) {
-            console.error('Failed to revoke device session on logout', e);
+            // console.error('Failed to revoke device session on logout', e);
         }
         
         systemState.currentUser = null;

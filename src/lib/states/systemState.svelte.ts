@@ -1,8 +1,7 @@
 import { ApiConfig } from '$lib/config/api';
 import { sessionDb, SessionDBKey } from '$lib/config/localdb';
 
-export class SystemState {
-  activeApp = $state<string | null>(null);
+class SystemState {
   recentApps = $state<string[]>([]);
   currentUser = $state<{ id: string, username: string, name: string } | null>(null);
   currentTime = $state<Date>(new Date());

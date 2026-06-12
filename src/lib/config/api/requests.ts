@@ -1,4 +1,4 @@
-import { PUBLIC_CLOUDFLARE_TURN_KEY_ID, PUBLIC_CLOUDFLARE_TURN_API_TOKEN } from '$env/static/public';
+// Api requests
 import { ApiEndpoints } from './endpoints';
 import { ApiDynamic } from './dynamic';
 import { fetchWithCache } from '$lib/utils/fetchWithCache';
@@ -63,7 +63,7 @@ export const ApiRequests = {
                     return { latitude: lat, longitude: lon, city: city || 'Unknown' };
                 }
             } catch (e) {
-                console.warn(`[ApiConfig] Failed to fetch IP from ${url}`);
+                // console.warn(`[ApiConfig] Failed to fetch IP from ${url}`);
             }
         }
         throw new Error("All IP geolocation providers failed");
@@ -86,27 +86,16 @@ export const ApiRequests = {
 
     async fetchTurnCredentials(): Promise<RTCConfiguration> {
         try {
-            if (!PUBLIC_CLOUDFLARE_TURN_KEY_ID || !PUBLIC_CLOUDFLARE_TURN_API_TOKEN) {
-                throw new Error("Missing Cloudflare TURN environment variables");
-            }
-            
-            const response = await fetch(`${ApiEndpoints.TURN_CREDENTIALS}/${PUBLIC_CLOUDFLARE_TURN_KEY_ID}/credentials/generate`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${PUBLIC_CLOUDFLARE_TURN_API_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ttl: 86400 })
-            });
+            const response = await fetch('/api/turn');
             
             if (!response.ok) {
-                throw new Error(`Cloudflare API responded with status: ${response.status}`);
+                throw new Error(`API responded with status: ${response.status}`);
             }
 
             const data = await response.json();
-            return { iceServers: Array.isArray(data.iceServers) ? data.iceServers : [data.iceServers] };
+            return { iceServers: data.iceServers };
         } catch (error) {
-            console.error("[ApiConfig] Failed to fetch ICE servers from Cloudflare, using fallback", error);
+            // console.error("[ApiConfig] Failed to fetch ICE servers, using fallback", error);
             return {
                 iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
             };

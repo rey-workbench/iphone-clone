@@ -1,47 +1,52 @@
 <script lang="ts">
   import { netflixState } from "./NetflixState.svelte";
   import MovieDetail from "./components/MovieDetail.svelte";
-  import { systemState } from "$lib/states";
   import Player from "./components/Player.svelte";
-  import { onMount, getContext } from "svelte";
-  import Skeleton from "$lib/components/ui/Skeleton.svelte";
-  import { dialogState } from "$lib/states/dialogState.svelte";
+  import HomeTab from "./components/HomeTab.svelte";
+  import SearchTab from "./components/SearchTab.svelte";
+  import { getContext } from 'svelte';
+  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import { systemState } from "$lib/states";
 
-  const isPreview = getContext('isPreview');
+  const isPreview = getContext("isPreview");
 
   let headerOpacity = $state(0);
   let activeTab = $state("home"); // 'home', 'search'
-  let searchQuery = $state("");
+
+  const setTabHome = () => activeTab = "home";
+  const setTabSearch = () => activeTab = "search";
 
   function handleScroll(e: Event) {
     const target = e.target as HTMLElement;
     headerOpacity = Math.min(target.scrollTop / 100, 1);
   }
 
-  let searchResults = $derived(
-    searchQuery.length > 0 && netflixState.serverSearchResults.length > 0
+  const searchResults = $derived(
+    netflixState.searchQuery.length > 0 && netflixState.serverSearchResults.length > 0
       ? netflixState.serverSearchResults
-      : [...netflixState.movies, ...netflixState.tvShows].filter((item) =>
-          (item.title || item.name || "")
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()),
-        )
+      : netflixState.localSearchResults
   );
 
-  $effect(() => {
-    if (isPreview) return;
-    netflixState.search(searchQuery);
-  });
 
-  onMount(() => {
+  const handleSelectSearchItem = (e: MouseEvent) => {
+    const id = (e.currentTarget as HTMLElement).dataset.id;
+    if (id) {
+      const item = netflixState.movies.find((m) => String(m.id) === id) || netflixState.tvShows.find((m) => String(m.id) === id);
+      if (item) netflixState.selectMedia(item);
+    }
+  };
+
+
+
+  $effect(() => {
     const handlePopState = (e: PopStateEvent) => {
-      // Ignore popstate if the framebuster script called history.back() 
+      // Ignore popstate if the framebuster script called history.back()
       // and consumed a dummy state, landing us back in our valid 'detail' state
-      if (e.state?.netflixModal === 'detail') return;
+      if (e.state?.netflixModal === "detail") return;
       // Also ignore if we landed on another dummy state in the chain
       if (e.state?.dummy) return;
 
-      if (netflixState.view !== 'home') {
+      if (netflixState.view !== "home") {
         netflixState.goBack(true);
       }
     };
@@ -60,8 +65,8 @@
     {#if activeTab === "home"}
       <!-- Header -->
       <div
-        class="absolute top-0 left-0 w-full z-20 flex flex-col pt-12 pb-2 transition-colors duration-300"
-        style="background-color: rgba(0, 0, 0, {headerOpacity});"
+        class="absolute top-0 left-0 w-full z-20 flex flex-col pt-12 pb-2 transition-colors duration-300 bg-black"
+        style:--tw-bg-opacity={headerOpacity}
       >
         <!-- Top Bar -->
         <div class="flex items-center justify-between px-4 mb-4">
@@ -95,12 +100,9 @@
             <button
               aria-label="Profile"
               class="w-6 h-6 rounded bg-blue-500 overflow-hidden"
-              ><img
-                src="https://wallpapers.com/images/hd/netflix-profile-pictures-1000-x-1000-88wkdmjrorckekha.jpg"
-                alt="Profile"
-                class="w-full h-full object-cover"
-              /></button
             >
+              <img src="https://wallpapers.com/images/hd/netflix-profile-pictures-1000-x-1000-88wkdmjrorckekha.jpg" alt="Profile" class="w-full h-full object-cover" />
+            </button>
           </div>
         </div>
 
@@ -128,394 +130,18 @@
         </div>
       </div>
 
-      <!-- Main Content Scroll -->
-      <div
-        class="flex-1 overflow-y-auto pb-20 no-scrollbar relative z-10"
-        onscroll={handleScroll}
-      >
-        <!-- Hero Banner -->
-        {#if netflixState.movies.length > 0}
-          <div class="relative w-full h-137.5">
-            <img
-              src={netflixState.movies[0].poster_path}
-              alt={netflixState.movies[0].title}
-              class="w-full h-full object-cover object-center"
-            />
-            <div
-              class="absolute inset-0 bg-linear-to-t from-ios-bg via-transparent to-ios-bg/40"
-            ></div>
-
-            <div
-              class="absolute bottom-0 left-0 w-full pb-6 flex flex-col items-center gap-4"
-            >
-              <!-- Title graphic (Using text as fallback) -->
-              <h1
-                class="text-5xl font-black text-center tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4 leading-none uppercase"
-              >
-                {netflixState.movies[0].title}
-              </h1>
-
-              <div
-                class="text-[11px] font-semibold text-white drop-shadow-md tracking-wider"
-              >
-                Exciting • Reality TV • Competition
-              </div>
-
-              <!-- Hero Actions -->
-              <div class="flex items-center justify-center gap-8 w-full mt-2">
-                <button
-                  class="flex flex-col items-center gap-1 text-white hover:text-gray-300"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><line x1="12" x2="12" y1="5" y2="19" /><line
-                      x1="5"
-                      x2="19"
-                      y1="12"
-                      y2="12"
-                    /></svg
-                  >
-                  <span class="text-[10px] font-medium">My List</span>
-                </button>
-
-                <button
-                  class="bg-white text-black font-bold py-2 px-8 rounded flex items-center justify-center gap-2 hover:bg-white/80 transition-colors"
-                  onclick={() =>
-                    netflixState.selectMedia(netflixState.movies[0])}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"><path d="M8 5v14l11-7z" /></svg
-                  >
-                  Play
-                </button>
-
-                <button
-                  class="flex flex-col items-center gap-1 text-white hover:text-gray-300"
-                  onclick={() =>
-                    netflixState.selectMedia(netflixState.movies[0])}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><circle cx="12" cy="12" r="10" /><path
-                      d="M12 16v-4"
-                    /><path d="M12 8h.01" /></svg
-                  >
-                  <span class="text-[10px] font-medium">Info</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        {:else}
-          <div class="relative w-full h-137.5">
-            <Skeleton width="100%" height="100%" />
-            <div class="absolute bottom-0 left-0 w-full pb-6 flex flex-col items-center gap-4">
-              <Skeleton width="60%" height="48px" />
-              <Skeleton width="80%" height="16px" />
-              <div class="flex items-center justify-center gap-8 w-full mt-2">
-                <Skeleton width="32px" height="40px" />
-                <Skeleton width="120px" height="40px" borderRadius="4px" />
-                <Skeleton width="32px" height="40px" />
-              </div>
-            </div>
-          </div>
-        {/if}
-
-        <!-- Rows -->
-        <div class="flex flex-col gap-8 mt-2">
-          <!-- Continue Watching -->
-          <div class="w-full">
-            <h2 class="text-[15px] font-bold px-4 mb-2 text-gray-100">
-              Continue Watching for {systemState.currentUser?.name?.split(
-                " ",
-              )[0] || "Guest"}
-            </h2>
-            <div
-              class="flex overflow-x-auto px-4 pb-2 gap-2 no-scrollbar snap-x"
-            >
-              {#if top10Movies.length === 0}
-                {#each Array(4) as _}
-                  <div class="relative flex-none w-26.25 h-38.75 rounded overflow-hidden snap-start bg-[#222]">
-                    <Skeleton width="100%" height="100%" />
-                  </div>
-                {/each}
-              {:else}
-              {#each top10Movies as movie, i}
-                {#if i < 4}
-                  <button
-                    class="relative flex-none w-26.25 h-38.75 rounded overflow-hidden bg-[#222] snap-start transition-transform hover:scale-105"
-                    onclick={() => netflixState.selectMedia(movie)}
-                    aria-label="Watch {movie.title}"
-                  >
-                    <!-- Small N Logo -->
-                    <div class="absolute top-1 left-1 z-10 w-3 h-4">
-                      <img
-                        src="/assets/icons/netflix-brand-logo.png"
-                        alt="N"
-                        class="w-full h-full object-contain"
-                      />
-                    </div>
-                    <!-- Poster -->
-                    <img
-                      src={movie.poster_path}
-                      alt={movie.title}
-                      class="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <!-- Play icon overlay -->
-                    <div
-                      class="absolute inset-0 bg-black/30 flex items-center justify-center"
-                    >
-                      <div
-                        class="w-10 h-10 rounded-full border border-white flex items-center justify-center bg-black/50"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="white"
-                          class="ml-0.5"><path d="M8 5v14l11-7z" /></svg
-                        >
-                      </div>
-                    </div>
-                    <!-- Progress bar -->
-                    <div
-                      class="absolute bottom-0 left-0 w-full h-0.75 bg-gray-600"
-                    >
-                      <div class="h-full bg-[#E50914] w-1/3"></div>
-                    </div>
-                  </button>
-                {/if}
-              {/each}
-              {/if}
-            </div>
-          </div>
-
-          <!-- Top 10 Today -->
-          <div class="w-full overflow-hidden">
-            <h2 class="text-[15px] font-bold px-4 mb-2 text-gray-100">
-              Top 10 TV Shows Today
-            </h2>
-            <div
-              class="flex overflow-x-auto px-4 pb-4 gap-0 no-scrollbar snap-x"
-            >
-              {#if netflixState.tvShows.length === 0}
-                {#each Array(3) as _}
-                  <div class="relative flex-none w-33.75 h-41.25 flex items-end justify-end overflow-visible snap-start">
-                    <div class="w-27.5 h-41.25 relative z-10 rounded overflow-hidden">
-                      <Skeleton width="100%" height="100%" />
-                    </div>
-                  </div>
-                {/each}
-              {:else}
-              {#each netflixState.tvShows.slice(0, 10) as tv, i}
-                <button
-                  class="relative flex-none w-33.75 h-41.25 flex items-end justify-end overflow-visible snap-start transition-transform hover:scale-105"
-                  onclick={() => netflixState.selectMedia(tv)}
-                  aria-label="View {tv.title}"
-                >
-                  <!-- Huge Top 10 Number -->
-                  <div
-                    class="absolute left-4 -bottom-2 text-[85px] font-black text-black z-20 tracking-tighter drop-shadow-md"
-                    style="-webkit-text-stroke: 3px white; color: black; line-height: 0.8; font-family: Impact, sans-serif;"
-                  >
-                    {i + 1}
-                  </div>
-                  <!-- Poster -->
-                  <div
-                    class="w-27.5 h-41.25 relative z-10 rounded overflow-hidden"
-                  >
-                    <img
-                      src={tv.poster_path}
-                      alt={tv.title}
-                      class="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <!-- N Logo -->
-                    <div class="absolute top-1 left-1 z-10 w-3 h-4">
-                      <img
-                        src="/assets/icons/netflix-brand-logo.png"
-                        alt="N"
-                        class="w-full h-full object-contain"
-                      />
-                    </div>
-                    <!-- Top 10 Badge -->
-                    <div
-                      class="absolute top-0 right-0 bg-[#E50914] text-white text-[8px] font-bold px-1.5 py-0.5 rounded-bl tracking-wider shadow-md"
-                    >
-                      TOP<br />10
-                    </div>
-                  </div>
-                </button>
-              {/each}
-              {/if}
-            </div>
-          </div>
-        </div>
-      </div>
+      <HomeTab {handleScroll} />
 
       <!-- Active Tab: Search -->
-    {:else if activeTab === "search"}
-      <div class="flex flex-col h-full bg-black pt-12">
-        <!-- Search Bar -->
-        <div class="px-4 pb-4">
-          <div class="flex items-center bg-[#333] rounded overflow-hidden">
-            <div class="pl-3 py-2 text-gray-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><circle cx="11" cy="11" r="8" /><path
-                  d="m21 21-4.3-4.3"
-                /></svg
-              >
-            </div>
-            <input
-              type="text"
-              placeholder="Search"
-              class="w-full bg-transparent border-none outline-none text-white px-2 py-2 text-sm"
-              bind:value={searchQuery}
-            />
-            {#if searchQuery}
-              <button
-                class="pr-3 py-2 text-gray-400"
-                aria-label="Clear Search"
-                onclick={() => (searchQuery = "")}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  ><line x1="18" y1="6" x2="6" y2="18" /><line
-                    x1="6"
-                    y1="6"
-                    x2="18"
-                    y2="18"
-                  /></svg
-                >
-              </button>
-            {/if}
-          </div>
-        </div>
-
-        <!-- Search Results -->
-        <div class="flex-1 overflow-y-auto no-scrollbar pb-20">
-          {#if searchQuery === ""}
-            <h2 class="text-xl font-bold px-4 mb-4 mt-2">Movies & TV</h2>
-            <div class="flex flex-col">
-              {#each searchResults as item}
-                <button
-                  class="flex items-center gap-3 w-full bg-[#111] hover:bg-[#222] transition-colors mb-0.5 relative group"
-                  onclick={() => netflixState.selectMedia(item)}
-                  aria-label="View {item.title}"
-                >
-                  <div class="w-35 h-18.75 shrink-0 relative">
-                    <img
-                      src={item.backdrop_path || item.poster_path}
-                      alt={item.title}
-                      class="w-full h-full object-cover"
-                    />
-                    <!-- N Logo -->
-                    <div class="absolute top-1 left-1 z-10 w-2 h-3">
-                      <img
-                        src="/assets/icons/netflix-brand-logo.png"
-                        alt="N"
-                        class="w-full h-full object-contain"
-                      />
-                    </div>
-                  </div>
-                  <div class="flex-1 text-left">
-                    <h3 class="text-sm font-semibold text-gray-200">
-                      {item.title}
-                    </h3>
-                  </div>
-                  <div class="pr-4">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="28"
-                      height="28"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="text-white"
-                      ><circle cx="12" cy="12" r="10" /><polygon
-                        points="10 8 16 12 10 16 10 8"
-                      /></svg
-                    >
-                  </div>
-                </button>
-              {/each}
-            </div>
-          {:else}
-            <h2 class="text-xl font-bold px-4 mb-4 mt-2">Movies & TV</h2>
-            <div class="grid grid-cols-3 gap-2 px-2">
-              {#each searchResults as item}
-                <button
-                  class="w-full aspect-2/3 relative rounded overflow-hidden"
-                  onclick={() => netflixState.selectMedia(item)}
-                >
-                  <img
-                    src={item.poster_path}
-                    alt={item.title}
-                    class="w-full h-full object-cover"
-                  />
-                  <!-- N Logo -->
-                  <div class="absolute top-1 left-1 z-10 w-2 h-3">
-                    <img
-                      src="/assets/icons/netflix-brand-logo.png"
-                      alt="N"
-                      class="w-full h-full object-contain"
-                    />
-                  </div>
-                </button>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      </div>
+      <SearchTab bind:searchQuery={netflixState.searchQuery} {searchResults} />
     {/if}
 
     <div
       class="absolute bottom-0 left-0 w-full bg-[#141414]/95 backdrop-blur-lg border-t border-[#333] z-50 flex justify-around items-center pt-2 pb-8 px-2"
     >
       <button
-        class="flex flex-col items-center gap-1 w-16"
-        onclick={() => (activeTab = "home")}
+        class="flex flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
+        onclick={setTabHome}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -575,8 +201,8 @@
       </button>
 
       <button
-        class="flex flex-col items-center gap-1 w-16"
-        onclick={() => (activeTab = "search")}
+        class="flex flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
+        onclick={setTabSearch}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -625,11 +251,4 @@
 </div>
 
 <style>
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
 </style>

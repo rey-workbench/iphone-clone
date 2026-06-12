@@ -78,19 +78,28 @@
       showControls = true;
     }
   });
+
+  const handleContainerClick = () => {
+    if (callState.isVideo) showControls = !showControls;
+  };
+  const handleStopPropagation = (e: MouseEvent) => e.stopPropagation();
+  const handleToggleMute = () => callState.toggleMute();
+  const handleToggleVideo = () => callState.toggleVideo();
+  const handleToggleSpeaker = () => callState.toggleSpeaker();
+  const handleHangUp = () => callState.hangUp();
+  const handleContainerKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") handleContainerClick();
+  };
+  const handleStopPropagationKeydown = (e: KeyboardEvent) => e.stopPropagation();
 </script>
 
-<!-- Hidden audio element -->
-
-<!-- Full-screen overlay -->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="absolute inset-0 z-9999 bg-[#1a1a1a] flex flex-col items-center select-none rounded-[40px] overflow-hidden"
-  style="background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);"
-  onclick={() => {
-    if (callState.isVideo) showControls = !showControls;
-  }}
+  style:background="linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%)"
+  role="button"
+  tabindex="0"
+  onclick={handleContainerClick}
+  onkeydown={handleContainerKeydown}
 >
   {#if callState.isVideo}
     <!-- Remote Video Background -->
@@ -150,14 +159,14 @@
 
       <h1
         class="text-[34px] font-semibold text-white tracking-tight mb-1"
-        style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);"
+        style:text-shadow="0 2px 10px rgba(0,0,0,0.5)"
       >
         {callState.remoteContact?.name ?? "Unknown"}
       </h1>
 
       <p
         class="text-[17px] text-white/90 tabular-nums mb-8"
-        style="text-shadow: 0 1px 5px rgba(0,0,0,0.5);"
+        style:text-shadow="0 1px 5px rgba(0,0,0,0.5)"
       >
         {callState.durationFormatted}
       </p>
@@ -171,7 +180,9 @@
       class="absolute bottom-8 left-4 right-4 bg-[#2a2a2a]/80 backdrop-blur-xl rounded-[32px] p-6 z-50 transition-opacity duration-300 {showControls
         ? 'opacity-100'
         : 'opacity-0 pointer-events-none'}"
-      onclick={(e) => e.stopPropagation()}
+      role="presentation"
+      onclick={handleStopPropagation}
+      onkeydown={handleStopPropagationKeydown}
     >
       <div class="flex justify-between items-center mb-6 px-2">
         <button class="flex flex-col items-center gap-1 opacity-50"
@@ -180,7 +191,7 @@
           ></button
         >
         <button
-          onclick={() => callState.toggleMute()}
+          onclick={handleToggleMute}
           class="flex flex-col items-center gap-1 {callState.isMuted
             ? 'opacity-100'
             : 'opacity-50'} transition-opacity"
@@ -198,20 +209,20 @@
           ></button
         >
         <button
-          onclick={() => callState.hangUp()}
+          onclick={handleHangUp}
           class="w-12 h-12 rounded-full bg-ios-red flex items-center justify-center hover:opacity-80 active:scale-95 transition-all"
           ><PhoneOff size={20} color="white" /></button
         >
       </div>
       <div class="flex gap-4">
         <button
-          onclick={() => callState.toggleVideo()}
+          onclick={handleToggleVideo}
           class="flex-1 py-3.5 rounded-2xl bg-white/10 flex items-center justify-center gap-2 text-sm text-white font-medium active:scale-95 transition-all"
         >
           <VideoOff size={18} /> Camera Off
         </button>
         <button
-          onclick={() => callState.toggleSpeaker()}
+          onclick={handleToggleSpeaker}
           class="flex-1 py-3.5 rounded-2xl {callState.isSpeaker
             ? 'bg-white text-black'
             : 'bg-white/10 text-white'} flex items-center justify-center gap-2 text-sm font-medium active:scale-95 transition-all"
@@ -224,9 +235,11 @@
     <!-- Audio Mode Controls -->
     <div
       class="grid grid-cols-3 gap-x-6 gap-y-5 px-8 mb-auto z-10 transition-opacity duration-300 opacity-100"
-      onclick={(e) => e.stopPropagation()}
+      role="presentation"
+      onclick={handleStopPropagation}
+      onkeydown={handleStopPropagationKeydown}
     >
-      {#each controls as c}
+      {#each controls as c (c.id || c)}
         <button
           onclick={c.action}
           class="flex flex-col items-center gap-2 group"
@@ -251,10 +264,12 @@
     <!-- Audio Mode Hang Up -->
     <div
       class="pb-16 z-10 transition-opacity duration-300 opacity-100"
-      onclick={(e) => e.stopPropagation()}
+      role="presentation"
+      onclick={handleStopPropagation}
+      onkeydown={handleStopPropagationKeydown}
     >
       <button
-        onclick={() => callState.hangUp()}
+        onclick={handleHangUp}
         class="w-[72px] h-[72px] rounded-full bg-ios-red flex items-center justify-center shadow-lg shadow-red-900/50 active:opacity-80 active:scale-95 transition-all text-white"
         aria-label="hang up"
       >

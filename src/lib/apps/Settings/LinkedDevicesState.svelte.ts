@@ -49,7 +49,6 @@ export class AppLinkedDevicesState {
         deviceId,
       );
     } catch (e) {
-      console.error("Failed to revoke device", e);
       // Revert if failed
       await this.fetchDevices();
     }

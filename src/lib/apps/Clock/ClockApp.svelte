@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  ;
   import { clockState } from '$lib/apps/Clock/ClockState.svelte';
   import { Globe, AlarmClock, Timer, Hourglass } from '@lucide/svelte';
 
@@ -44,7 +44,7 @@
 
   function toggleAlarm(id: string) { clockState.toggleAlarm(id); }
 
-  onDestroy(() => { if (swInt) clearInterval(swInt); if (timerInt) clearInterval(timerInt); });
+  $effect(() => () => () => { if (swInt) clearInterval(swInt); if (timerInt) clearInterval(timerInt); });
 
   const tabs: { id: 'worldClock' | 'alarm' | 'stopwatch' | 'timer'; label: string; icon: any }[] = [
     { id: 'worldClock', label: 'World Clock', icon: Globe },
@@ -52,6 +52,16 @@
     { id: 'stopwatch', label: 'Stopwatch', icon: Timer },
     { id: 'timer', label: 'Timer', icon: Hourglass },
   ];
+
+  const setTab = (e: MouseEvent) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    tab = btn.dataset.id as any;
+  };
+
+  const handleToggleAlarm = (e: MouseEvent) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    toggleAlarm(btn.dataset.id!);
+  };
 </script>
 
 <div class="h-full pt-13.5 pb-0 bg-black flex flex-col ">
@@ -59,7 +69,7 @@
     {#if tab === 'worldClock'}
       <div class="text-[34px] font-bold text-white px-1 py-2 pb-4">World Clock</div>
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-        {#each clocks as wc, i}
+        {#each clocks as wc, i (i)}
           <div class="flex items-center justify-between p-3 px-4">
             <div class="flex flex-col gap-0.5"><span class="text-[13px] text-ios-label2">{wc.label}</span><span class="text-[17px] text-white font-medium">{wc.city}</span></div>
             <span class="text-[42px] font-extralight text-white">{getTime(wc.offset)}</span>
@@ -70,10 +80,10 @@
     {:else if tab === 'alarm'}
       <div class="text-[34px] font-bold text-white px-1 py-2 pb-4">Alarm</div>
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-        {#each alarms as alarm, i}
+        {#each alarms as alarm, i (i)}
           <div class="flex items-center justify-between p-3 px-4">
             <div class="flex flex-col gap-0.5"><span class="text-[48px] font-extralight text-white">{alarm.time}</span><span class="text-[13px] text-ios-label2">{alarm.label}, {alarm.days}</span></div>
-            <button class="w-12.75 h-7.75 rounded-2xl relative transition-colors border-none cursor-pointer shrink-0 {alarm.enabled ? 'bg-ios-green' : 'bg-[#39393D]'}" onclick={() => toggleAlarm(alarm.id)} aria-label="Toggle {alarm.label} alarm">
+            <button data-id={alarm.id} class="w-12.75 h-7.75 rounded-2xl relative transition-colors border-none cursor-pointer shrink-0 {alarm.enabled ? 'bg-ios-green' : 'bg-[#39393D]'}" onclick={handleToggleAlarm} aria-label="Toggle {alarm.label} alarm">
               <div class="w-6.75 h-6.75 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform shadow-md {alarm.enabled ? 'translate-x-5' : ''}"></div>
             </button>
           </div>
@@ -97,8 +107,8 @@
     {/if}
   </div>
   <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep pt-1.5 pb-8 shrink-0 justify-around">
-    {#each tabs as t}
-      <button class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {tab === t.id ? 'text-[#FF9F0A]' : 'text-ios-label2'}" onclick={() => tab = t.id}>
+    {#each tabs as t (t.id || t)}
+      <button data-id={t.id} class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {tab === t.id ? 'text-[#FF9F0A]' : 'text-ios-label2'}" onclick={setTab}>
         <t.icon size={24} />
         <span class="text-[10px] font-medium">{t.label}</span>
       </button>

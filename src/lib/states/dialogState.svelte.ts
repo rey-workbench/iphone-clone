@@ -1,4 +1,4 @@
-export type DialogOptions = {
+type DialogOptions = {
     title: string;
     message: string;
     confirmText?: string;

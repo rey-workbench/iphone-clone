@@ -94,7 +94,7 @@ export class NetflixService {
                     return this.formatItem(data, type);
                 }
             } catch (e) {
-                console.error(`Error fetching TMDB details for ${type} ${item.tmdb_id}`, e);
+                // console.error(`Error fetching TMDB details for ${type} ${item.tmdb_id}`, e);
             }
             return null;
         };

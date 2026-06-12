@@ -10,7 +10,7 @@ export async function GET({ url }) {
     const data = await safariSearchService.search(query || '');
     return json(data);
   } catch (error: any) {
-    console.error('[SafariSearch API Error]', error);
+    // console.error('[SafariSearch API Error]', error);
     const status = error.message.includes('required') ? 400 : 500;
     return json({ error: error.message || 'Internal Server Error' }, { status });
   }

@@ -1,7 +1,7 @@
 import type { Alarm } from '$lib/types';
 import { settingsDb } from '$lib/config/localdb';
 
-export class ClockState {
+class ClockState {
   activeTab = $state<'worldClock' | 'alarm' | 'stopwatch' | 'timer'>('worldClock');
   stopwatchRunning = $state(false);
   stopwatchTime = $state(0);

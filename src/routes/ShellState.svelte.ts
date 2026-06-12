@@ -1,7 +1,6 @@
 import { systemState } from '$lib/states';
 
 export class ShellState {
-  showPlayer = $state(false);
   showLockScreen = $state(true);
   showAppSwitcher = $state(false);
   lockScreenY = $state(0);
@@ -33,12 +32,13 @@ export class ShellState {
     this.appSwipeY = Math.max(0, this.appStartY - currentY);
   }
 
-  handleAppSwipeEnd() {
+  handleAppSwipeEnd(onClose?: () => void) {
     this.isAppSwiping = false;
     if (this.appSwipeY > 200) {
       if (this.showAppSwitcher) {
         this.closeAppSwitcher();
-      } else if (systemState.activeApp) {
+      } else {
+        if (onClose) onClose();
         this.closeApp();
       }
     } else if (this.appSwipeY > 50) {
@@ -56,7 +56,6 @@ export class ShellState {
   closeApp() {
     this.appTransition = true;
     setTimeout(() => {
-      systemState.activeApp = null;
       this.appTransition = false;
     }, 300);
   }
@@ -89,7 +88,7 @@ export class ShellState {
     try {
       if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch((err) => {
-          console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+          // ignore
         });
       }
     } catch (e) {

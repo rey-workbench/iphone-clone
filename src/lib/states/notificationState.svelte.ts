@@ -1,12 +1,12 @@
 
-export interface NotificationOptions {
+interface NotificationOptions {
     title: string;
     message: string;
     icon?: string;
     onClick?: () => void;
 }
 
-export class NotificationState {
+class NotificationState {
     notifications = $state<(NotificationOptions & { id: string })[]>([]);
 
     show(options: NotificationOptions) {

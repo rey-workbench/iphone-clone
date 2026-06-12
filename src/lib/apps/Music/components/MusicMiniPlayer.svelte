@@ -3,16 +3,25 @@
   import { Play, Pause, SkipForward } from "@lucide/svelte";
 
   let { state }: { state: MusicState } = $props();
+
+  const handleShowPlayer = () => state.showPlayer = true;
+  const handleKeydown = (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') handleShowPlayer(); };
+  const handleTogglePlay = (e: MouseEvent) => {
+    e.stopPropagation();
+    state.togglePlay();
+  };
+  const handlePlayNext = (e: MouseEvent) => {
+    e.stopPropagation();
+    state.playNext(1);
+  };
 </script>
 
 <div
   class="flex gap-3 items-center px-3 py-2 bg-ios-bg3 border-t border-white/10 cursor-pointer text-white text-left w-full shrink-0 z-20"
+  onclick={handleShowPlayer}
+  onkeydown={handleKeydown}
   role="button"
   tabindex="0"
-  onclick={() => (state.showPlayer = true)}
-  onkeydown={(e: KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") state.showPlayer = true;
-  }}
 >
   <img
     src={state.current?.art || state.current?.thumbnails?.[0]?.url}
@@ -25,10 +34,7 @@
   </div>
   <button
     class="bg-transparent border-none cursor-pointer text-white w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform"
-    onclick={(e: MouseEvent) => {
-      e.stopPropagation();
-      state.togglePlay();
-    }}
+    onclick={handleTogglePlay}
     aria-label="Play/Pause"
   >
     {#if state.isPlaying}
@@ -39,10 +45,7 @@
   </button>
   <button
     class="bg-transparent border-none cursor-pointer text-white w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform"
-    onclick={(e: MouseEvent) => {
-      e.stopPropagation();
-      state.playNext(1);
-    }}
+    onclick={handlePlayNext}
     aria-label="Next"
   >
     <SkipForward size={24} fill="white" />

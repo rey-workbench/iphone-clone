@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  ;
   import { 
     Gamepad2, CalendarDays, Smartphone, Search 
   } from '@lucide/svelte';
   import { AppStoreState } from './AppStoreState.svelte';
-  import Skeleton from '$lib/components/ui/Skeleton.svelte';
+  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
 
   const state = new AppStoreState();
 
-  onMount(() => {
+  $effect(() => {
     state.init();
   });
 
@@ -18,6 +18,11 @@
     { id: 'apps', label: 'Apps', icon: Smartphone },
     { id: 'search', label: 'Search', icon: Search },
   ];
+
+  const setTab = (e: MouseEvent) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    state.tab = btn.dataset.id as any;
+  };
 </script>
 
 <div class="h-full pt-13.5 pb-0 bg-black flex flex-col ">
@@ -28,7 +33,7 @@
     </div>
     <div class="flex flex-col gap-4 mb-6">
       {#if state.loading}
-        {#each Array(2) as _}
+        {#each Array(2) as _, i (i)}
           <div class="rounded-2xl overflow-hidden bg-ios-bg2 flex flex-col">
             <Skeleton height="180px" borderRadius="0" />
             <div class="p-3">
@@ -39,7 +44,7 @@
           </div>
         {/each}
       {:else}
-        {#each state.featured as app}
+        {#each state.featured as app (app.id || app)}
           <div class="rounded-2xl overflow-hidden bg-ios-bg2">
             <img src={app.img} alt={app.name} class="w-full h-45 object-cover" />
             <div class="p-3"><div class="text-[11px] text-ios-label2 uppercase tracking-wider font-semibold">{app.cat}</div><div class="text-[20px] font-bold text-white">{app.name}</div><div class="text-[13px] text-ios-label2">{app.dev}</div></div>
@@ -50,7 +55,7 @@
     <h2 class="text-[22px] font-bold text-white mb-3 px-1">Top Free Apps</h2>
     {#if state.loading}
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-        {#each Array(5) as _, i}
+        {#each Array(5) as _, i (i)}
           <div class="flex items-center gap-3 p-2.5 px-4">
             <Skeleton width="16px" height="20px" class="w-4" />
             <div class="w-12 h-12 rounded-xl overflow-hidden shrink-0">
@@ -67,7 +72,7 @@
       </div>
     {:else}
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-        {#each state.topApps as app, i}
+        {#each state.topApps as app, i (i)}
           <div class="flex items-center gap-3 p-2.5 px-4">
             <span class="text-[17px] text-ios-label2 w-4 text-right font-medium">{app.rank}</span>
             <div class="w-12 h-12 rounded-xl overflow-hidden bg-ios-fill flex items-center justify-center shrink-0">
@@ -82,8 +87,8 @@
     {/if}
   </div>
   <div class="flex bg-[rgba(30,30,30,0.95)] backdrop-blur-[20px] border-t border-ios-sep pt-1.5 pb-8 shrink-0 justify-around">
-    {#each tabItems as t}
-      <button class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {state.tab === t.id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={() => state.tab = t.id}>
+    {#each tabItems as t (t.id || t)}
+      <button data-id={t.id} class="flex-1 flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer py-1 {state.tab === t.id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={setTab}>
         <t.icon size={24} />
         <span class="text-[10px] font-medium">{t.label}</span>
       </button>
