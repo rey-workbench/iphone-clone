@@ -1,41 +1,30 @@
-import { db, setupDatabase } from '$lib/config/turso';
 import { apiHandler, ApiError } from '$lib/server/api';
+import { DevicesService } from '$lib/server/services/DevicesService';
+
+const devicesService = new DevicesService();
 
 // GET: Fetch all active devices for a user
 export function GET({ url }) {
     return apiHandler(async () => {
-        await setupDatabase();
-        
         const userId = url.searchParams.get('userId');
-        if (!userId) {
-            throw new ApiError(400, 'User ID is required');
+        try {
+            const devices = await devicesService.getActiveDevices(userId);
+            return { devices };
+        } catch (e: any) {
+            throw new ApiError(400, e.message);
         }
-
-        const result = await db.execute({
-            sql: 'SELECT id, device_id, device_name, last_active, created_at FROM user_devices WHERE user_id = ? ORDER BY last_active DESC',
-            args: [userId]
-        });
-
-        return { devices: result.rows };
     });
 }
 
 // DELETE: Revoke a specific device
 export function DELETE({ request }) {
     return apiHandler(async () => {
-        await setupDatabase();
-
         const { userId, deviceId } = await request.json();
-
-        if (!userId || !deviceId) {
-            throw new ApiError(400, 'User ID and Device ID are required');
+        try {
+            await devicesService.revokeDevice(userId, deviceId);
+            return { success: true };
+        } catch (e: any) {
+            throw new ApiError(400, e.message);
         }
-
-        await db.execute({
-            sql: 'DELETE FROM user_devices WHERE user_id = ? AND device_id = ?',
-            args: [userId, deviceId]
-        });
-
-        return { success: true };
     });
 }

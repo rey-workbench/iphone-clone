@@ -23,6 +23,9 @@ export const ApiEndpoints = {
     MAIL_COMMENTS: 'https://jsonplaceholder.typicode.com/comments',
     LLM_CHAT_COMPLETION: 'https://api.llm7.io/v1/chat/completions',
     TURN_CREDENTIALS: 'https://rtc.live.cloudflare.com/v1/turn/keys',
+    SERPER_SEARCH: 'https://google.serper.dev/search',
+    TMDB_API_BASE: 'https://api.themoviedb.org/3',
+    TMDB_IMAGE_BASE: 'https://image.tmdb.org/t/p',
     // Movies Servers
     VIDSRC_EMBED: 'https://vsembed.ru',
     VIDLINK: 'https://vidlink.pro',

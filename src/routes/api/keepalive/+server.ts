@@ -1,17 +1,15 @@
-import { supabase } from '$lib/config/supabase';
 import { apiHandler, ApiError } from '$lib/server/api';
+import { KeepaliveService } from '$lib/server/services/KeepaliveService';
+
+const keepaliveService = new KeepaliveService();
 
 export function GET() {
     return apiHandler(async () => {
-        const { error: upsertError } = await supabase
-            .from('temp')
-            .upsert([{ id: 1, note: 'keepalive ping', pinged_at: new Date().toISOString() }]);
-        
-        if (upsertError) {
-            console.error('Keepalive upsert error:', upsertError);
-            throw new ApiError(500, upsertError.message);
+        try {
+            return await keepaliveService.ping();
+        } catch (error: any) {
+            console.error('Keepalive error:', error);
+            throw new ApiError(500, error.message);
         }
-
-        return { timestamp: new Date().toISOString(), status: 'Database is alive & cleaned' };
     });
 }

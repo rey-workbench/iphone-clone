@@ -1,13 +1,11 @@
-import { db } from '$lib/config/turso';
 import { apiHandler } from '$lib/server/api';
+import { UsersService } from '$lib/server/services/UsersService';
+
+const usersService = new UsersService();
 
 export function GET() {
     return apiHandler(async () => {
-        const result = await db.execute({
-            sql: 'SELECT id, username, name FROM users',
-            args: []
-        });
-
-        return { users: result.rows };
+        const users = await usersService.getAllUsers();
+        return { users };
     });
 }
