@@ -15,6 +15,12 @@ export class ShellState {
   isAppSwiping = $state(false);
   appStartY = $state(0);
 
+  // Control Center state
+  isControlCenterOpen = $state(false);
+  controlCenterDragY = $state(0);
+  isControlCenterDragging = $state(false);
+  ccStartY = $state(0);
+
   handleAppSwipeStart(e: TouchEvent | PointerEvent) {
     this.isAppSwiping = true;
     this.appStartY = 'touches' in e ? e.touches[0].clientY : (e as PointerEvent).clientY;
@@ -89,6 +95,46 @@ export class ShellState {
     } catch (e) {
       // Ignore
     }
+  }
+
+  handleControlCenterSwipeStart(e: TouchEvent | PointerEvent) {
+    this.isControlCenterDragging = true;
+    this.ccStartY = 'touches' in e ? e.touches[0].clientY : (e as PointerEvent).clientY;
+    this.controlCenterDragY = 0;
+  }
+
+  handleControlCenterSwipeMove(e: TouchEvent | PointerEvent) {
+    if (!this.isControlCenterDragging) return;
+    const currentY = 'touches' in e ? e.touches[0].clientY : (e as PointerEvent).clientY;
+    const drag = currentY - this.ccStartY;
+    
+    if (this.isControlCenterOpen) {
+      // If open, allow dragging UP to close
+      this.controlCenterDragY = Math.min(0, drag);
+    } else {
+      // If closed, allow dragging DOWN to open
+      this.controlCenterDragY = Math.max(0, drag);
+    }
+  }
+
+  handleControlCenterSwipeEnd() {
+    if (!this.isControlCenterDragging) return;
+    this.isControlCenterDragging = false;
+    
+    if (this.isControlCenterOpen) {
+      if (this.controlCenterDragY < -100) {
+        this.isControlCenterOpen = false;
+      }
+    } else {
+      if (this.controlCenterDragY > 100) {
+        this.isControlCenterOpen = true;
+      }
+    }
+    this.controlCenterDragY = 0;
+  }
+
+  closeControlCenter() {
+    this.isControlCenterOpen = false;
   }
 
   formatDate(d: Date) {

@@ -29,6 +29,7 @@
   import ActiveCallScreen from "$lib/apps/Phone/components/ActiveCallScreen.svelte";
   import DialogModal from "$lib/ui/components/DialogModal.svelte";
   import AppSwitcher from "$lib/ui/components/AppSwitcher.svelte";
+  import ControlCenter from "$lib/ui/components/ControlCenter.svelte";
 
   import { ShellState } from "./ShellState.svelte";
 
@@ -81,10 +82,16 @@
     if (state.isAppSwiping) {
       state.handleAppSwipeMove(e);
     }
+    if (state.isControlCenterDragging) {
+      state.handleControlCenterSwipeMove(e);
+    }
   }}
   onpointerup={(e) => {
     if (state.isAppSwiping) {
       state.handleAppSwipeEnd();
+    }
+    if (state.isControlCenterDragging) {
+      state.handleControlCenterSwipeEnd();
     }
   }}
 />
@@ -98,6 +105,14 @@
     <!-- Notch -->
     <div
       class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-black rounded-b-3xl z-10000"
+    ></div>
+
+    <!-- Control Center Pull-Down Area (Top Right) -->
+    <div 
+      class="absolute top-0 right-0 w-24 h-10 z-10001 touch-none"
+      onpointerdown={(e) => state.handleControlCenterSwipeStart(e)}
+      ontouchstart={(e) => state.handleControlCenterSwipeStart(e)}
+      role="presentation"
     ></div>
 
     <!-- OS Layers (Home Screen, Apps) - Render unconditionally to preload images/components -->
@@ -207,7 +222,7 @@
     <!-- Lock Screen Overlay -->
     {#if !systemState.isInitializing && systemState.currentUser && state.showLockScreen}
       <div
-        class="absolute inset-0 z-[150] cursor-pointer transition-opacity duration-300"
+        class="absolute inset-0 z-150 cursor-pointer transition-opacity duration-300"
         style="transform: translateY(-{state.lockScreenY}px); opacity: {1 -
           state.lockScreenY / 400}"
         ontouchstart={(e) => state.handleLockTouchStart(e)}
@@ -245,14 +260,14 @@
 
     <!-- Login Screen Overlay -->
     {#if !systemState.isInitializing && !systemState.currentUser}
-      <div class="absolute inset-0 z-[200]">
+      <div class="absolute inset-0 z-200">
         <LoginScreen />
       </div>
     {/if}
 
     <!-- Initialization Screen Overlay (Topmost) -->
     {#if systemState.isInitializing}
-      <div class="absolute inset-0 bg-[#0a0a0a] z-[1000]"></div>
+      <div class="absolute inset-0 bg-[#0a0a0a] z-1000"></div>
     {/if}
 
     {#if !systemState.isInitializing && systemState.currentUser}
@@ -299,5 +314,8 @@
 
     <!-- Global Notification Banner -->
     <NotificationBanner />
+
+    <!-- Control Center Overlay -->
+    <ControlCenter shellState={state} />
   </div>
 </div>
