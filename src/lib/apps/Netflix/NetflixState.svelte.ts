@@ -1,5 +1,6 @@
 import { systemState } from "$lib/states/systemState.svelte";
 import { dialogState } from "$lib/states/dialogState.svelte";
+import { ApiConfig } from "$lib/config/api";
 
 class NetflixState {
   view = $state<'home' | 'detail' | 'player'>('home');
@@ -48,11 +49,18 @@ class NetflixState {
     this.isLoading = true;
     try {
 
-      const res = await fetch('/api/netflix/latest');
+      const res = await fetch(ApiConfig.NETFLIX_LATEST);
       if (res.ok) {
         const data = await res.json();
-        this.movies = data.movies || [];
-        this.tvShows = data.tv || [];
+        
+        const mapMedia = (m: any) => ({
+          ...m,
+          poster_path: m.poster_path?.startsWith('/') ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : m.poster_path,
+          backdrop_path: m.backdrop_path?.startsWith('/') ? `https://image.tmdb.org/t/p/w500${m.backdrop_path}` : m.backdrop_path
+        });
+
+        this.movies = (data.movies || []).map(mapMedia);
+        this.tvShows = (data.tv || []).map(mapMedia);
       } else {
         // Fallback mock data if endpoint is not configured
         this.movies = this.getMockMovies();
@@ -71,10 +79,15 @@ class NetflixState {
       clearTimeout(this.searchTimeout);
       this.searchTimeout = setTimeout(async () => {
         try {
-          const res = await fetch(`/api/netflix/search?q=${encodeURIComponent(query)}`);
+          const res = await fetch(`${ApiConfig.NETFLIX_SEARCH}?q=${encodeURIComponent(query)}`);
           if (res.ok) {
             const data = await res.json();
-            this.serverSearchResults = data.results || [];
+            const mapMedia = (m: any) => ({
+              ...m,
+              poster_path: m.poster_path?.startsWith('/') ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : m.poster_path,
+              backdrop_path: m.backdrop_path?.startsWith('/') ? `https://image.tmdb.org/t/p/w500${m.backdrop_path}` : m.backdrop_path
+            });
+            this.serverSearchResults = (data.results || []).map(mapMedia);
           }
         } catch (e: any) {
           dialogState.show({ title: 'Search Error', message: e.message || 'Failed to search Netflix', confirmText: 'OK' });
@@ -94,7 +107,7 @@ class NetflixState {
     this.details.showTrailer = false;
     try {
       const type = isTvShow ? "tv" : "movie";
-      const res = await fetch(`/api/netflix/details?id=${media.id}&type=${type}`);
+      const res = await fetch(`${ApiConfig.NETFLIX_DETAILS}?id=${media.id}&type=${type}`);
       const data = await res.json();
       if (!data.error) {
         this.details.cast = data.cast || "Unknown";

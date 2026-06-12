@@ -4,17 +4,23 @@
   import Player from "./components/Player.svelte";
   import HomeTab from "./components/HomeTab.svelte";
   import SearchTab from "./components/SearchTab.svelte";
-  import { getContext } from 'svelte';
-  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import DownloadsTab from "./components/DownloadsTab.svelte";
+  import ComingSoonTab from "./components/ComingSoonTab.svelte";
+  import MoreTab from "./components/MoreTab.svelte";
+  import { getContext } from "svelte";
   import { systemState } from "$lib/states";
+  import { Home, Search, PlaySquare, Download, Menu } from "@lucide/svelte";
 
   const isPreview = getContext("isPreview");
 
   let headerOpacity = $state(0);
-  let activeTab = $state("home"); // 'home', 'search'
+  let activeTab = $state("home"); // 'home', 'search', 'coming_soon', 'downloads', 'more'
 
-  const setTabHome = () => activeTab = "home";
-  const setTabSearch = () => activeTab = "search";
+  const setTabHome = () => (activeTab = "home");
+  const setTabSearch = () => (activeTab = "search");
+  const setTabComingSoon = () => (activeTab = "coming_soon");
+  const setTabDownloads = () => (activeTab = "downloads");
+  const setTabMore = () => (activeTab = "more");
 
   function handleScroll(e: Event) {
     const target = e.target as HTMLElement;
@@ -22,30 +28,26 @@
   }
 
   const searchResults = $derived(
-    netflixState.searchQuery.length > 0 && netflixState.serverSearchResults.length > 0
+    netflixState.searchQuery.length > 0 &&
+      netflixState.serverSearchResults.length > 0
       ? netflixState.serverSearchResults
-      : netflixState.localSearchResults
+      : netflixState.localSearchResults,
   );
-
 
   const handleSelectSearchItem = (e: MouseEvent) => {
     const id = (e.currentTarget as HTMLElement).dataset.id;
     if (id) {
-      const item = netflixState.movies.find((m) => String(m.id) === id) || netflixState.tvShows.find((m) => String(m.id) === id);
+      const item =
+        netflixState.movies.find((m) => String(m.id) === id) ||
+        netflixState.tvShows.find((m) => String(m.id) === id);
       if (item) netflixState.selectMedia(item);
     }
   };
 
-
-
   $effect(() => {
     const handlePopState = (e: PopStateEvent) => {
-      // Ignore popstate if the framebuster script called history.back()
-      // and consumed a dummy state, landing us back in our valid 'detail' state
       if (e.state?.netflixModal === "detail") return;
-      // Also ignore if we landed on another dummy state in the chain
       if (e.state?.dummy) return;
-
       if (netflixState.view !== "home") {
         netflixState.goBack(true);
       }
@@ -53,194 +55,147 @@
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   });
-
-  let top10Movies = $derived(netflixState.movies.slice(0, 10));
 </script>
 
 <div
-  class="w-full h-full bg-ios-bg text-white flex flex-col font-sans overflow-hidden"
+  class="w-full h-full bg-black text-white flex flex-col font-sans overflow-hidden"
 >
   {#if netflixState.view === "home"}
-    <!-- Active Tab: Home -->
-    {#if activeTab === "home"}
-      <!-- Header -->
-      <div
-        class="absolute top-0 left-0 w-full z-20 flex flex-col pt-12 pb-2 transition-colors duration-300 bg-black"
-        style:--tw-bg-opacity={headerOpacity}
-      >
-        <!-- Top Bar -->
-        <div class="flex items-center justify-between px-4 mb-4">
-          <!-- Pseudo Netflix Logo (N) -->
-          <div class="flex items-center gap-1">
+    <!-- Active Tabs Content -->
+    <div
+      class="flex-1 relative bg-linear-to-b from-[#700000] via-[#300000] to-black bg-fixed overflow-hidden"
+    >
+      {#if activeTab === "home"}
+        <!-- Top Global Header -->
+        <div
+          class="absolute top-0 left-0 w-full z-50 flex items-center justify-between px-4 pt-12 pb-4 bg-linear-to-b from-[#141414]/90 via-[#141414]/50 to-transparent transition-opacity duration-300"
+          style="opacity: {activeTab === 'home' ? 1 - headerOpacity : 1}"
+        >
+          <!-- Top Bar -->
+          <div class="flex items-center px-4 mb-2 gap-4">
+            <!-- N Logo -->
             <img
               src="/assets/icons/netflix-brand-logo.png"
               alt="Netflix"
               class="h-8 w-auto object-contain"
             />
-          </div>
-          <div class="flex gap-4 items-center text-white">
-            <button
-              aria-label="Cast"
-              class="bg-transparent border-none text-white"
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><rect width="20" height="15" x="2" y="7" rx="2" ry="2" /><path
-                  d="M17 7V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2"
-                /></svg
-              ></button
+            <!-- Category Nav -->
+            <div
+              class="flex gap-4 text-[15px] font-medium text-white items-center drop-shadow-md"
             >
-            <button
-              aria-label="Profile"
-              class="w-6 h-6 rounded bg-blue-500 overflow-hidden"
-            >
-              <img src="https://wallpapers.com/images/hd/netflix-profile-pictures-1000-x-1000-88wkdmjrorckekha.jpg" alt="Profile" class="w-full h-full object-cover" />
-            </button>
+              <button
+                class="bg-transparent border-none text-white cursor-pointer hover:text-gray-300"
+                >TV programmes</button
+              >
+              <button
+                class="bg-transparent border-none text-white cursor-pointer hover:text-gray-300"
+                >Films</button
+              >
+              <button
+                class="bg-transparent border-none text-white cursor-pointer flex items-center gap-1 hover:text-gray-300"
+              >
+                My List
+              </button>
+            </div>
           </div>
         </div>
+        <HomeTab {handleScroll} />
+      {:else if activeTab === "search"}
+        <SearchTab
+          bind:searchQuery={netflixState.searchQuery}
+          {searchResults}
+        />
+      {:else if activeTab === "coming_soon"}
+        <ComingSoonTab />
+      {:else if activeTab === "downloads"}
+        <DownloadsTab />
+      {:else if activeTab === "more"}
+        <MoreTab />
+      {/if}
+    </div>
 
-        <!-- Category Nav -->
-        <div
-          class="flex gap-6 text-[13px] font-semibold text-white justify-center items-center px-4 drop-shadow-md"
-        >
-          <button class="bg-transparent border-none text-white">TV Shows</button
-          >
-          <button class="bg-transparent border-none text-white">Movies</button>
-          <button
-            class="bg-transparent border-none text-white flex items-center gap-1"
-            >Categories <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-              stroke-linecap="round"
-              stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg
-            ></button
-          >
-        </div>
-      </div>
-
-      <HomeTab {handleScroll} />
-
-      <!-- Active Tab: Search -->
-      <SearchTab bind:searchQuery={netflixState.searchQuery} {searchResults} />
-    {/if}
-
+    <!-- Bottom Navigation Bar -->
     <div
-      class="absolute bottom-0 left-0 w-full bg-[#141414]/95 backdrop-blur-lg border-t border-[#333] z-50 flex justify-around items-center pt-2 pb-8 px-2"
+      class="absolute bottom-0 left-0 w-full bg-[#141414]/80 backdrop-blur-xl border-t border-[#333]/50 z-50 flex justify-around items-center pt-2 pb-8 px-2"
     >
       <button
         class="flex flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
         onclick={setTabHome}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill={activeTab === "home" ? "white" : "none"}
-          stroke={activeTab === "home" ? "none" : "currentColor"}
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class={activeTab === "home" ? "text-white" : "text-gray-500"}
-          ><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline
-            points="9 22 9 12 15 12 15 22"
-          /></svg
-        >
+        <Home
+          size={22}
+          class={activeTab === "home" ? "text-white" : "text-[#8E8E93]"}
+          strokeWidth={activeTab === "home" ? 2.5 : 2}
+        />
         <span
-          class="text-[9px] {activeTab === 'home'
-            ? 'text-white font-bold'
-            : 'text-gray-500'}">Home</span
+          class="text-[10px] {activeTab === 'home'
+            ? 'text-white font-medium'
+            : 'text-[#8E8E93]'}">Home</span
         >
-      </button>
-
-      <button class="flex flex-col items-center gap-1 w-16 opacity-50">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-gray-500"><polygon points="5 3 19 12 5 21 5 3" /></svg
-        >
-        <span class="text-[9px] text-gray-500">New & Hot</span>
-      </button>
-
-      <button class="flex flex-col items-center gap-1 w-16 opacity-50">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-gray-500"
-          ><path
-            d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"
-          /><path d="m8 10 4-4 4 4" /><path d="m8 14 4 4 4-4" /></svg
-        >
-        <span class="text-[9px] text-gray-500">Fast Laughs</span>
       </button>
 
       <button
         class="flex flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
         onclick={setTabSearch}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width={activeTab === "search" ? "3" : "2"}
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class={activeTab === "search" ? "text-white" : "text-gray-500"}
-          ><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
-        >
+        <Search
+          size={22}
+          class={activeTab === "search" ? "text-white" : "text-[#8E8E93]"}
+          strokeWidth={activeTab === "search" ? 2.5 : 2}
+        />
         <span
-          class="text-[9px] {activeTab === 'search'
-            ? 'text-white font-bold'
-            : 'text-gray-500'}">Search</span
+          class="text-[10px] {activeTab === 'search'
+            ? 'text-white font-medium'
+            : 'text-[#8E8E93]'}">Search</span
         >
       </button>
 
-      <button class="flex flex-col items-center gap-1 w-16 opacity-50">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-gray-500"
-          ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline
-            points="7 10 12 15 17 10"
-          /><line x1="12" x2="12" y1="15" y2="3" /></svg
+      <button
+        class="flex flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
+        onclick={setTabComingSoon}
+      >
+        <PlaySquare
+          size={22}
+          class={activeTab === "coming_soon" ? "text-white" : "text-[#8E8E93]"}
+          strokeWidth={activeTab === "coming_soon" ? 2.5 : 2}
+        />
+        <span
+          class="text-[10px] {activeTab === 'coming_soon'
+            ? 'text-white font-medium'
+            : 'text-[#8E8E93]'}">Coming Soon</span
         >
-        <span class="text-[9px] text-gray-500">Downloads</span>
+      </button>
+
+      <button
+        class="flex flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
+        onclick={setTabDownloads}
+      >
+        <Download
+          size={22}
+          class={activeTab === "downloads" ? "text-white" : "text-[#8E8E93]"}
+          strokeWidth={activeTab === "downloads" ? 2.5 : 2}
+        />
+        <span
+          class="text-[10px] {activeTab === 'downloads'
+            ? 'text-white font-medium'
+            : 'text-[#8E8E93]'}">Downloads</span
+        >
+      </button>
+
+      <button
+        class="flex flex-col items-center gap-1 w-16 bg-transparent border-none cursor-pointer"
+        onclick={setTabMore}
+      >
+        <Menu
+          size={22}
+          class={activeTab === "more" ? "text-white" : "text-[#8E8E93]"}
+          strokeWidth={activeTab === "more" ? 2.5 : 2}
+        />
+        <span
+          class="text-[10px] {activeTab === 'more'
+            ? 'text-white font-medium'
+            : 'text-[#8E8E93]'}">More</span
+        >
       </button>
     </div>
   {:else if netflixState.view === "detail"}

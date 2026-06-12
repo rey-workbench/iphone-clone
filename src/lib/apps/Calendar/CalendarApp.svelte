@@ -30,7 +30,7 @@
       {/snippet}
     </AppHeader>
     <div class="grid grid-cols-7 gap-y-1 mb-6">
-      {#each state.weekdays as wd (wd)}
+      {#each state.weekdays as wd, i (i)}
         <div class="text-center text-[11px] font-semibold text-ios-label2 py-1">{wd}</div>
       {/each}
       {#each Array(state.firstDow) as _, i (i)}

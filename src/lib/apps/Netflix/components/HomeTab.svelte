@@ -1,11 +1,13 @@
 <script lang="ts">
   import { netflixState } from "../NetflixState.svelte";
-  import { systemState } from "$lib/states";
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import { Plus, Info } from "@lucide/svelte";
 
   let { handleScroll } = $props<{ handleScroll: (e: Event) => void }>();
 
-  let top10Movies = $derived(netflixState.movies.slice(0, 10));
+  let previews = $derived(netflixState.tvShows.slice(0, 6));
+  let popular = $derived(netflixState.movies.slice(0, 10));
+  let trending = $derived(netflixState.tvShows.slice(0, 10));
 
   const handleSelectMovie = (e: MouseEvent) => {
     const id = (e.currentTarget as HTMLElement).dataset.id;
@@ -31,62 +33,62 @@
 </script>
 
 <div
-  class="flex-1 overflow-y-auto pb-20 no-scrollbar relative z-10"
+  class="w-full h-full overflow-y-auto pb-20 no-scrollbar relative z-10"
   onscroll={handleScroll}
 >
   <!-- Hero Banner -->
   {#if netflixState.movies.length > 0}
-    <div class="relative w-full h-137.5">
+    <div class="relative w-full h-[550px] mb-8">
       <img
         src={netflixState.movies[0].poster_path}
         alt={netflixState.movies[0].title}
         class="w-full h-full object-cover object-center"
       />
+      <!-- Gradient overlay matching the global background to blend in -->
       <div
-        class="absolute inset-0 bg-linear-to-t from-ios-bg via-transparent to-ios-bg/40"
+        class="absolute inset-0 bg-linear-to-t from-[#141414] via-[#141414]/60 to-transparent"
       ></div>
 
       <div
-        class="absolute bottom-0 left-0 w-full pb-6 flex flex-col items-center gap-4"
+        class="absolute bottom-0 left-0 w-full pb-4 flex flex-col items-center gap-4"
       >
+        <div class="flex items-center gap-1 mb-1">
+          <img
+            src="/assets/icons/netflix-brand-logo.png"
+            alt="N"
+            class="w-3 h-4"
+          />
+          <span class="text-[10px] font-bold tracking-widest text-white/90"
+            >SERIES</span
+          >
+        </div>
+
         <h1
-          class="text-5xl font-black text-center tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4 leading-none uppercase"
+          class="text-5xl font-black text-center tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4 leading-none uppercase mb-0"
         >
           {netflixState.movies[0].title}
         </h1>
 
         <div
-          class="text-[11px] font-semibold text-white drop-shadow-md tracking-wider"
+          class="text-[12px] font-medium text-white/90 drop-shadow-md tracking-wide mt-1 flex items-center justify-center gap-2"
         >
-          Exciting • Reality TV • Competition
+          <span>Ominous</span>
+          <span class="w-1 h-1 rounded-full bg-white/50"></span>
+          <span>Exciting</span>
+          <span class="w-1 h-1 rounded-full bg-white/50"></span>
+          <span>Teen</span>
         </div>
 
-        <div class="flex items-center justify-center gap-8 w-full mt-2">
+        <div class="flex items-center justify-center gap-10 w-full mt-2">
           <button
             class="flex flex-col items-center gap-1 bg-transparent border-none text-white hover:text-gray-300 cursor-pointer"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><line x1="12" x2="12" y1="5" y2="19" /><line
-                x1="5"
-                x2="19"
-                y1="12"
-                y2="12"
-              /></svg
-            >
-            <span class="text-[10px] font-medium">My List</span>
+            <Plus size={24} strokeWidth={2.5} />
+            <span class="text-[11px] font-semibold">My List</span>
           </button>
 
           <button
-            class="bg-white text-black font-bold border-none cursor-pointer py-2 px-8 rounded flex items-center justify-center gap-2 hover:bg-white/80 transition-colors"
+            class="bg-white text-black font-bold border-none cursor-pointer py-1.5 px-6 rounded flex items-center justify-center gap-2 hover:bg-white/80 transition-colors"
             onclick={handlePlayHero}
           >
             <svg
@@ -103,27 +105,14 @@
             class="flex flex-col items-center gap-1 bg-transparent border-none text-white cursor-pointer hover:text-gray-300"
             onclick={handlePlayHero}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path
-                d="M12 8h.01"
-              /></svg
-            >
-            <span class="text-[10px] font-medium">Info</span>
+            <Info size={24} strokeWidth={2.5} />
+            <span class="text-[11px] font-semibold">Info</span>
           </button>
         </div>
       </div>
     </div>
   {:else}
-    <div class="relative w-full h-137.5">
+    <div class="relative w-full h-[550px] mb-8">
       <Skeleton width="100%" height="100%" />
       <div
         class="absolute bottom-0 left-0 w-full pb-6 flex flex-col items-center gap-4"
@@ -139,27 +128,66 @@
     </div>
   {/if}
 
-  <div class="flex flex-col gap-8 mt-2">
+  <div class="flex flex-col gap-6">
+    <!-- Previews -->
     <div class="w-full">
-      <h2 class="text-[15px] font-bold px-4 mb-2 text-gray-100">
-        Continue Watching for {systemState.currentUser?.name?.split(
-          " "
-        )[0] || "Guest"}
+      <h2 class="text-[16px] font-bold px-4 mb-2 text-white">Previews</h2>
+      <div class="flex overflow-x-auto px-4 pb-2 gap-4 no-scrollbar">
+        {#if previews.length === 0}
+          {#each Array(5) as _, i (i)}
+            <div
+              class="flex-none w-24 h-24 rounded-full overflow-hidden bg-[#222]"
+            >
+              <Skeleton width="100%" height="100%" borderRadius="50%" />
+            </div>
+          {/each}
+        {:else}
+          {#each previews as tv (tv.id)}
+            <button
+              data-id={tv.id}
+              class="relative flex-none w-[100px] h-[100px] rounded-full overflow-hidden bg-[#222] border-2 border-[#333] focus:border-white p-0 cursor-pointer transition-transform hover:scale-105"
+              onclick={handleSelectTv}
+              aria-label="Preview {tv.title}"
+            >
+              <img
+                src={tv.backdrop_path || tv.poster_path}
+                alt={tv.title}
+                class="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div
+                class="absolute bottom-0 left-0 w-full h-1/2 bg-linear-to-t from-black/80 to-transparent flex items-end justify-center pb-2"
+              >
+                <span
+                  class="text-white text-[10px] font-bold text-center leading-tight px-1 drop-shadow-md"
+                  >{tv.title}</span
+                >
+              </div>
+            </button>
+          {/each}
+        {/if}
+      </div>
+    </div>
+
+    <!-- Popular on Netflix -->
+    <div class="w-full">
+      <h2 class="text-[16px] font-bold px-4 mb-2 text-white">
+        Popular on Netflix
       </h2>
       <div class="flex overflow-x-auto px-4 pb-2 gap-2 no-scrollbar snap-x">
-        {#if top10Movies.length === 0}
+        {#if popular.length === 0}
           {#each Array(4) as _, i (i)}
             <div
-              class="relative flex-none w-26.25 h-38.75 rounded overflow-hidden snap-start bg-[#222]"
+              class="relative flex-none w-[105px] h-[155px] rounded-md overflow-hidden snap-start bg-[#222]"
             >
               <Skeleton width="100%" height="100%" />
             </div>
           {/each}
         {:else}
-          {#each top10Movies.slice(0, 4) as movie (movie.id)}
+          {#each popular as movie (movie.id)}
             <button
               data-id={movie.id}
-              class="relative flex-none w-26.25 h-38.75 rounded overflow-hidden bg-[#222] border-none p-0 cursor-pointer snap-start transition-transform hover:scale-105"
+              class="relative flex-none w-[105px] h-[155px] rounded-md overflow-hidden bg-[#222] border-none p-0 cursor-pointer snap-start transition-transform hover:scale-105 shadow-sm"
               onclick={handleSelectMovie}
               aria-label="Watch {movie.title}"
             >
@@ -176,80 +204,45 @@
                 class="w-full h-full object-cover"
                 loading="lazy"
               />
-              <div
-                class="absolute inset-0 bg-black/30 flex items-center justify-center"
-              >
-                <div
-                  class="w-10 h-10 rounded-full border border-white flex items-center justify-center bg-black/50"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="white"
-                    class="ml-0.5"><path d="M8 5v14l11-7z" /></svg
-                  >
-                </div>
-              </div>
-              <div class="absolute bottom-0 left-0 w-full h-0.75 bg-gray-600">
-                <div class="h-full bg-[#E50914] w-1/3"></div>
-              </div>
             </button>
           {/each}
         {/if}
       </div>
     </div>
 
-    <div class="w-full overflow-hidden">
-      <h2 class="text-[15px] font-bold px-4 mb-2 text-gray-100">
-        Top 10 TV Shows Today
-      </h2>
-      <div class="flex overflow-x-auto px-4 pb-4 gap-0 no-scrollbar snap-x">
-        {#if netflixState.tvShows.length === 0}
-          {#each Array(3) as _, i (i)}
+    <!-- Trending Now -->
+    <div class="w-full">
+      <h2 class="text-[16px] font-bold px-4 mb-2 text-white">Trending Now</h2>
+      <div class="flex overflow-x-auto px-4 pb-4 gap-2 no-scrollbar snap-x">
+        {#if trending.length === 0}
+          {#each Array(4) as _, i (i)}
             <div
-              class="relative flex-none w-33.75 h-41.25 flex items-end justify-end overflow-visible snap-start"
+              class="relative flex-none w-[105px] h-[155px] rounded overflow-hidden snap-start bg-[#222]"
             >
-              <div class="w-27.5 h-41.25 relative z-10 rounded overflow-hidden">
-                <Skeleton width="100%" height="100%" />
-              </div>
+              <Skeleton width="100%" height="100%" />
             </div>
           {/each}
         {:else}
-          {#each netflixState.tvShows.slice(0, 10) as tv, i (tv.id)}
+          {#each trending as tv (tv.id)}
             <button
               data-id={tv.id}
-              class="relative flex-none border-none p-0 bg-transparent cursor-pointer w-33.75 h-41.25 flex items-end justify-end overflow-visible snap-start transition-transform hover:scale-105"
+              class="relative flex-none w-[105px] h-[155px] rounded-md overflow-hidden bg-[#222] border-none p-0 cursor-pointer snap-start transition-transform hover:scale-105 shadow-sm"
               onclick={handleSelectTv}
               aria-label="View {tv.title}"
             >
-              <div
-                class="absolute left-4 -bottom-2 text-[85px] font-black text-black z-20 tracking-tighter drop-shadow-md"
-                style:-webkit-text-stroke="3px white" style:color="black" style:line-height="0.8" style:font-family="Impact, sans-serif"
-              >
-                {i + 1}
-              </div>
-              <div class="w-27.5 h-41.25 relative z-10 rounded overflow-hidden">
+              <div class="absolute top-1 left-1 z-10 w-3 h-4">
                 <img
-                  src={tv.poster_path}
-                  alt={tv.title}
-                  class="w-full h-full object-cover"
-                  loading="lazy"
+                  src="/assets/icons/netflix-brand-logo.png"
+                  alt="N"
+                  class="w-full h-full object-contain"
                 />
-                <div class="absolute top-1 left-1 z-10 w-3 h-4">
-                  <img
-                    src="/assets/icons/netflix-brand-logo.png"
-                    alt="N"
-                    class="w-full h-full object-contain"
-                  />
-                </div>
-                <div
-                  class="absolute top-0 right-0 bg-[#E50914] text-white text-[8px] font-bold px-1.5 py-0.5 rounded-bl tracking-wider shadow-md"
-                >
-                  TOP<br />10
-                </div>
               </div>
+              <img
+                src={tv.poster_path}
+                alt={tv.title}
+                class="w-full h-full object-cover"
+                loading="lazy"
+              />
             </button>
           {/each}
         {/if}

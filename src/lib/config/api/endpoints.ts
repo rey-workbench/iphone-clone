@@ -7,6 +7,9 @@ export const ApiEndpoints = {
     NOTES: '/api/notes',
     CHAT: '/api/chat',
     MUSIC_SEARCH: '/api/ytsearch',
+    NETFLIX_LATEST: '/api/netflix/latest',
+    NETFLIX_SEARCH: '/api/netflix/search',
+    NETFLIX_DETAILS: '/api/netflix/details',
     
     // External API Routes
     WEATHER_IP: 'https://ipwho.is/',
