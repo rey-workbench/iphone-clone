@@ -1,64 +1,17 @@
 <script lang="ts">
   import { ChevronLeft, Laptop, Smartphone, Monitor } from "@lucide/svelte";
   import { systemState } from "$lib/states/systemState.svelte";
-  import { dialogState } from "$lib/states/dialogState.svelte";
-  import { webrtcState } from "$lib/states/webrtcState.svelte";
   import { onMount } from "svelte";
-  import { ApiConfig } from "$lib/config/api";
   import Skeleton from "$lib/components/ui/Skeleton.svelte";
+  import { AppLinkedDevicesState } from "./LinkedDevicesState.svelte";
 
   let { onBack } = $props<{ onBack: () => void }>();
 
-  let devices = $state<any[]>([]);
-  let isLoading = $state(true);
+  const state = new AppLinkedDevicesState();
 
   onMount(async () => {
-    await fetchDevices();
+    await state.fetchDevices();
   });
-
-  async function fetchDevices() {
-    isLoading = true;
-    try {
-      const res = await fetch(
-        `${ApiConfig.AUTH_DEVICES}?userId=${systemState.currentUser?.id}`,
-      );
-      const data = await res.json();
-      if (data.devices) {
-        devices = data.devices;
-      }
-    } catch (e: any) {
-      dialogState.show({ title: 'Device Error', message: e.message || 'Failed to fetch devices', confirmText: 'OK' });
-    } finally {
-      isLoading = false;
-    }
-  }
-
-  async function revokeDevice(deviceId: string) {
-    try {
-      // Optimitic update
-      devices = devices.filter((d) => d.device_id !== deviceId);
-
-      await fetch(
-        ApiConfig.AUTH_DEVICES, 
-        ApiConfig.getRevokeDeviceRequest(
-          systemState.currentUser?.id, 
-          deviceId
-        )
-      );
-
-      // Send force_logout broadcast so the other tab logs out immediately
-      webrtcState.sendSignal(
-        systemState.currentUser?.id!,
-        "force_logout",
-        {},
-        deviceId,
-      );
-    } catch (e) {
-      console.error("Failed to revoke device", e);
-      // Revert if failed
-      await fetchDevices();
-    }
-  }
 
   function getDeviceIcon(name: string) {
     const lower = name.toLowerCase();
@@ -102,7 +55,7 @@
       Active Sessions
     </div>
     <div class="bg-ios-bg2 rounded-xl mb-5 overflow-hidden">
-      {#if isLoading}
+      {#if state.isLoading}
         {#each Array(3) as _, i}
           <div class="flex items-center gap-3 py-3 px-4 w-full">
             <div class="w-10 h-10 rounded-md shrink-0">
@@ -116,12 +69,12 @@
           </div>
           {#if i < 2}<div class="h-px bg-ios-sep ml-[68px]"></div>{/if}
         {/each}
-      {:else if devices.length === 0}
+      {:else if state.devices.length === 0}
         <div class="p-4 text-center text-ios-label2">
           No linked devices found.
         </div>
       {:else}
-        {#each devices as device, i}
+        {#each state.devices as device, i}
           {@const isCurrent = device.device_id === systemState.deviceId}
           {@const Icon = getDeviceIcon(device.device_name)}
           <div class="flex items-center gap-3 py-3 px-4 w-full text-left">
@@ -142,7 +95,7 @@
             {#if !isCurrent}
               <button
                 class="px-3 py-1.5 rounded-full bg-ios-red/20 text-ios-red text-[14px] font-medium active:bg-ios-red/30 border-none cursor-pointer"
-                onclick={() => revokeDevice(device.device_id)}
+                onclick={() => state.revokeDevice(device.device_id)}
               >
                 Log Out
               </button>
@@ -150,7 +103,7 @@
               <div class="text-[14px] text-ios-green font-medium">Active</div>
             {/if}
           </div>
-          {#if i < devices.length - 1}
+          {#if i < state.devices.length - 1}
             <div class="h-px bg-ios-sep ml-[68px]"></div>
           {/if}
         {/each}

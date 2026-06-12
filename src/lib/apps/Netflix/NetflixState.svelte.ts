@@ -1,4 +1,5 @@
 import { systemState } from "$lib/states/systemState.svelte";
+import { dialogState } from "$lib/states/dialogState.svelte";
 
 export class NetflixState {
   view = $state<'home' | 'detail' | 'player'>('home');
@@ -13,6 +14,21 @@ export class NetflixState {
   movies = $state<any[]>([]);
   tvShows = $state<any[]>([]);
   isLoading = $state(false);
+
+  searchQuery = $state("");
+  serverSearchResults = $state<any[]>([]);
+
+  details = $state({
+    cast: "Loading...",
+    creator: "Loading...",
+    trailerId: null as string | null,
+    showTrailer: false,
+    seasons: [] as any[],
+    isLoading: true
+  });
+
+  private searchTimeout: any;
+  private idleTimer: any;
 
   constructor() {
     this.fetchTrending();
@@ -37,6 +53,64 @@ export class NetflixState {
       this.tvShows = this.getMockTv();
     }
     this.isLoading = false;
+  }
+
+  search(query: string) {
+    this.searchQuery = query;
+    if (query.trim().length > 2) {
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/netflix/search?q=${encodeURIComponent(query)}`);
+          if (res.ok) {
+            const data = await res.json();
+            this.serverSearchResults = data.results || [];
+          }
+        } catch (e: any) {
+          dialogState.show({ title: 'Search Error', message: e.message || 'Failed to search Netflix', confirmText: 'OK' });
+        }
+      }, 500);
+    } else {
+      this.serverSearchResults = [];
+    }
+  }
+
+  async fetchDetails(media: any, isTvShow: boolean) {
+    if (!media?.id) return;
+    this.details.isLoading = true;
+    this.details.cast = "Loading...";
+    this.details.creator = "Loading...";
+    this.details.trailerId = null;
+    this.details.showTrailer = false;
+    try {
+      const type = isTvShow ? "tv" : "movie";
+      const res = await fetch(`/api/netflix/details?id=${media.id}&type=${type}`);
+      const data = await res.json();
+      if (!data.error) {
+        this.details.cast = data.cast || "Unknown";
+        this.details.creator = data.creator || "Unknown";
+        this.details.trailerId = data.trailerId;
+        this.details.seasons = data.seasons || [];
+      }
+    } catch (e: any) {
+      dialogState.show({ title: 'Details Error', message: e.message || 'Failed to fetch movie details', confirmText: 'OK' });
+    } finally {
+      this.details.isLoading = false;
+    }
+  }
+
+  startIdleTimer(isPlaying: boolean) {
+    clearTimeout(this.idleTimer);
+    this.details.showTrailer = false;
+    this.idleTimer = setTimeout(() => {
+      if (!isPlaying && this.details.trailerId) {
+        this.details.showTrailer = true;
+      }
+    }, 4000);
+  }
+
+  clearIdleTimer() {
+    clearTimeout(this.idleTimer);
   }
 
   selectMedia(item: any) {

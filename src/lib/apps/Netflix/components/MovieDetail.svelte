@@ -25,14 +25,7 @@
   let selectedSeason = $state(1);
   let selectedEpisode = $state(1);
 
-  let cast = $state("Loading...");
-  let creator = $state("Loading...");
-  let trailerId = $state<string | null>(null);
-  let showTrailer = $state(false);
-  let seasons = $state<any[]>([]);
-  let idleTimer: any;
   let currentServer = $state(1);
-  let isLoading = $state(true);
 
   let iframeSrc = $derived(
     isTvShow
@@ -56,35 +49,9 @@
     isFullscreen = false;
   }
 
-  async function fetchDetails() {
-    if (!media?.id) return;
-    isLoading = true;
-    try {
-      const type = isTvShow ? "tv" : "movie";
-      const res = await fetch(
-        `/api/netflix/details?id=${media.id}&type=${type}`,
-      );
-      const data = await res.json();
-      if (!data.error) {
-        cast = data.cast || "Unknown";
-        creator = data.creator || "Unknown";
-        trailerId = data.trailerId;
-        if (data.seasons && data.seasons.length > 0) {
-          seasons = data.seasons;
-          selectedSeason = seasons[0].season_number;
-        } else {
-          seasons = [];
-        }
-      }
-    } catch (e: any) {
-      dialogState.show({ title: 'Details Error', message: e.message || 'Failed to fetch movie details', confirmText: 'OK' });
-    } finally {
-      isLoading = false;
-    }
-  }
+
 
   onMount(() => {
-    fetchDetails();
     // Block malicious framebusting redirects unconditionally
     const preventRedirect = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -110,30 +77,19 @@
     };
   });
 
-  function startIdleTimer() {
-    clearTimeout(idleTimer);
-    showTrailer = false;
-    idleTimer = setTimeout(() => {
-      if (!isPlaying && trailerId) {
-        showTrailer = true;
-      }
-    }, 4000); // 4 seconds of idle time
-  }
-
   $effect(() => {
     if (media) {
-      cast = "Loading...";
-      creator = "Loading...";
-      trailerId = null;
-      showTrailer = false;
-      fetchDetails().then(() => {
-        startIdleTimer();
+      netflixState.fetchDetails(media, isTvShow).then(() => {
+        if (netflixState.details.seasons.length > 0) {
+          selectedSeason = netflixState.details.seasons[0].season_number;
+        }
+        netflixState.startIdleTimer(isPlaying);
       });
     }
   });
 
   onDestroy(() => {
-    clearTimeout(idleTimer);
+    netflixState.clearIdleTimer();
   });
 </script>
 
@@ -251,9 +207,9 @@
           class="absolute inset-0 w-full h-full bg-black z-10 animate-[fadeIn_0.3s_ease]"
         >
           <!-- Background Image or Trailer -->
-          {#if showTrailer && trailerId}
+          {#if netflixState.details.showTrailer && netflixState.details.trailerId}
             <iframe
-              src="https://www.youtube.com/embed/{trailerId}?autoplay=1&mute=1&controls=0&playsinline=1&modestbranding=1&loop=1&playlist={trailerId}"
+              src="https://www.youtube.com/embed/{netflixState.details.trailerId}?autoplay=1&mute=1&controls=0&playsinline=1&modestbranding=1&loop=1&playlist={netflixState.details.trailerId}"
               class="w-full h-full object-cover scale-[1.35] pointer-events-none opacity-80"
               frameborder="0"
               allow="autoplay; encrypted-media; picture-in-picture"
@@ -320,7 +276,7 @@
         <span class="px-1 py-0.5 bg-[#333] text-gray-300 rounded-sm text-[10px]"
           >TV-MA</span
         >
-        {#if isTvShow}<span>{media.seasons || 1} Seasons</span>{/if}
+        {#if isTvShow}<span>{netflixState.details.seasons.length > 0 ? netflixState.details.seasons.length : media.seasons || 1} Seasons</span>{/if}
         <span class="border border-gray-500 px-1 rounded-sm text-[10px]"
           >HD</span
         >
@@ -391,7 +347,7 @@
       <!-- Synopsis -->
       <div class="text-sm leading-snug text-white mt-1">
         <span class="font-bold">{isTvShow ? "S1:E1 " : ""}</span>
-        {#if isLoading}
+        {#if netflixState.details.isLoading}
           <div class="flex flex-col gap-1 mt-1">
             <Skeleton width="100%" height="14px" />
             <Skeleton width="90%" height="14px" />
@@ -405,17 +361,17 @@
       <!-- Cast -->
       <div class="text-[11px] text-gray-400 leading-tight">
         <span class="text-gray-300">Starring:</span>
-        {#if isLoading}
+        {#if netflixState.details.isLoading}
           <Skeleton width="120px" height="12px" class="inline-block" />
         {:else}
-          {cast}
+          {netflixState.details.cast}
         {/if}
         <br />
         <span class="text-gray-300">{isTvShow ? "Creator:" : "Director:"}</span>
-        {#if isLoading}
+        {#if netflixState.details.isLoading}
           <Skeleton width="80px" height="12px" class="inline-block" />
         {:else}
-          {creator}
+          {netflixState.details.creator}
         {/if}
       </div>
 
@@ -462,7 +418,7 @@
       </div>
 
       <!-- Episodes for TV -->
-      {#if isTvShow && seasons.length > 0}
+      {#if isTvShow && netflixState.details.seasons.length > 0}
         <div class="mt-2">
           <select
             id="season-select"
@@ -470,12 +426,12 @@
             class="bg-[#2b2b2b] text-white px-4 py-2 rounded text-sm font-medium border-none outline-none mb-4"
             bind:value={selectedSeason}
           >
-            {#each seasons as s}
+            {#each netflixState.details.seasons as s}
               <option value={s.season_number}>{s.name}</option>
             {/each}
           </select>
           <div class="flex flex-col gap-6">
-            {#each Array.from( { length: seasons.find((s) => s.season_number === selectedSeason)?.episode_count || 1 }, ) as _, i}
+            {#each Array.from( { length: netflixState.details.seasons.find((s) => s.season_number === selectedSeason)?.episode_count || 1 }, ) as _, i}
               <div class="flex flex-col gap-2">
                 <div
                   class="flex items-center gap-3 cursor-pointer group"

@@ -18,11 +18,9 @@
     headerOpacity = Math.min(target.scrollTop / 100, 1);
   }
 
-  let serverSearchResults = $state<any[]>([]);
-
   let searchResults = $derived(
-    searchQuery.length > 0 && serverSearchResults.length > 0
-      ? serverSearchResults
+    searchQuery.length > 0 && netflixState.serverSearchResults.length > 0
+      ? netflixState.serverSearchResults
       : [...netflixState.movies, ...netflixState.tvShows].filter((item) =>
           (item.title || item.name || "")
             .toLowerCase()
@@ -32,22 +30,7 @@
 
   $effect(() => {
     if (isPreview) return;
-    if (searchQuery.trim().length > 2) {
-      const timeout = setTimeout(async () => {
-        try {
-          const res = await fetch(`/api/netflix/search?q=${encodeURIComponent(searchQuery)}`);
-          if (res.ok) {
-            const data = await res.json();
-            serverSearchResults = data.results || [];
-          }
-        } catch (e: any) {
-          dialogState.show({ title: 'Search Error', message: e.message || 'Failed to search Netflix', confirmText: 'OK' });
-        }
-      }, 500);
-      return () => clearTimeout(timeout);
-    } else {
-      serverSearchResults = [];
-    }
+    netflixState.search(searchQuery);
   });
 
   onMount(() => {
