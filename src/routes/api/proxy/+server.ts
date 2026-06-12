@@ -3,11 +3,11 @@ import { ProxyService } from '$lib/server/services/ProxyService';
 
 const proxyService = new ProxyService();
 
-export const fallback = async ({ request, url }) => {
+export async function GET({ url }) {
   const targetUrl = url.searchParams.get('url');
   
   try {
-    const { body, status, headers } = await proxyService.fetchProxy(targetUrl || '', request);
+    const { body, status, headers } = await proxyService.fetchProxy(targetUrl || '');
     return new Response(body, { status, headers });
   } catch (err: any) {
     if (err.message.includes('Missing')) {
@@ -15,4 +15,4 @@ export const fallback = async ({ request, url }) => {
     }
     throw error(500, `Proxy failed: ${err.message}`);
   }
-};
+}

@@ -7,7 +7,7 @@
 		"dev": "cross-env NODE_OPTIONS=--disable-warning=DEP0205 vite dev",
 		"build": "cross-env NODE_OPTIONS=--disable-warning=DEP0205 vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync",
+		"prepare": "node scripts/copy-scramjet.js && svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
@@ -34,6 +34,11 @@
 	"dependencies": {
 		"@libsql/client": "^0.17.3",
 		"@lucide/svelte": "^1.18.0",
+		"@mercuryworkshop/bare-mux": "^2.1.9",
+		"@mercuryworkshop/libcurl-transport": "^2.0.5",
+		"@mercuryworkshop/scramjet": "2.0.67-alpha.1",
+		"@mercuryworkshop/scramjet-controller": "^0.0.13",
+		"@mercuryworkshop/wisp-js": "^0.4.1",
 		"@supabase/supabase-js": "^2.108.1",
 		"idb": "^8.0.3",
 		"lrclib-api": "^2.0.4",

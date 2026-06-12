@@ -153,11 +153,11 @@
         </div>
       {:else}
         <div class="flex items-end gap-3 px-3 pt-2 pb-8 border-t border-[#222] bg-black/90 backdrop-blur-md z-20 relative">
-          <button class="w-[32px] h-[32px] rounded-full bg-[#2C2C2E] flex items-center justify-center shrink-0 border-none cursor-pointer mb-1">
+          <button class="w-[32px] h-[32px] rounded-full bg-ios-bg3 flex items-center justify-center shrink-0 border-none cursor-pointer mb-1">
             <Plus size={20} color="#8e8e93" strokeWidth={2.5} />
           </button>
 
-          <div class="flex-1 flex items-end bg-[#1C1C1E] rounded-3xl min-h-[34px] border border-[#333] p-0.5 pl-3 pr-0.5 mb-0.5">
+          <div class="flex-1 flex items-end bg-ios-bg2 rounded-3xl min-h-[34px] border border-[#333] p-0.5 pl-3 pr-0.5 mb-0.5">
             <textarea
               bind:value={appState.inputText}
               placeholder="iMessage"
