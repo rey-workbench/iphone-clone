@@ -1,4 +1,4 @@
-import { ApiConfig } from "$lib/config/api";
+import { MusicApiClient } from '$lib/client/services/MusicApiClient';
 import { EMusicItemType, type IMusicTrack, EMusicAction } from "$lib/types/music";
 import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
 import type { IAppLifecycle } from "$lib/types/app";
@@ -141,7 +141,7 @@ export class MusicAppState implements IAppLifecycle {
     async fetchTab(action: string) {
         this.tracks = [];
         try {
-            const r = await ApiConfig.fetchMusicSearch({ action: action as EMusicAction });
+            const r = await MusicApiClient.search({ action: action as EMusicAction });
             if (r && r.results) this.tracks = r.results;
         } catch {
             this.tracks = [];
@@ -153,7 +153,7 @@ export class MusicAppState implements IAppLifecycle {
         this.isSearching = true;
         this.searchSuggestions = [];
         try {
-            const r = await ApiConfig.fetchMusicSearch({ q: this.searchQuery });
+            const r = await MusicApiClient.search({ q: this.searchQuery });
             if (r && r.results) this.searchResults = r.results;
         } catch {
             this.searchResults = [];
@@ -166,7 +166,7 @@ export class MusicAppState implements IAppLifecycle {
             clearTimeout(this.searchTimeout);
             this.searchTimeout = setTimeout(async () => {
                 try {
-                    const r = await ApiConfig.fetchMusicSearch({ action: EMusicAction.SUGGESTIONS, q: this.searchQuery });
+                    const r = await MusicApiClient.search({ action: EMusicAction.SUGGESTIONS, q: this.searchQuery });
                     if (r && r.results) this.searchSuggestions = r.results;
                 } catch {}
             }, 300);
@@ -178,7 +178,7 @@ export class MusicAppState implements IAppLifecycle {
     async play(t: IMusicTrack) {
         if (t.type === EMusicItemType.PLAYLIST || t.type === EMusicItemType.ALBUM || t.type === EMusicItemType.ARTIST) {
             try {
-                const r = await ApiConfig.fetchMusicSearch({ action: EMusicAction.PLAYLIST_TRACKS, q: t.id, type: t.type });
+                const r = await MusicApiClient.search({ action: EMusicAction.PLAYLIST_TRACKS, q: t.id, type: t.type });
                 if (r && r.results && r.results.length > 0) {
                     this.tracks = r.results;
                     this.current = this.tracks[0];
@@ -250,7 +250,7 @@ export class MusicAppState implements IAppLifecycle {
     async fetchUpNext() {
         if (!this.current) return;
         try {
-            const r = await ApiConfig.fetchMusicSearch({ action: EMusicAction.UPNEXT, q: this.current.id });
+            const r = await MusicApiClient.search({ action: EMusicAction.UPNEXT, q: this.current.id });
             if (r && r.results && r.results.length > 0) {
                 this.tracks = r.results;
             }
@@ -265,7 +265,7 @@ export class MusicAppState implements IAppLifecycle {
         if (this.lyricsCache.has(songId)) return;
         
         try {
-            const d = await ApiConfig.fetchMusicSearch({ 
+            const d = await MusicApiClient.search({ 
                 action: EMusicAction.LYRICS, 
                 q: songId, 
                 title: song.name, 

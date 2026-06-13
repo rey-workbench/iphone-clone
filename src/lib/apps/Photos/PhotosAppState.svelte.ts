@@ -1,5 +1,6 @@
 import { photosDb, PhotosDBKey } from '$lib/config/localdb';
 import { ApiConfig } from '$lib/config/api';
+import { PhotosApiClient } from '$lib/client/services/PhotosApiClient';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 
 export class PhotosAppState extends SyncState<any[]> {
@@ -8,7 +9,7 @@ export class PhotosAppState extends SyncState<any[]> {
 
   constructor() {
     super(photosDb, PhotosDBKey.PHOTOS, [], async () => {
-      const data = await ApiConfig.fetchPhotosList();
+      const data = await PhotosApiClient.getList();
       return data ? data.photos : [];
     });
   }

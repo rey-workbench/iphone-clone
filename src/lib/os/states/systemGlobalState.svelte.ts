@@ -1,4 +1,4 @@
-import { ApiConfig } from '$lib/config/api';
+import { SystemApiClient } from '$lib/client/services/SystemApiClient';
 import { sessionDb, SessionDBKey } from '$lib/config/localdb';
 import type { ISystemGlobalState, ISystemCurrentUser } from '$lib/types/os';
 
@@ -59,9 +59,9 @@ class SystemGlobalState implements ISystemGlobalState {
       }, 1000);
 
       // Keepalive ping
-      fetch(ApiConfig.SYSTEM_KEEPALIVE).catch(() => { });
+      SystemApiClient.sendKeepalivePing();
       setInterval(() => {
-        fetch(ApiConfig.SYSTEM_KEEPALIVE).catch(() => { });
+        SystemApiClient.sendKeepalivePing();
       }, 30 * 60 * 1000);
     }
   }

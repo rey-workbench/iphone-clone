@@ -11,7 +11,8 @@ export class AppStoreAppState extends SyncState<any> {
 
     constructor() {
         super(appstoreDb, AppStoreDBKey.APPSTORE_PRODUCTS, null, async () => {
-            const data = await ApiConfig.fetchAppStoreProducts();
+            const { AppStoreApiClient } = await import('$lib/client/services/AppStoreApiClient');
+            const data = await AppStoreApiClient.getProducts();
             return data;
         });
     }

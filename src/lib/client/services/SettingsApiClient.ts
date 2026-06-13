@@ -7,10 +7,11 @@ export class SettingsApiClient {
     }
 
     static async revokeDevice(userId: string, deviceId: string) {
-        const res = await fetch(
-            ApiConfig.AUTH_DEVICES, 
-            ApiConfig.getRevokeDeviceRequest(userId, deviceId)
-        );
+        const res = await fetch(ApiConfig.AUTH_DEVICES, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, deviceId })
+        });
         return { res, result: res.ok ? await res.json() : null };
     }
 }

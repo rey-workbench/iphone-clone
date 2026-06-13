@@ -1,7 +1,7 @@
 import { supabase } from '$lib/config/supabase';
 import { systemGlobalState } from '$lib/os/states';
 import { requestMicrophone, requestCamera } from '$lib/utils/permissions';
-import { ApiConfig } from '$lib/config/api';
+import { WebRTCApiClient } from '$lib/client/services/WebRTCApiClient';
 
 export type { CallStatus } from '$lib/types/os';
 import type { IWebrtcGlobalState, ISignalCallback } from '$lib/types/os';
@@ -135,7 +135,7 @@ class WebrtcGlobalState implements IWebrtcGlobalState {
     // ============================================================================
 
     async createPeerConnection(onDisconnect: () => void): Promise<RTCPeerConnection> {
-        const config = await ApiConfig.fetchTurnCredentials();
+        const config = await WebRTCApiClient.getTurnCredentials();
         this.pc = new RTCPeerConnection(config);
 
         this.pc.onicecandidate = async (event) => {
