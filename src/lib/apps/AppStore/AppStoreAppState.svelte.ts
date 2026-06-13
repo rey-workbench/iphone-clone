@@ -1,7 +1,7 @@
 import { Smartphone } from '@lucide/svelte';
 import { appstoreDb, AppStoreDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
-import { ApiConfig } from '$lib/config/api';
+
 import type { TAppStoreTabId } from '$lib/types';
 
 export class AppStoreAppState extends SyncState<any> {

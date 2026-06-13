@@ -1,6 +1,6 @@
 import { mailDb, MailDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
-import { ApiConfig } from '$lib/config/api';
+
 import type { IEmail } from '$lib/types';
 
 export class MailAppState extends SyncState<IEmail[]> {

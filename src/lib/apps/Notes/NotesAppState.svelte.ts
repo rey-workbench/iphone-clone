@@ -1,4 +1,4 @@
-import { ApiConfig } from '$lib/config/api';
+
 import type { INote } from '$lib/types';
 import { notesDb, NotesDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
