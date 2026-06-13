@@ -1,1 +1,1 @@
-export type AppStoreTabId = 'today' | 'games' | 'apps' | 'search';
+export type TAppStoreTabId = 'today' | 'games' | 'apps' | 'search';

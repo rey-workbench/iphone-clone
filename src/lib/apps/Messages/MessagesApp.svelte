@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Copy, Reply, Trash2, MoreHorizontal, Undo2 } from '@lucide/svelte';
-  import { messagesState as appState } from './MessagesState.svelte';
-  import { usersState } from '$lib/states';
+  import { messagesState as appState } from './MessagesAppState.svelte';
+  import { usersGlobalState } from '$lib/os/states';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
   import { type ContextMenuItem } from '$lib/os/components/ui/ContextMenu.svelte';
   import MessagesChatHeader from './components/MessagesChatHeader.svelte';
@@ -159,7 +159,7 @@
 <div class="h-full pt-[54px] bg-black flex flex-col transition-all duration-100 ease-out" style:padding-bottom="{keyboardPadding}px">
   {#if appState.chatView}
     <div class="flex-1 flex flex-col min-h-0 bg-black">
-      <MessagesChatHeader {appState} {usersState} closeChat={handleCloseChat} />
+      <MessagesChatHeader {appState} {usersGlobalState} closeChat={handleCloseChat} />
       
       <div class="flex-1 overflow-y-auto p-3 pb-2 flex flex-col gap-[2px] min-h-0 bg-black" bind:this={chatEl}>
         {#each appState.messages as msg, i (msg.id || i)}
@@ -206,7 +206,7 @@
       </div>
       <MessagesSearchBar />
       <div class="bg-ios-bg2 rounded-xl overflow-hidden">
-        {#if usersState.loading}
+        {#if usersGlobalState.loading}
           {#each Array(4) as _, i (i)}
             <div class="flex gap-3 p-3 px-4 w-full border-b border-ios-sep last:border-b-0">
               <Skeleton width="45px" height="45px" borderRadius="9999px" class="shrink-0" />

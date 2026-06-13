@@ -2,12 +2,12 @@
   import { 
     Gamepad2, CalendarDays, Smartphone, Search 
   } from '@lucide/svelte';
-  import { AppStoreState } from './AppStoreState.svelte';
+  import { AppStoreAppState } from './AppStoreAppState.svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
   import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
   import IOSList from '$lib/os/components/ui/IOSList.svelte';
 
-  const state = new AppStoreState();
+  const state = new AppStoreAppState();
 
   $effect(() => {
     state.init();

@@ -1,5 +1,5 @@
 import { NotesRepository } from '../repositories/NotesRepository';
-import type { Note } from '$lib/models/Note';
+import type { INote } from '$lib/models/Note';
 
 export class NotesService {
   private repository: NotesRepository;
@@ -13,13 +13,13 @@ export class NotesService {
     return await this.repository.findByUserId(userId);
   }
 
-  async saveNote(data: Partial<Note>) {
+  async saveNote(data: Partial<INote>) {
     if (!data.user_id) throw new Error("user_id is required");
     if (!data.id || typeof data.title !== 'string' || typeof data.content !== 'string' || !data.date) {
       throw new Error("Invalid note data");
     }
 
-    const note: Note = {
+    const note: INote = {
       id: data.id,
       user_id: data.user_id,
       title: data.title,

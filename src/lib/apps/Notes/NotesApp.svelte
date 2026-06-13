@@ -1,12 +1,12 @@
 <script lang="ts">
   import { Trash2, SquarePen, ChevronLeft } from '@lucide/svelte';
-  import { AppNotesState } from './NotesState.svelte';
+  import { NotesAppState } from './NotesAppState.svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
   import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
   import AppHeader from '$lib/os/components/ui/AppHeader.svelte';
   import IOSList from '$lib/os/components/ui/IOSList.svelte';
 
-  const state = new AppNotesState();
+  const state = new NotesAppState();
 
   $effect(() => {
     state.load();

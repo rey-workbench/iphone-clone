@@ -1,7 +1,7 @@
-export type BtnType = 'number' | 'operator' | 'function' | 'zero';
-export interface Btn { 
+export type TBtnType = 'number' | 'operator' | 'function' | 'zero';
+export interface IBtn { 
   label: string; 
-  type: BtnType; 
+  type: TBtnType; 
   value: string; 
   span?: number; 
 }

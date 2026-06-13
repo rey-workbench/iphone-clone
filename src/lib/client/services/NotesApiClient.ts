@@ -1,5 +1,5 @@
 import { ApiConfig } from '$lib/config/api';
-import type { Note } from '$lib/types';
+import type { INote } from '$lib/types';
 
 export class NotesApiClient {
     static async getNotes(userId: string) {
@@ -7,7 +7,7 @@ export class NotesApiClient {
         return await r.json();
     }
 
-    static async saveNote(note: Note & { user_id?: string }) {
+    static async saveNote(note: INote & { user_id?: string }) {
         const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('POST', note));
         return { res, result: res.ok ? await res.json() : null };
     }

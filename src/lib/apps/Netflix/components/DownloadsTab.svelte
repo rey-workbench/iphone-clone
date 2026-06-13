@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Settings, Download, Smartphone, ChevronRight } from "@lucide/svelte";
-  import { netflixState } from "../NetflixState.svelte";
-  import { systemState } from "$lib/states";
+  import { netflixState } from "../NetflixAppState.svelte";
+  import { systemGlobalState } from "$lib/os/states";
 
   // Generate mock downloads dynamically based on API data so it's not broken
   let downloads = $derived.by(() => {
@@ -10,7 +10,7 @@
     
     return [
       {
-        profile: systemState.currentUser?.name || systemState.currentUser?.username || "My Profile",
+        profile: systemGlobalState.currentUser?.name || systemGlobalState.currentUser?.username || "My Profile",
         avatar: "https://wallpapers.com/images/hd/netflix-profile-pictures-1000-x-1000-88wkdmjrorckekha.jpg",
         items: [
           {

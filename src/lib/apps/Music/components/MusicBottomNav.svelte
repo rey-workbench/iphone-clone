@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { MusicState } from "../MusicState.svelte";
+  import type { MusicAppState } from "../MusicAppState.svelte";
   import { PlayCircle, LayoutGrid, Radio, Search } from "@lucide/svelte";
 
-  let { state }: { state: MusicState } = $props();
+  let { state }: { state: MusicAppState } = $props();
 
   const setTabListenNow = () => state.activeTab = "listen_now";
   const setTabBrowse = () => state.activeTab = "browse";

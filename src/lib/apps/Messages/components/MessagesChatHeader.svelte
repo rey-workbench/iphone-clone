@@ -3,11 +3,11 @@
 
   let {
     appState,
-    usersState,
+    usersGlobalState,
     closeChat,
   }: {
     appState: any;
-    usersState: any;
+    usersGlobalState: any;
     closeChat: () => void;
   } = $props();
 </script>
@@ -35,7 +35,7 @@
   >
     <div
       class="w-[50px] h-[50px] rounded-full bg-ios-bg2 text-white flex items-center justify-center text-[22px] font-semibold"
-      style:background={usersState.users.find(
+      style:background={usersGlobalState.users.find(
         (u: any) => u.name === appState.currentChatName,
       )?.color || "#666"}
     >

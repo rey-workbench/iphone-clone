@@ -1,31 +1,49 @@
 <script lang="ts">
   import { getContext, onDestroy } from 'svelte';
   import { RefreshCw } from '@lucide/svelte';
-  import { AppCameraState } from './CameraState.svelte';
+  import { CameraAppState } from './CameraAppState.svelte';
 
   const isPreview = getContext<boolean>('isPreview');
-  const state = new AppCameraState(!!isPreview);
+  const appState = new CameraAppState(!!isPreview);
+
+  let videoEl: HTMLVideoElement | undefined = $state(undefined);
 
   $effect(() => {
-    state.onLaunch();
-  });
-  onDestroy(() => {
-    state.onDestroy();
+    appState.onLaunch();
   });
 
-  const retake = () => state.retake();
-  const capture = () => state.capture();
-  const flipCamera = () => state.flipCamera();
+  $effect(() => {
+    if (videoEl && appState.stream !== undefined) {
+      videoEl.srcObject = appState.stream;
+    }
+  });
+
+  onDestroy(() => {
+    appState.onDestroy();
+  });
+
+  const retake = () => appState.retake();
+  
+  const capture = () => {
+    if (!videoEl) return;
+    const c = document.createElement('canvas'); 
+    c.width = videoEl.videoWidth; 
+    c.height = videoEl.videoHeight;
+    c.getContext('2d')?.drawImage(videoEl, 0, 0);
+    appState.savePhoto(c.toDataURL('image/png'));
+  };
+
+  const flipCamera = () => appState.flipCamera();
   const setMode = (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
-    state.mode = btn.dataset.mode as any;
+    appState.mode = btn.dataset.mode as any;
   };
 </script>
 
 <div class="h-full pt-[54px] pb-5 bg-black flex flex-col relative">
-  {#if state.photoTaken}
+  {#if appState.photoTaken}
     <div class="flex-1 flex items-center justify-center bg-black">
-      <img src={state.photoUrl} alt="Captured" class="max-w-full max-h-full object-contain" />
+      <img src={appState.photoUrl} alt="Captured" class="max-w-full max-h-full object-contain" />
     </div>
     <div class="absolute bottom-0 left-0 right-0 flex justify-between items-center px-8 pb-10 pt-3 bg-linear-to-t from-black/80 to-transparent">
       <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer" onclick={retake}>Retake</button>
@@ -34,12 +52,12 @@
   {:else}
     <!-- svelte-ignore element_invalid_self_closing_tag -->
     <div class="flex-1 relative bg-black">
-      <video bind:this={state.videoEl} autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover"></video>
+      <video bind:this={videoEl} autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover"></video>
     </div>
     <div class="absolute bottom-0 left-0 right-0 pb-10 pt-4 bg-linear-to-t from-black/80 to-transparent">
       <div class="flex justify-center gap-5 mb-5">
-        {#each state.modes as m (m)}
-          <button data-mode={m} class="bg-transparent border-none text-[13px] font-semibold uppercase tracking-wider cursor-pointer {state.mode === m ? 'text-ios-yellow' : 'text-white/50'}" onclick={setMode}>{m}</button>
+        {#each appState.modes as m (m)}
+          <button data-mode={m} class="bg-transparent border-none text-[13px] font-semibold uppercase tracking-wider cursor-pointer {appState.mode === m ? 'text-ios-yellow' : 'text-white/50'}" onclick={setMode}>{m}</button>
         {/each}
       </div>
       <div class="flex items-center justify-center gap-14">

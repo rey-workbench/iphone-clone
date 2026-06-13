@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { callState } from "../CallState.svelte";
+  import { callState } from "../CallAppState.svelte";
   import { Bell, MessageSquare, PhoneOff, Phone } from "@lucide/svelte";
   ;
 

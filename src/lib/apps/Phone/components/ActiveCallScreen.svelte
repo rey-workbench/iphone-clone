@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { callState } from "../CallState.svelte";
+  import { callState } from "../CallAppState.svelte";
   import {
     MicOff,
     Grid3x3,

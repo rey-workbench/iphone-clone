@@ -1,4 +1,5 @@
 import { json } from '@sveltejs/kit';
+import { ApiConfig } from '$lib/config/api';
 
 export async function GET() {
     try {
@@ -9,7 +10,7 @@ export async function GET() {
             return json({ error: "Missing Cloudflare TURN environment variables" }, { status: 500 });
         }
         
-        const response = await fetch(`https://rtc.live.cloudflare.com/v1/turn/keys/${keyId}/credentials/generate`, {
+        const response = await fetch(ApiConfig.getTurnCredentials(keyId), {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiToken}`,

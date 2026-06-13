@@ -1,10 +1,10 @@
 <script lang="ts">
   ;
   import { ChevronLeft, Image, Heart, Folder, Search } from '@lucide/svelte';
-  import { AppPhotosState } from './PhotosState.svelte';
+  import { PhotosAppState } from './PhotosAppState.svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
 
-  const state = new AppPhotosState();
+  const state = new PhotosAppState();
 
   $effect(() => {
     state.fetchPhotos();

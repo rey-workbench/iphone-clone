@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Phone } from '@lucide/svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
-  import type { PhoneState } from '../PhoneState.svelte';
-  import { callState } from '../CallState.svelte';
+  import type { PhoneAppState } from '../PhoneAppState.svelte';
+  import { callState } from '../CallAppState.svelte';
 
-  let { state } = $props<{ state: PhoneState }>();
+  let { state } = $props<{ state: PhoneAppState }>();
 
   const handleContactCall = (e: MouseEvent) => {
     const id = (e.currentTarget as HTMLElement).dataset.id;

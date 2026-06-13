@@ -1,6 +1,6 @@
 <script lang="ts">
 
-  import { netflixState } from "../NetflixState.svelte";
+  import { netflixState } from "../NetflixAppState.svelte";
 
   let {
     media,

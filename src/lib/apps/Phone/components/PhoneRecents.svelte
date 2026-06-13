@@ -1,9 +1,9 @@
 <script lang="ts">
   import { PhoneIncoming, PhoneOutgoing, PhoneMissed, Video, Info } from '@lucide/svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
-  import type { PhoneState } from '../PhoneState.svelte';
+  import type { PhoneAppState } from '../PhoneAppState.svelte';
 
-  let { state } = $props<{ state: PhoneState }>();
+  let { state } = $props<{ state: PhoneAppState }>();
 </script>
 
 <div class="px-4">

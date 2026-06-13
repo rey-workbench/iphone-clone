@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { AppConfig } from '$lib/types';
+  import type { IAppConfig } from '$lib/types';
   import { implementedApps } from '$lib/config/apps';
-  import { messagesState } from '$lib/apps/Messages/MessagesState.svelte';
+  import { messagesState } from '$lib/apps/Messages/MessagesAppState.svelte';
   import { goto } from '$app/navigation';
 
-  let { app }: { app: AppConfig } = $props();
+  let { app }: { app: IAppConfig } = $props();
 
   function openApp() {
     if (implementedApps.has(app.id)) {

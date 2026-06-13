@@ -41,5 +41,9 @@ export const ApiDynamic = {
         if (server === 3) return `${ApiEndpoints.MULTIEMBED}/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
         if (server === 2) return `${ApiEndpoints.VIDLINK}/tv/${tmdbId}/${season}/${episode}`;
         return `${ApiEndpoints.VIDSRC_EMBED}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=id`;
+    },
+
+    getTurnCredentials(keyId: string): string {
+        return `${ApiEndpoints.TURN_CREDENTIALS}/${keyId}/credentials/generate`;
     }
 };

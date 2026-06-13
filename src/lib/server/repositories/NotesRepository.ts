@@ -1,5 +1,5 @@
 import { db, setupDatabase } from '$lib/config/turso';
-import type { Note } from '$lib/models/Note';
+import type { INote } from '$lib/models/Note';
 
 export class NotesRepository {
   async ensureMigration() {
@@ -20,7 +20,7 @@ export class NotesRepository {
     return result.rows;
   }
 
-  async upsert(note: Note): Promise<void> {
+  async upsert(note: INote): Promise<void> {
     await this.ensureMigration();
     await db.execute({
       sql: `INSERT INTO notes (id, user_id, title, content, date) 

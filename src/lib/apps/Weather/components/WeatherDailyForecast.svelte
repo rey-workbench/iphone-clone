@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { WeatherState } from "../WeatherState.svelte";
+  import type { WeatherAppState } from "../WeatherAppState.svelte";
 
-  let { state } = $props<{ state: WeatherState }>();
+  let { state } = $props<{ state: WeatherAppState }>();
 </script>
 
 <div class="rounded-[14px] p-3 px-4 bg-white/12 backdrop-blur-[20px] border border-white/20">

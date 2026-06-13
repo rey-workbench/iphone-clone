@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { CalculatorState } from './CalculatorState.svelte';
+  import { CalculatorAppState } from './CalculatorAppState.svelte';
 
-  const state = new CalculatorState();
+  const state = new CalculatorAppState();
 
   let displayText = $derived(state.getDisplayText());
   let fontSize = $derived(state.getFontSize(displayText));

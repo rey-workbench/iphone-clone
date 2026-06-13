@@ -1,0 +1,246 @@
+import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
+import { SafariApiClient } from '$lib/client/services/SafariApiClient';
+import type { IAppLifecycle } from '$lib/types/app';
+import { osMediator } from '$lib/os/mediator.svelte';
+
+export class SafariAppState implements IAppLifecycle {
+  appName = 'Safari';
+  isForeground = $state(false);
+
+  url = $state('');
+  inputUrl = $state('');
+  showInput = $state(false);
+  searchResults = $state<any[] | null>(null);
+  isSearching = $state(false);
+  searchError = $state<string | null>(null);
+  isReady = $state(false);
+  scramjet: any = null;
+  frameObj: any = null;
+  errorMessage = $state('');
+
+  constructor() {}
+
+  async onLaunch() {
+    this.isForeground = true;
+    osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
+    await this.initEngine();
+  }
+
+  onSuspend() {
+    this.isForeground = false;
+    osMediator.emit({ type: 'APP_SUSPENDED', payload: { appName: this.appName } });
+  }
+
+  onResume() {
+    this.isForeground = true;
+    osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
+  }
+
+  onDestroy() {
+    this.isForeground = false;
+  }
+
+  async initEngine() {
+    if ("serviceWorker" in navigator) {
+      const loadScript = (src: string) =>
+        new Promise<void>((resolve, reject) => {
+          if (document.querySelector(`script[src="${src}"]`)) return resolve();
+          const script = document.createElement("script");
+          script.src = src;
+          script.onload = () => resolve();
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+
+      try {
+        const origExports = (window as any).exports;
+        const origModule = (window as any).module;
+        const origDefine = (window as any).define;
+        (window as any).exports = undefined;
+        (window as any).module = undefined;
+        (window as any).define = undefined;
+
+        await loadScript("/scram/scramjet_bundled.js");
+        await loadScript("/scram/controller.api.js");
+        await loadScript("/libcurl/index.js");
+
+        (window as any).exports = origExports;
+        (window as any).module = origModule;
+        (window as any).define = origDefine;
+
+        const LibcurlTransport = (window as any).LibcurlTransport;
+        if (!LibcurlTransport?.default) {
+          throw new Error(
+            "Scramjet/Libcurl scripts failed to load. Missing static/scram/ or static/libcurl/ files.",
+          );
+        }
+
+        const LibcurlClient = LibcurlTransport.default;
+        const isLocal =
+          location.hostname === "localhost" ||
+          location.hostname === "127.0.0.1" ||
+          location.hostname.startsWith("192.168.") ||
+          location.hostname.startsWith("10.") ||
+          location.hostname.endsWith(".local") ||
+          location.hostname.startsWith("172.");
+        const wispUrl = isLocal
+          ? location.origin.replace(/^http/, "ws") + "/wisp/"
+          : "wss://wisp.mercurywork.shop/";
+
+        const transport = new LibcurlClient({ wisp: wispUrl });
+        await transport.init();
+
+        const scramjetController = (window as any).$scramjetController;
+        if (!scramjetController?.Controller) {
+          throw new Error(
+            "Scramjet Controller not found on window.$scramjetController",
+          );
+        }
+        const { Controller } = scramjetController;
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const r of registrations) {
+          if (
+            r.active?.scriptURL.includes("scramjet-sw.js") &&
+            r.scope === location.origin + "/"
+          ) {
+            await r.unregister();
+          }
+        }
+
+        const reg = await navigator.serviceWorker.register("/scramjet-sw.js", {
+          scope: "/scramjet/",
+        });
+
+        const waitForActive = (worker: ServiceWorker | null) =>
+          new Promise<void>((resolve) => {
+            if (!worker) return resolve();
+            if (worker.state === "activated") return resolve();
+            worker.addEventListener("statechange", () => {
+              if (worker.state === "activated") resolve();
+            });
+          });
+
+        if (!reg.active) {
+          await waitForActive(reg.installing || reg.waiting);
+        }
+
+        const serviceworker = reg.active!;
+
+        this.scramjet = new Controller({
+          serviceworker,
+          transport,
+          config: {
+            prefix: "/scramjet/",
+            scramjetPath: "/scram/scramjet_bundled.js",
+            injectPath: "/scram/controller.inject.js",
+            wasmPath: "/scram/scramjet.wasm",
+          },
+        });
+
+        await this.scramjet.wait();
+
+        this.isReady = true;
+
+        // Initialize the frame
+        if (!this.frameObj && document.getElementById("safari-container")) {
+          const iframe = document.createElement("iframe");
+          iframe.className =
+            "absolute inset-0 w-full h-full border-none bg-white";
+          this.frameObj = this.scramjet.createFrame(iframe);
+          document.getElementById("safari-container")!.appendChild(iframe);
+          if (this.url) {
+            this.frameObj.go(this.url);
+          }
+        }
+      } catch (err: any) {
+        dialogGlobalState.show({
+          title: "Safari Proxy Error",
+          message: err.message || "Scramjet initialization failed.",
+          confirmText: "OK",
+        });
+      }
+    }
+  }
+
+  navigate(targetUrl?: string) {
+    if (targetUrl) {
+      this.url = targetUrl;
+      this.inputUrl = targetUrl;
+      this.searchResults = null;
+      this.showInput = false;
+      this.loadFrame();
+      return;
+    }
+
+    if (this.inputUrl.trim()) {
+      const input = this.inputUrl.trim();
+      // Basic check if it's a domain/URL or search term
+      if (input.includes('.') && !input.includes(' ')) {
+        this.url = input.startsWith('http') ? input : `https://${input}`; 
+        this.searchResults = null;
+        this.showInput = false;
+        this.loadFrame();
+      } else {
+        // It's a search term
+        this.performSearch(input);
+        this.showInput = false; 
+      }
+    } 
+  }
+
+  loadFrame() {
+    if (this.isReady && this.scramjet) {
+      setTimeout(() => {
+        if (!this.frameObj) {
+          const iframe = document.createElement("iframe");
+          iframe.className = "absolute inset-0 w-full h-full border-none bg-white";
+          this.frameObj = this.scramjet.createFrame(iframe);
+          const container = document.getElementById('safari-container');
+          if (container) {
+            container.innerHTML = '';
+            container.appendChild(iframe);
+          } else {
+            // console.warn("[SafariState] safari-container still not found in DOM");
+          }
+        }
+        if (this.frameObj) {
+          this.frameObj.go(this.url);
+        }
+      }, 0);
+    }
+  }
+
+  async performSearch(query: string) {
+    this.isSearching = true;
+    this.searchResults = null;
+    this.searchError = null;
+    try {
+      const { res, result: data } = await SafariApiClient.search(query);
+      if (!res.ok) throw new Error(data.error || 'Failed to search');
+      this.searchResults = data.data || [];
+    } catch (e: any) {
+      dialogGlobalState.show({ title: 'Safari Error', message: e.message || 'Failed to search', confirmText: 'OK' });
+    } finally {
+      this.isSearching = false;
+    }
+  }
+
+  toggleInput() {
+    this.showInput = true;
+    this.inputUrl = this.url || '';
+  }
+
+  goBack() {
+    const iframe = document.querySelector('#safari-container iframe') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.history.back();
+    }
+  }
+
+  goForward() {
+    const iframe = document.querySelector('#safari-container iframe') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.history.forward();
+    }
+  }
+}

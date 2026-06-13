@@ -1,1 +1,1 @@
-export type PhoneTabId = 'favorites' | 'recents' | 'contacts' | 'keypad' | 'voicemail';
+export type TPhoneTabId = 'favorites' | 'recents' | 'contacts' | 'keypad' | 'voicemail';

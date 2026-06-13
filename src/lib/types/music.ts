@@ -1,11 +1,11 @@
-export enum MusicItemType {
+export enum EMusicItemType {
     TRACK = 'TRACK',
     PLAYLIST = 'PLAYLIST',
     ALBUM = 'ALBUM',
     ARTIST = 'ARTIST'
 }
 
-export enum MusicAction {
+export enum EMusicAction {
     SUGGESTIONS = 'suggestions',
     PLAYLIST_TRACKS = 'playlist_tracks',
     ARTIST = 'artist',
@@ -21,15 +21,15 @@ export interface IMusicTrack {
     title?: string;
     artist: string;
     duration?: number;
-    type?: MusicItemType;
+    type?: EMusicItemType;
     thumbnails?: { url: string; width?: number; height?: number }[];
     [key: string]: any;
 }
 
 export interface IMusicSearchOptions {
-    action?: MusicAction;
+    action?: EMusicAction;
     q?: string;
-    type?: MusicItemType | string;
+    type?: EMusicItemType | string;
     title?: string;
     artist?: string;
     duration?: string | number;

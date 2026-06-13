@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { dialogState } from "$lib/states/dialogState.svelte";
+  import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
 
-  const handleCancel = () => dialogState.cancel();
-  const handleConfirm = () => dialogState.confirm();
+  const handleCancel = () => dialogGlobalState.cancel();
+  const handleConfirm = () => dialogGlobalState.confirm();
 </script>
 
-{#if dialogState.isOpen && dialogState.options}
+{#if dialogGlobalState.isOpen && dialogGlobalState.options}
   <!-- Backdrop -->
   <div
     class="absolute inset-0 z-9999 bg-black/40 flex items-center justify-center p-8 backdrop-blur-[2px] animate-[fadeIn_0.3s_ease-out]"
@@ -17,27 +17,27 @@
       <!-- Content Area -->
       <div class="px-4 pt-5 pb-4 flex flex-col items-center text-center">
         <h2 class="text-[17px] font-semibold text-white tracking-tight mb-1">
-          {dialogState.options.title}
+          {dialogGlobalState.options.title}
         </h2>
         <p class="text-[13px] text-white/70 leading-tight">
-          {dialogState.options.message}
+          {dialogGlobalState.options.message}
         </p>
       </div>
 
       <!-- Buttons -->
-      {#if dialogState.options.cancelText && dialogState.options.confirmText}
+      {#if dialogGlobalState.options.cancelText && dialogGlobalState.options.confirmText}
         <div class="flex border-t border-white/10 h-11">
           <button
             class="flex-1 bg-transparent border-none border-r border-white/10 text-[#0A84FF] text-[17px] cursor-pointer active:bg-white/10 transition-colors"
             onclick={handleCancel}
           >
-            {dialogState.options.cancelText}
+            {dialogGlobalState.options.cancelText}
           </button>
           <button
             class="flex-1 bg-transparent border-none text-[#0A84FF] text-[17px] font-semibold cursor-pointer active:bg-white/10 transition-colors"
             onclick={handleConfirm}
           >
-            {dialogState.options.confirmText}
+            {dialogGlobalState.options.confirmText}
           </button>
         </div>
       {:else}
@@ -46,7 +46,7 @@
             class="flex-1 bg-transparent border-none text-[#0A84FF] text-[17px] font-semibold cursor-pointer active:bg-white/10 transition-colors"
             onclick={handleConfirm}
           >
-            {dialogState.options.confirmText || 'OK'}
+            {dialogGlobalState.options.confirmText || 'OK'}
           </button>
         </div>
       {/if}

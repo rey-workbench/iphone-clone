@@ -1,14 +1,14 @@
 <script lang="ts">
   import { Star, Clock, User, Grid3x3, Voicemail, Phone, Delete, Info, PhoneIncoming, PhoneOutgoing, PhoneMissed, Video } from '@lucide/svelte';
-  import { PhoneState } from './PhoneState.svelte';
-  import { callState } from './CallState.svelte';
+  import { PhoneAppState } from './PhoneAppState.svelte';
+  import { callState } from './CallAppState.svelte';
   import IncomingCallScreen from './components/IncomingCallScreen.svelte';
   import ActiveCallScreen from './components/ActiveCallScreen.svelte';
   import PhoneRecents from './components/PhoneRecents.svelte';
   import PhoneContacts from './components/PhoneContacts.svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
 
-  const state = new PhoneState();
+  const state = new PhoneAppState();
 
   const tabItems: { id: any; label: string; icon: any }[] = [
     { id: 'favorites', label: 'Favorites', icon: Star },

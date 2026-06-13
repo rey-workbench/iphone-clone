@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { netflixState } from "../NetflixState.svelte";
+  import { netflixState } from "../NetflixAppState.svelte";
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import { Plus, Info } from "@lucide/svelte";
 

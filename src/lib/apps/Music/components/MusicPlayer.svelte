@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { MusicState } from "../MusicState.svelte";
+  import type { MusicAppState } from "../MusicAppState.svelte";
   import {
     Play,
     Pause,
@@ -15,7 +15,7 @@
     ChevronDown,
   } from "@lucide/svelte";
 
-  let { state }: { state: MusicState } = $props();
+  let { state }: { state: MusicAppState } = $props();
 
   function formatTime(seconds: number, isRemaining = false) {
     if (!seconds || isNaN(seconds)) return isRemaining ? "-00:00" : "00:00";

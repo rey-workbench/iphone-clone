@@ -1,4 +1,4 @@
-export interface AppConfig {
+export interface IAppConfig {
   id: string;
   name: string;
   icon: string; // path to PNG in $lib/assets/icons/

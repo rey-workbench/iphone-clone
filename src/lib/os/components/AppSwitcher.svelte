@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { systemState } from "$lib/states";
+  import { systemGlobalState } from "$lib/os/states";
   import { homeScreenApps } from "$lib/config/apps";
   import type { ShellState } from "../../../routes/ShellState.svelte";
   import { setContext } from "svelte";
@@ -53,9 +53,9 @@
   function handleKillApp(appId: string) {
     swipedUpApps[appId] = true;
     setTimeout(() => {
-      systemState.removeRecentApp(appId);
+      systemGlobalState.removeRecentApp(appId);
       swipedUpApps[appId] = false; // reset
-      if (systemState.recentApps.length === 0) {
+      if (systemGlobalState.recentApps.length === 0) {
         shellState.closeAppSwitcher();
       }
     }, 300);
@@ -107,11 +107,11 @@
     ? 'opacity-100 pointer-events-auto'
     : 'opacity-0 pointer-events-none'}"
 >
-  {#if systemState.recentApps.length > 0}
+  {#if systemGlobalState.recentApps.length > 0}
     <div
       class="w-full h-[60%] flex items-center overflow-x-auto snap-x snap-mandatory px-8 gap-6 no-scrollbar pb-10"
     >
-      {#each systemState.recentApps as appId (appId)}
+      {#each systemGlobalState.recentApps as appId (appId)}
         {#if !swipedUpApps[appId]}
           <AppSwitcherCard
             {appId}

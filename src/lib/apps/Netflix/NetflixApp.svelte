@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { netflixState } from "./NetflixState.svelte";
+  import { netflixState } from "./NetflixAppState.svelte";
   import MovieDetail from "./components/MovieDetail.svelte";
   import Player from "./components/Player.svelte";
   import HomeTab from "./components/HomeTab.svelte";
@@ -8,7 +8,7 @@
   import ComingSoonTab from "./components/ComingSoonTab.svelte";
   import MoreTab from "./components/MoreTab.svelte";
   import { getContext } from "svelte";
-  import { systemState } from "$lib/states";
+  import { systemGlobalState } from "$lib/os/states";
   import { Home, Search, PlaySquare, Download, Menu } from "@lucide/svelte";
 
   const isPreview = getContext("isPreview");

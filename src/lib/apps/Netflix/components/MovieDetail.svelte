@@ -1,8 +1,8 @@
 <script lang="ts">
   ;
-  import { netflixState } from "../NetflixState.svelte";
+  import { netflixState } from "../NetflixAppState.svelte";
   import { ApiConfig } from "$lib/config/api";
-  import { dialogState } from "$lib/states/dialogState.svelte";
+  import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import MovieEpisodes from "./MovieEpisodes.svelte";
   import MovieHero from "./MovieHero.svelte";
@@ -78,7 +78,7 @@
     
     const handleVisibilityChange = () => {
       if (document.hidden && isPlaying) {
-        dialogState.show({
+        dialogGlobalState.show({
           title: "Iklan Terdeteksi",
           message: "Server video baru saja membuka tab iklan. Silakan tutup tab tersebut secara manual jika masih terbuka.\n\nUntuk pengalaman menonton terbaik tanpa gangguan popup dan iklan, kami menyarankan Anda menggunakan Brave Browser.",
           confirmText: "Mengerti"

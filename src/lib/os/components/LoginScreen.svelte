@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { systemState, authState } from "$lib/states";
+  import { systemGlobalState, authGlobalState } from "$lib/os/states";
   import { LoaderCircle, ChevronLeft, Handshake } from "@lucide/svelte";
 
 
 
   async function handleLogin() {
-    const user = await authState.login();
+    const user = await authGlobalState.login();
     if (user) {
-      systemState.currentUser = user;
-      systemState.saveUser();
+      systemGlobalState.currentUser = user;
+      systemGlobalState.saveUser();
     }
   }
 
@@ -58,7 +58,7 @@
         name="username"
         type="text"
         placeholder="Apple ID"
-        bind:value={authState.username}
+        bind:value={authGlobalState.username}
         class="w-full h-12.5 bg-transparent border-b border-[#d1d1d6] px-4 outline-none text-[17px] text-black"
         onkeydown={handleUsernameKeydown}
       />
@@ -67,18 +67,18 @@
         name="password"
         type="password"
         placeholder="Password"
-        bind:value={authState.password}
-        disabled={authState.isLoading}
+        bind:value={authGlobalState.password}
+        disabled={authGlobalState.isLoading}
         onkeydown={handlePasswordKeydown}
         class="w-full h-12.5 px-4 text-[17px] text-black bg-transparent border-none outline-none placeholder:text-[#8e8e93] disabled:opacity-50"
       />
     </div>
 
-    {#if authState.errorMsg}
+    {#if authGlobalState.errorMsg}
       <div
         class="text-[#ff3b30] text-[13px] text-center mb-4 px-4 animate-[fadeIn_0.3s_ease-out]"
       >
-        {authState.errorMsg}
+        {authGlobalState.errorMsg}
       </div>
     {/if}
 
@@ -103,16 +103,16 @@
 
     <!-- Submit Button (Pill) -->
     <button
-      class="w-full h-12.5 rounded-xl flex items-center justify-center transition-colors mb-6 {authState.username &&
-      authState.password
+      class="w-full h-12.5 rounded-xl flex items-center justify-center transition-colors mb-6 {authGlobalState.username &&
+      authGlobalState.password
         ? 'bg-[#1C37CA] text-white'
         : 'bg-[#f2f2f7] text-[#c7c7cc]'}"
-      disabled={!authState.username ||
-        !authState.password ||
-        authState.isLoading}
+      disabled={!authGlobalState.username ||
+        !authGlobalState.password ||
+        authGlobalState.isLoading}
       onclick={handleLogin}
     >
-      {#if authState.isLoading}
+      {#if authGlobalState.isLoading}
         <LoaderCircle size={24} class="animate-spin text-[#8e8e93]" />
       {:else}
         <span class="text-[17px] font-medium">Continue</span>

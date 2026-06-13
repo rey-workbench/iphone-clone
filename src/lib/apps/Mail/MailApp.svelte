@@ -1,10 +1,10 @@
 <script lang="ts">
   ;
   import { ChevronLeft, Loader2 } from '@lucide/svelte';
-  import { AppMailState } from './MailState.svelte';
+  import { MailAppState } from './MailAppState.svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
 
-  const state = new AppMailState();
+  const state = new MailAppState();
 
   $effect(() => {
     state.fetchEmails();

@@ -1,13 +1,13 @@
 <script lang="ts">
   import { ChevronLeft, Laptop, Smartphone, Monitor } from "@lucide/svelte";
-  import { systemState } from "$lib/states/systemState.svelte";
+  import { systemGlobalState } from "$lib/os/states/systemGlobalState.svelte";
   ;
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
-  import { AppLinkedDevicesState } from "./LinkedDevicesState.svelte";
+  import { LinkedDevicesAppState } from "./LinkedDevicesAppState.svelte";
 
   let { onBack } = $props<{ onBack: () => void }>();
 
-  const state = new AppLinkedDevicesState();
+  const state = new LinkedDevicesAppState();
 
   $effect(() => {
     state.fetchDevices();
@@ -81,7 +81,7 @@
         </div>
       {:else}
         {#each state.devices as device, i (i)}
-          {@const isCurrent = device.device_id === systemState.deviceId}
+          {@const isCurrent = device.device_id === systemGlobalState.deviceId}
           {@const Icon = getDeviceIcon(device.device_name)}
           <div class="flex items-center gap-3 py-3 px-4 w-full text-left">
             <div

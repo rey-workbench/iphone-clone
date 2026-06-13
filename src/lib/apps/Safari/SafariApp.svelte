@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppSafariState } from "./SafariState.svelte";
+  import { SafariAppState } from "./SafariAppState.svelte";
   ;
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import {
@@ -11,7 +11,7 @@
     Lock,
   } from "@lucide/svelte";
 
-  const state = new AppSafariState();
+  const state = new SafariAppState();
 
   $effect(() => {
     const listener = (e: BeforeUnloadEvent) => {

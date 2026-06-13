@@ -1,22 +1,22 @@
 <script lang="ts">
-  import { settingsState } from '$lib/apps/Settings/SettingsState.svelte';
+  import { settingsGlobalState } from '$lib/apps/Settings/SettingsGlobalState.svelte';
   import { ChevronRight } from '@lucide/svelte';
-  import { AppSettingsState } from './SettingsState.svelte';
+  import { SettingsAppState } from './SettingsGlobalState.svelte';
   import LinkedDevices from './LinkedDevices.svelte';
   import SettingsRow from './components/SettingsRow.svelte';
-  import { authState } from '$lib/states';
+  import { authGlobalState } from '$lib/os/states';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
   
   import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
   import AppHeader from '$lib/os/components/ui/AppHeader.svelte';
   import IOSList from '$lib/os/components/ui/IOSList.svelte';
 
-  const appState = new AppSettingsState();
-  let toggleItems = $derived(appState.getToggleItems(settingsState));
+  const appState = new SettingsAppState();
+  let toggleItems = $derived(appState.getToggleItems(settingsGlobalState));
   
   let activeView = $state('main');
   const handleBackToMain = () => activeView = 'main';
-  const handleSignOut = () => authState.logout();
+  const handleSignOut = () => authGlobalState.logout();
 
   const handleToggleClick = (e: MouseEvent) => {
     const id = (e.currentTarget as HTMLElement).dataset.id;
@@ -45,7 +45,7 @@
       <!-- Profile -->
       <IOSList>
         <button class="flex items-center gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-left text-white">
-          {#if settingsState.isLoading}
+          {#if settingsGlobalState.isLoading}
             <Skeleton width="56px" height="56px" borderRadius="9999px" class="shrink-0" />
             <div class="flex-1 flex flex-col gap-1.5 justify-center">
               <Skeleton width="120px" height="18px" />
