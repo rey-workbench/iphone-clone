@@ -1,17 +1,16 @@
-type DialogOptions = {
-    title: string;
-    message: string;
-    confirmText?: string;
-    cancelText?: string;
-};
 
-class DialogGlobalState {
+import type { IDialogGlobalState, IDialogOptions } from '$lib/types/os';
+
+class DialogGlobalState implements IDialogGlobalState {
+    // --- State ---
     isOpen = $state(false);
-    options = $state<DialogOptions | null>(null);
+    options = $state<IDialogOptions | null>(null);
     
+    // Internal
     private resolvePromise: ((value: boolean) => void) | null = null;
 
-    show(options: DialogOptions): Promise<boolean> {
+    // --- Methods ---
+    show(options: IDialogOptions): Promise<boolean> {
         this.options = {
             confirmText: 'Allow',
             cancelText: 'Don\'t Allow',

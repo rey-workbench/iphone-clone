@@ -1,8 +1,10 @@
 import { userDb, UserDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 import { UsersApiClient } from '$lib/client/services/UsersApiClient';
+import type { IUsersGlobalState } from '$lib/types/os';
 
-class UsersGlobalState extends SyncState<any[]> {
+class UsersGlobalState extends SyncState<any[]> implements IUsersGlobalState {
+    // --- Internal State ---
     private updateCallback?: (users: any[]) => void;
 
     constructor() {

@@ -1,15 +1,17 @@
 import { ApiConfig } from '$lib/config/api';
 import { sessionDb, SessionDBKey } from '$lib/config/localdb';
+import type { ISystemGlobalState, ISystemCurrentUser } from '$lib/types/os';
 
-class SystemGlobalState {
+class SystemGlobalState implements ISystemGlobalState {
+  // --- State ---
   recentApps = $state<string[]>([]);
-  currentUser = $state<{ id: string, username: string, name: string } | null>(null);
+  currentUser = $state<ISystemCurrentUser | null>(null);
   currentTime = $state<Date>(new Date());
   deviceId = $state<string>('');
-
   deviceName = $state<string>('Unknown Device');
   isInitializing = $state(true);
 
+  // --- Methods ---
   removeRecentApp(appId: string) {
     this.recentApps = this.recentApps.filter(id => id !== appId);
     this.saveRecentApps();

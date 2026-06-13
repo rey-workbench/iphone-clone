@@ -3,21 +3,14 @@ import { systemGlobalState } from '$lib/os/states';
 import { requestMicrophone, requestCamera } from '$lib/utils/permissions';
 import { ApiConfig } from '$lib/config/api';
 
-export type CallStatus = 'idle' | 'calling' | 'incoming' | 'active';
-
-type SignalCallback = {
-    onOffer: (payload: any) => void;
-    onAnswer: (payload: any) => void;
-    onIceCandidate: (payload: any) => void;
-    onEnd: () => void;
-    onAnsweredElsewhere: (payload: any) => void;
-};
+export type { CallStatus } from '$lib/types/os';
+import type { IWebrtcGlobalState, ISignalCallback } from '$lib/types/os';
 
 /**
  * WebrtcGlobalState — Pure WebRTC & Supabase signaling layer.
  * Focuses only on connection logic, devoid of UI states.
  */
-class WebrtcGlobalState {
+class WebrtcGlobalState implements IWebrtcGlobalState {
     // ─── Core WebRTC ──────────────────────────────────────────────────────────
     private pc: RTCPeerConnection | null = null;
     localStream = $state<MediaStream | null>(null);
@@ -27,14 +20,14 @@ class WebrtcGlobalState {
 
     // ─── Signaling (Supabase) ─────────────────────────────────────────────────
     private channel: any = null;
-    private callbacks: SignalCallback | null = null;
+    private callbacks: ISignalCallback | null = null;
     private isSubscribed = false;
 
     // ============================================================================
     // 1. SIGNALING SETUP
     // ============================================================================
 
-    setupSignaling(callbacks: SignalCallback) {
+    setupSignaling(callbacks: ISignalCallback) {
         this.callbacks = callbacks;
         const user = systemGlobalState.currentUser;
         if (!user) {

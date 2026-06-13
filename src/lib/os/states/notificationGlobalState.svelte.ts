@@ -1,15 +1,11 @@
+import type { INotificationGlobalState, INotificationOptions, INotificationItem } from '$lib/types/os';
 
-interface NotificationOptions {
-    title: string;
-    message: string;
-    icon?: string;
-    onClick?: () => void;
-}
+class NotificationGlobalState implements INotificationGlobalState {
+    // --- State ---
+    notifications = $state<INotificationItem[]>([]);
 
-class NotificationGlobalState {
-    notifications = $state<(NotificationOptions & { id: string })[]>([]);
-
-    show(options: NotificationOptions) {
+    // --- Methods ---
+    show(options: INotificationOptions) {
         if (typeof window === 'undefined') return;
         const id = Date.now().toString() + Math.random().toString();
         this.notifications.push({ id, ...options });
