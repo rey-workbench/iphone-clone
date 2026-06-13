@@ -3,6 +3,7 @@ import type { Note } from '$lib/types';
 import { notesDb, NotesDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 import { systemState } from '$lib/states/systemState.svelte';
+import { NotesApiClient } from '$lib/client/services/NotesApiClient';
 
 const defaultNotes: Note[] = [
     { id: '1', title: 'Welcome to Notes', content: 'This is a sample note in your iOS 26 clone.', date: new Date() },
@@ -17,8 +18,7 @@ export class AppNotesState extends SyncState<Note[]> {
         super(notesDb, NotesDBKey.NOTES, defaultNotes, async () => {
             const userId = systemState.currentUser?.id;
             if (!userId) return [];
-            const r = await fetch(`${ApiConfig.NOTES}?userId=${userId}`);
-            const resData = await r.json();
+            const resData = await NotesApiClient.getNotes(userId);
             if (resData.success && resData.notes) {
                 return resData.notes.map((n: any) => ({ ...n, date: new Date(n.date) }));
             }
@@ -45,7 +45,7 @@ export class AppNotesState extends SyncState<Note[]> {
         await this.mutate(
             (current) => [n, ...current],
             async () => {
-                const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('POST', n));
+                const { res } = await NotesApiClient.saveNote(n);
                 if (!res.ok) throw new Error('Failed to add note');
             }
         );
@@ -59,7 +59,7 @@ export class AppNotesState extends SyncState<Note[]> {
             await this.mutate(
                 (current) => current.map(n => n.id === updatedNote.id ? updatedNote : n),
                 async () => {
-                    const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('POST', updatedNote));
+                    const { res } = await NotesApiClient.saveNote(updatedNote);
                     if (!res.ok) throw new Error('Failed to update note');
                 }
             );
@@ -76,7 +76,7 @@ export class AppNotesState extends SyncState<Note[]> {
         await this.mutate(
             (current) => current.filter(n => n.id !== id),
             async () => {
-                const res = await fetch(ApiConfig.NOTES, ApiConfig.getNotesRequest('DELETE', { id, user_id: userId }));
+                const { res } = await NotesApiClient.deleteNote(id, userId);
                 if (!res.ok) throw new Error('Failed to delete note');
             }
         );

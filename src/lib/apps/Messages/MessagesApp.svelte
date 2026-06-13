@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { ArrowUp, ChevronLeft, ChevronRight, Plus, Mic, Video, Copy, Reply, Trash2, MoreHorizontal, Forward, Undo2 } from '@lucide/svelte';
+  import { Copy, Reply, Trash2, MoreHorizontal, Undo2 } from '@lucide/svelte';
   import { messagesState as appState } from './MessagesState.svelte';
-  import { usersState, dialogState } from '$lib/states';
+  import { usersState } from '$lib/states';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
-  import ContextMenu, { type ContextMenuItem } from '$lib/os/components/ui/ContextMenu.svelte';
+  import { type ContextMenuItem } from '$lib/os/components/ui/ContextMenu.svelte';
   import MessagesChatHeader from './components/MessagesChatHeader.svelte';
   import MessagesInputBar from './components/MessagesInputBar.svelte';
   import MessagesContextMenu from './components/MessagesContextMenu.svelte';

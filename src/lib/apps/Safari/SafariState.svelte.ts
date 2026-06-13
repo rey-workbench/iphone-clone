@@ -1,4 +1,5 @@
 import { dialogState } from "$lib/states/dialogState.svelte";
+import { SafariApiClient } from '$lib/client/services/SafariApiClient';
 
 export class AppSafariState {
   url = $state('');
@@ -189,8 +190,7 @@ export class AppSafariState {
     this.searchResults = null;
     this.searchError = null;
     try {
-      const res = await fetch(`/api/safari-search?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
+      const { res, result: data } = await SafariApiClient.search(query);
       if (!res.ok) throw new Error(data.error || 'Failed to search');
       this.searchResults = data.data || [];
     } catch (e: any) {

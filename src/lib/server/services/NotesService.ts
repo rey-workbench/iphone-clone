@@ -1,5 +1,5 @@
 import { NotesRepository } from '../repositories/NotesRepository';
-import type { Note } from '../models/Note';
+import type { Note } from '$lib/models/Note';
 
 export class NotesService {
   private repository: NotesRepository;

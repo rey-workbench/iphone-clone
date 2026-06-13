@@ -1,7 +1,7 @@
 import { systemState } from "$lib/states/systemState.svelte";
 import { dialogState } from "$lib/states/dialogState.svelte";
 import { webrtcState } from "$lib/states/webrtcState.svelte";
-import { ApiConfig } from "$lib/config/api";
+import { SettingsApiClient } from "$lib/client/services/SettingsApiClient";
 
 export class AppLinkedDevicesState {
   devices = $state<any[]>([]);
@@ -10,10 +10,8 @@ export class AppLinkedDevicesState {
   async fetchDevices() {
     this.isLoading = true;
     try {
-      const res = await fetch(
-        `${ApiConfig.AUTH_DEVICES}?userId=${systemState.currentUser?.id}`,
-      );
-      const data = await res.json();
+      if (!systemState.currentUser?.id) return;
+      const data = await SettingsApiClient.getDevices(systemState.currentUser.id);
       if (data.devices) {
         this.devices = data.devices;
       }
@@ -33,13 +31,8 @@ export class AppLinkedDevicesState {
       // Optimistic update
       this.devices = this.devices.filter((d) => d.device_id !== deviceId);
 
-      await fetch(
-        ApiConfig.AUTH_DEVICES, 
-        ApiConfig.getRevokeDeviceRequest(
-          systemState.currentUser?.id, 
-          deviceId
-        )
-      );
+      if (!systemState.currentUser?.id) return;
+      await SettingsApiClient.revokeDevice(systemState.currentUser.id, deviceId);
 
       // Send force_logout broadcast so the other tab logs out immediately
       webrtcState.sendSignal(

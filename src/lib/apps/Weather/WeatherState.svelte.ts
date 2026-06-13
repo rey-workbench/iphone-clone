@@ -4,6 +4,7 @@ import type { WeatherData, WeatherRange, WeatherHourly, WeatherDaily, WeatherTil
 import { ApiEndpoints } from '$lib/config/api/endpoints';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 import { settingsDb } from '$lib/config/localdb';
+import { WeatherApiClient } from '$lib/client/services/WeatherApiClient';
 
 type WeatherCache = { w: WeatherData; wRange: WeatherRange };
 
@@ -32,9 +33,7 @@ export class WeatherState extends SyncState<WeatherCache> {
                             const longitude = pos.coords.longitude;
                             let cityName = 'Current Location';
                             try {
-                                const res = await fetch(`${ApiEndpoints.NOMINATIM_REVERSE}?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
-                                const data = await res.json();
-                                cityName = data.address?.city || data.address?.town || data.address?.village || data.address?.county || 'Current Location';
+                                cityName = await WeatherApiClient.getCityFromCoords(latitude, longitude);
                             } catch (e) { /* ignore */ }
                             resolve({ lat: latitude, lon: longitude, city: cityName });
                         },
@@ -48,7 +47,7 @@ export class WeatherState extends SyncState<WeatherCache> {
                 city = geoData.city;
             } catch (nativeError) { 
                 try {
-                    const ipData = await ApiConfig.fetchWeatherIP();
+                    const ipData = await WeatherApiClient.getIpLocation();
                     if (ipData && ipData.latitude !== undefined && ipData.longitude !== undefined) {
                         lat = ipData.latitude;
                         lon = ipData.longitude;
@@ -57,7 +56,7 @@ export class WeatherState extends SyncState<WeatherCache> {
                 } catch (ipError) { }
             }
 
-            const data = await ApiConfig.fetchWeatherForecast(lat, lon);
+            const data = await WeatherApiClient.getForecast(lat, lon);
             if (!data || !data.hourly || !data.daily || !data.current) {
                 throw new Error("Invalid weather data");
             }

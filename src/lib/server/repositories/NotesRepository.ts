@@ -1,5 +1,5 @@
 import { db, setupDatabase } from '$lib/config/turso';
-import type { Note } from '../models/Note';
+import type { Note } from '$lib/models/Note';
 
 export class NotesRepository {
   async ensureMigration() {

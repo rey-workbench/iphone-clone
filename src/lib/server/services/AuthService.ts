@@ -1,6 +1,8 @@
-import { db, setupDatabase } from '$lib/config/turso';
+import { setupDatabase } from '$lib/config/turso';
 import { ApiError } from '$lib/server/api';
 import DeviceDetector from 'node-device-detector';
+import { AuthRepository } from '../repositories/AuthRepository';
+import { DevicesRepository } from '../repositories/DevicesRepository';
 
 const detector = new DeviceDetector({
   clientIndexes: true,
@@ -9,6 +11,14 @@ const detector = new DeviceDetector({
 });
 
 export class AuthService {
+  private repository: AuthRepository;
+  private devicesRepository: DevicesRepository;
+
+  constructor() {
+    this.repository = new AuthRepository();
+    this.devicesRepository = new DevicesRepository();
+  }
+
   async login(body: any, userAgent: string | null) {
     await setupDatabase();
 
@@ -29,29 +39,17 @@ export class AuthService {
         throw new ApiError(400, 'Username and password required');
     }
 
-    const result = await db.execute({
-        sql: 'SELECT id, username, name FROM users WHERE username = ? AND password = ?',
-        args: [username, password]
-    });
+    const user = await this.repository.findByCredentials(username, password);
 
-    if (result.rows.length > 0) {
-        const user = result.rows[0];
-
+    if (user) {
         if (deviceId && deviceName) {
             const now = new Date().toISOString();
             
             // Remove old entry for this device if exists
-            await db.execute({
-                sql: 'DELETE FROM user_devices WHERE user_id = ? AND device_id = ?',
-                args: [user.id, deviceId]
-            });
+            await this.devicesRepository.delete(user.id, deviceId);
             
             // Insert new session
-            await db.execute({
-                sql: `INSERT INTO user_devices (id, user_id, device_id, device_name, last_active, created_at)
-                      VALUES (?, ?, ?, ?, ?, ?)`,
-                args: [crypto.randomUUID(), user.id, deviceId, deviceName, now, now]
-            });
+            await this.devicesRepository.insert(user.id, deviceId, deviceName, now);
         }
 
         return { user };

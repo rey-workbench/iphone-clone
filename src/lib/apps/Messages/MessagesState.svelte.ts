@@ -5,7 +5,7 @@ import { dialogState } from "$lib/states/dialogState.svelte";
 import { supabase } from '$lib/config/supabase';
 import { systemState, usersState } from '$lib/states';
 import { notesDb, NotesDBKey } from '$lib/config/localdb';
-import { ApiConfig } from '$lib/config/api';
+import { MessagesApiClient } from '$lib/client/services/MessagesApiClient';
 import { goto } from '$app/navigation';
 
 class MessagesState {
@@ -96,27 +96,27 @@ class MessagesState {
             }
         }
 
-        // Load Supabase messages
-        const { data, error } = await supabase
-            .from('messages')
-            .select('*')
-            .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-            .order('created_at', { ascending: false });
-
-        if (!error && data) {
-            const processedUsers = new Set();
-            data.forEach(msg => {
-                const otherPersonId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
-                if (!processedUsers.has(otherPersonId)) {
-                    processedUsers.add(otherPersonId);
-                    const contact = this.inbox.find(c => c.id === otherPersonId);
-                    if (contact) {
-                        contact.lastMsg = msg.content;
-                        contact.time = new Date(msg.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                        contact.timestamp = new Date(msg.created_at).getTime();
+        // Load messages from API
+        try {
+            const result = await MessagesApiClient.getInbox(user.id);
+            
+            if (result.success && result.data) {
+                const processedUsers = new Set();
+                result.data.forEach((msg: any) => {
+                    const otherPersonId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
+                    if (!processedUsers.has(otherPersonId)) {
+                        processedUsers.add(otherPersonId);
+                        const contact = this.inbox.find(c => c.id === otherPersonId);
+                        if (contact) {
+                            contact.lastMsg = msg.content;
+                            contact.time = new Date(msg.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                            contact.timestamp = new Date(msg.created_at).getTime();
+                        }
                     }
-                }
-            });
+                });
+            }
+        } catch (e) {
+            // console.error("Failed to load inbox", e);
         }
     }
 
@@ -148,34 +148,23 @@ class MessagesState {
             return;
         }
 
-        const { data, error } = await supabase
-            .from('messages')
-            .select('*')
-            .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-            .order('created_at', { ascending: true });
-        
-        if (!error && data) {
-            const chatData = data.filter(d => 
-                (d.sender_id === user.id && d.receiver_id === this.currentChatId) || 
-                (d.sender_id === this.currentChatId && d.receiver_id === user.id)
-            );
-
-            this.messages = chatData.map(d => ({
-                id: d.id,
-                content: d.content,
-                isUser: d.sender_id === user.id,
-                time: new Date(d.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-            }));
+        try {
+            const result = await MessagesApiClient.getMessages(user.id, this.currentChatId);
             
-            const contactIndex = this.inbox.findIndex(c => c.id === this.currentChatId);
-            if (contactIndex !== -1 && this.messages.length > 0) {
-                const lastMsg = this.messages[this.messages.length - 1];
-                this.inbox[contactIndex].lastMsg = lastMsg.content;
-                this.inbox[contactIndex].time = lastMsg.time;
-                // If it's loaded from DB, use the latest created_at for timestamp
-                const lastDate = chatData[chatData.length - 1].created_at;
-                this.inbox[contactIndex].timestamp = new Date(lastDate).getTime();
+            if (result.success && result.data) {
+                this.messages = result.data;
+                
+                const contactIndex = this.inbox.findIndex(c => c.id === this.currentChatId);
+                if (contactIndex !== -1 && this.messages.length > 0) {
+                    const lastMsg = this.messages[this.messages.length - 1];
+                    this.inbox[contactIndex].lastMsg = lastMsg.content;
+                    this.inbox[contactIndex].time = lastMsg.time;
+                    // timestamp is not returned by the simplified chat data currently, but we can just use now
+                    this.inbox[contactIndex].timestamp = Date.now();
+                }
             }
+        } catch (e) {
+            // console.error("Failed to load chat", e);
         }
     }
 
@@ -252,23 +241,14 @@ class MessagesState {
         this.inputText = ''; 
         
         if (receiverId === 'ai-bot') {
-                await notesDb.set(NotesDBKey.AI_MESSAGES(user.id), this.messages);
+            await notesDb.set(NotesDBKey.AI_MESSAGES(user.id), this.messages);
             this.isTyping = true;
             const apiMessages = this.messages.map(m => ({
                 role: m.isUser ? 'user' : 'assistant',
                 content: m.content
             }));
 
-            fetch(ApiConfig.CHAT, ApiConfig.getChatRequest({
-                messages: apiMessages,
-                model: 'gpt-5.4-nano',
-                frequency_penalty: 0,
-                presence_penalty: 0,
-                stream: false,
-                temperature: 0.5,
-                top_p: 1
-            }))
-            .then(res => res.json())
+            MessagesApiClient.sendAiMessage(apiMessages)
             .then(async data => { 
                 this.isTyping = false; 
                 let aiText = "Sorry, couldn't get a response.";
@@ -278,7 +258,7 @@ class MessagesState {
                 const aiMsg = { id: String(Date.now()), content: aiText, isUser: false, time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) };
                 
                 this.messages = [...this.messages, aiMsg]; 
-                    await notesDb.set(NotesDBKey.AI_MESSAGES(user.id), this.messages);
+                await notesDb.set(NotesDBKey.AI_MESSAGES(user.id), this.messages);
                 
                 const contactIndex = this.inbox.findIndex(c => c.id === this.currentChatId);
                 if (contactIndex !== -1) {
@@ -294,13 +274,14 @@ class MessagesState {
             return;
         }
 
-        const { error } = await supabase.from('messages').insert([{ 
-            content: prompt, 
-            sender_id: user.id, 
-            receiver_id: receiverId 
-        }]);
-        if (error) {
-            dialogState.show({ title: 'Message Error', message: error.message || 'Failed to send message', confirmText: 'OK' });
+        try {
+            const { res, result } = await MessagesApiClient.sendMessage(user.id, receiverId, prompt);
+            
+            if (!res.ok || !result.success) {
+                dialogState.show({ title: 'Message Error', message: result.error || 'Failed to send message', confirmText: 'OK' });
+            }
+        } catch (e: any) {
+            dialogState.show({ title: 'Message Error', message: e.message || 'Failed to send message', confirmText: 'OK' });
         }
     }
 
@@ -331,9 +312,14 @@ class MessagesState {
         
         this.messages = this.messages.filter(m => m.id !== msgId);
         
-        const { error } = await supabase.from('messages').delete().eq('id', msgId).eq('sender_id', user.id);
-        if (error) {
-            dialogState.show({ title: 'Delete Error', message: 'Failed to delete message: ' + error.message, confirmText: 'OK' });
+        try {
+            const { res, result } = await MessagesApiClient.deleteMessage(msgId, user.id);
+            
+            if (!res.ok || !result.success) {
+                dialogState.show({ title: 'Delete Error', message: 'Failed to delete message: ' + result.error, confirmText: 'OK' });
+            }
+        } catch (e: any) {
+            dialogState.show({ title: 'Delete Error', message: 'Failed to delete message: ' + e.message, confirmText: 'OK' });
         }
     }
 
