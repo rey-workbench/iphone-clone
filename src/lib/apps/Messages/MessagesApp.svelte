@@ -25,6 +25,7 @@
 
   let isSelectionMode = $state(false);
   let selectedMessages: Set<string> = $state(new Set());
+  let keyboardPadding = $state(0);
 
   $effect(() => {
     if (appState.messages.length > 0 && chatEl) {
@@ -33,6 +34,19 @@
       }, 50);
       return () => clearTimeout(id);
     }
+  });
+
+  $effect(() => {
+    const visualViewport = window.visualViewport;
+    if (!visualViewport) return;
+    const onResize = () => {
+      const diff = window.innerHeight - visualViewport.height;
+      keyboardPadding = diff > 0 ? diff : 0;
+      if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
+    };
+    visualViewport.addEventListener('resize', onResize);
+    onResize();
+    return () => visualViewport.removeEventListener('resize', onResize);
   });
 
   function adjustTextareaHeight(e: Event) {
@@ -142,7 +156,7 @@
   const tailLeftClasses = "relative before:content-[''] before:absolute before:bottom-0 before:-left-2 before:h-5 before:w-5 before:bg-[#26252A] before:rounded-br-[16px] before:-z-10 after:content-[''] after:absolute after:bottom-0 after:-left-[10px] after:w-[10px] after:h-5 after:bg-black after:rounded-br-[10px] after:z-10";
 </script>
 
-<div class="h-full pt-[54px] pb-0 bg-black flex flex-col ">
+<div class="h-full pt-[54px] bg-black flex flex-col transition-all duration-100 ease-out" style:padding-bottom="{keyboardPadding}px">
   {#if appState.chatView}
     <div class="flex-1 flex flex-col min-h-0 bg-black">
       <MessagesChatHeader {appState} {usersState} closeChat={handleCloseChat} />
