@@ -1,7 +1,7 @@
 <script lang="ts">
   ;
   import { netflixState } from "../NetflixAppState.svelte";
-  import { ApiConfig } from "$lib/config/api";
+  import { NetflixApiClient } from "$lib/client/services/NetflixApiClient";
   import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import MovieEpisodes from "./MovieEpisodes.svelte";
@@ -38,13 +38,13 @@
 
   let iframeSrc = $derived(
     isTvShow
-      ? ApiConfig.getNetflixTvStream(
+      ? NetflixApiClient.getTvStreamUrl(
           media?.id || "",
           selectedSeason,
           selectedEpisode,
           currentServer,
         )
-      : ApiConfig.getNetflixMovieStream(media?.id || "", currentServer),
+      : NetflixApiClient.getMovieStreamUrl(media?.id || "", currentServer),
   );
 
   function openFullscreen() {

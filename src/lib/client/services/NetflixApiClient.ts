@@ -15,4 +15,16 @@ export class NetflixApiClient {
         const res = await fetch(`${ApiConfig.NETFLIX_DETAILS}?id=${id}&type=${type}`);
         return { res, result: await res.json() };
     }
+
+    static getMovieStreamUrl(tmdbId: string | number, server: number = 1): string {
+        if (server === 3) return `${ApiConfig.MULTIEMBED}/?video_id=${tmdbId}&tmdb=1`;
+        if (server === 2) return `${ApiConfig.VIDLINK}/movie/${tmdbId}`;
+        return `${ApiConfig.VIDSRC_EMBED}/embed/movie?tmdb=${tmdbId}&ds_lang=id`;
+    }
+
+    static getTvStreamUrl(tmdbId: string | number, season: number, episode: number, server: number = 1): string {
+        if (server === 3) return `${ApiConfig.MULTIEMBED}/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
+        if (server === 2) return `${ApiConfig.VIDLINK}/tv/${tmdbId}/${season}/${episode}`;
+        return `${ApiConfig.VIDSRC_EMBED}/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=id`;
+    }
 }
