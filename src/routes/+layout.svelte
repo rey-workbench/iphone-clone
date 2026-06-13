@@ -1,7 +1,9 @@
 <script lang="ts">
   import "../app.css";
   import { pwaInfo } from 'virtual:pwa-info';
-  ;
+  import { initGlobalContexts } from "$lib/states";
+  initGlobalContexts();
+
   import PwaInstallPrompt from '$lib/os/components/PwaInstallPrompt.svelte';
   
   import StatusBar from "$lib/os/components/StatusBar.svelte";

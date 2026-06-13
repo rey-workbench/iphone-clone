@@ -1,8 +1,13 @@
 import { ApiConfig } from "$lib/config/api";
 import { MusicItemType, type IMusicTrack, MusicAction } from "$lib/types/music";
 import { dialogState } from "$lib/states/dialogState.svelte";
+import type { IAppLifecycle } from "$lib/types/app";
+import { osMediator } from "$lib/os/mediator.svelte";
 
-export class MusicState {
+export class MusicState implements IAppLifecycle {
+    appName = 'Music';
+    isForeground = $state(false);
+
     activeTab = $state("listen_now");
     searchQuery = $state("");
     searchResults = $state<IMusicTrack[]>([]);
@@ -31,6 +36,26 @@ export class MusicState {
     searchTimeout: any;
 
     constructor() {}
+
+    onLaunch() {
+        this.isForeground = true;
+        osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
+    }
+
+    onSuspend() {
+        this.isForeground = false;
+        osMediator.emit({ type: 'APP_SUSPENDED', payload: { appName: this.appName } });
+    }
+
+    onResume() {
+        this.isForeground = true;
+        osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
+    }
+
+    onDestroy() {
+        this.isForeground = false;
+        this.destroyPlayer();
+    }
 
     initPlayer(windowObj: any) {
         this.player = new windowObj.YT.Player("youtube-player", {
@@ -63,9 +88,21 @@ export class MusicState {
             this.isPlaying = true;
             clearInterval(this.progressInterval);
             this.progressInterval = setInterval(() => this.updateProgress(), 500);
+            if (this.current) {
+                osMediator.emit({
+                    type: 'MUSIC_PLAYING',
+                    payload: { trackName: this.current.name, artist: this.current.artist || 'Unknown Artist', isPlaying: true }
+                });
+            }
         } else {
             this.isPlaying = false;
             clearInterval(this.progressInterval);
+            if (this.current) {
+                osMediator.emit({
+                    type: 'MUSIC_PLAYING',
+                    payload: { trackName: this.current.name, artist: this.current.artist || 'Unknown Artist', isPlaying: false }
+                });
+            }
             if (event.data === windowObj.YT.PlayerState.ENDED) {
                 this.progress = 0;
                 this.playNext(1);
@@ -171,6 +208,11 @@ export class MusicState {
         this.showPlayer = true;
         this.showLyrics = false;
         this.lyricsText = "";
+        
+        osMediator.emit({
+            type: 'MUSIC_PLAYING',
+            payload: { trackName: t.name, artist: t.artist || 'Unknown Artist', isPlaying: true }
+        });
         
         const tryPlay = (retries = 5) => {
             if (this.player && typeof this.player.loadVideoById === "function") {

@@ -1,7 +1,12 @@
 import { dialogState } from "$lib/states/dialogState.svelte";
 import { SafariApiClient } from '$lib/client/services/SafariApiClient';
+import type { IAppLifecycle } from '$lib/types/app';
+import { osMediator } from '$lib/os/mediator.svelte';
 
-export class AppSafariState {
+export class AppSafariState implements IAppLifecycle {
+  appName = 'Safari';
+  isForeground = $state(false);
+
   url = $state('');
   inputUrl = $state('');
   showInput = $state(false);
@@ -14,6 +19,26 @@ export class AppSafariState {
   errorMessage = $state('');
 
   constructor() {}
+
+  async onLaunch() {
+    this.isForeground = true;
+    osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
+    await this.initEngine();
+  }
+
+  onSuspend() {
+    this.isForeground = false;
+    osMediator.emit({ type: 'APP_SUSPENDED', payload: { appName: this.appName } });
+  }
+
+  onResume() {
+    this.isForeground = true;
+    osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
+  }
+
+  onDestroy() {
+    this.isForeground = false;
+  }
 
   async initEngine() {
     if ("serviceWorker" in navigator) {

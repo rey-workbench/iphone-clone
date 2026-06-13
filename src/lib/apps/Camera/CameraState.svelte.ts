@@ -1,6 +1,11 @@
 import { requestCamera } from "$lib/utils/permissions";
+import type { IAppLifecycle } from "$lib/types/app";
+import { WebCameraAdapter, MockCameraAdapter, type ICameraHardware } from "$lib/utils/cameraAdapter";
 
-export class AppCameraState {
+export class AppCameraState implements IAppLifecycle {
+  appName = 'Camera';
+  isForeground = $state(false);
+
   videoEl: HTMLVideoElement | undefined = $state(undefined);
   photoTaken = $state(false);
   photoUrl = $state('');
@@ -10,7 +15,31 @@ export class AppCameraState {
   modes: ('video' | 'photo' | 'portrait')[] = ['video', 'photo', 'portrait'];
   error: string | null = $state(null);
 
-  constructor() {}
+  private hardware: ICameraHardware;
+
+  constructor(isPreview = false) {
+    this.hardware = isPreview ? new MockCameraAdapter() : new WebCameraAdapter();
+  }
+
+  async onLaunch() {
+    this.isForeground = true;
+    await this.startCamera();
+  }
+
+  onSuspend() {
+    this.isForeground = false;
+    this.stopCamera();
+  }
+
+  onResume() {
+    this.isForeground = true;
+    this.startCamera();
+  }
+
+  onDestroy() {
+    this.isForeground = false;
+    this.stopCamera();
+  }
 
   async startCamera() {
     try {
@@ -22,13 +51,16 @@ export class AppCameraState {
         return;
       }
 
-      this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: this.facingMode } });
+      this.stream = await this.hardware.getStream(this.facingMode);
       if (this.videoEl) { this.videoEl.srcObject = this.stream; }
     } catch { /* camera not available */ }
   }
 
   stopCamera() {
-    if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+    if (this.stream) {
+      this.stream.getTracks().forEach(t => t.stop());
+      this.stream = null;
+    }
   }
 
   capture() {

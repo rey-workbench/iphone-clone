@@ -1,16 +1,17 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getContext, onDestroy } from 'svelte';
   import { RefreshCw } from '@lucide/svelte';
   import { AppCameraState } from './CameraState.svelte';
 
-  const isPreview = getContext('isPreview');
-  const state = new AppCameraState();
+  const isPreview = getContext<boolean>('isPreview');
+  const state = new AppCameraState(!!isPreview);
 
   $effect(() => {
-    if (isPreview) return;
-    state.startCamera();
+    state.onLaunch();
   });
-  $effect(() => () => () => state.stopCamera());
+  onDestroy(() => {
+    state.onDestroy();
+  });
 
   const retake = () => state.retake();
   const capture = () => state.capture();
