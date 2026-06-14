@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Gamepad2, CalendarDays, Smartphone, Search } from "@lucide/svelte";
   import { AppStoreAppState } from "./AppStoreAppState.svelte";
-  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
-  import AppContainer from "$lib/os/components/ui/AppContainer.svelte";
-  import IOSList from "$lib/os/components/ui/IOSList.svelte";
+  import Skeleton from "$lib/sysui/ui/Skeleton.svelte";
+  import AppContainer from "$lib/sysui/ui/AppContainer.svelte";
+  import IOSList from "$lib/sysui/ui/IOSList.svelte";
   import type { TAppStoreTabId } from "$lib/types";
 
   const state = new AppStoreAppState();

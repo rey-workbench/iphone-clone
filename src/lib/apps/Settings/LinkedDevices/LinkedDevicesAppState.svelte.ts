@@ -1,11 +1,12 @@
-import { systemGlobalState } from "$lib/os/states/systemGlobalState.svelte";
-import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
-import { webrtcGlobalState } from "$lib/os/states/webrtcGlobalState.svelte";
+import { systemGlobalState } from "$lib/core/states/systemGlobalState.svelte";
+import { dialogGlobalState } from "$lib/core/states/dialogGlobalState.svelte";
+import { webrtcGlobalState } from "$lib/core/states/webrtcGlobalState.svelte";
 import { SettingsApiClient } from "$lib/client/services/SettingsApiClient";
-import { BaseGlobalState } from '$lib/os/states/baseGlobalState.svelte';
-import type { ILinkedDevice } from '$lib/types';
+import type { ILinkedDevice } from '$lib/types';
+import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
 
 export class LinkedDevicesAppState extends BaseGlobalState {
+    appName = 'LinkedDevices';
   devices = $state<ILinkedDevice[]>([]);
 
   constructor() {

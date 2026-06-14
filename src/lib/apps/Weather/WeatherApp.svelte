@@ -1,8 +1,8 @@
 <script lang="ts">
   import { WeatherAppState } from "./WeatherAppState.svelte";
-  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import Skeleton from "$lib/sysui/ui/Skeleton.svelte";
   import WeatherDailyForecast from "./components/WeatherDailyForecast.svelte";
-  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
+  import AppContainer from '$lib/sysui/ui/AppContainer.svelte';
 
   const state = new WeatherAppState();
 

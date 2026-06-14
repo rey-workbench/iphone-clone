@@ -1,6 +1,6 @@
 <script lang="ts">
   import { PhoneIncoming, PhoneOutgoing, PhoneMissed, Video, Info } from '@lucide/svelte';
-  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
+  import Skeleton from '$lib/sysui/ui/Skeleton.svelte';
   import type { PhoneAppState } from '../PhoneAppState.svelte';
 
   const { state } = $props<{ state: PhoneAppState }>();

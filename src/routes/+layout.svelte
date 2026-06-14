@@ -2,31 +2,35 @@
   import "../app.css";
   import { pwaInfo } from "virtual:pwa-info";
 
-  import PwaInstallPrompt from "$lib/os/components/PwaInstallPrompt.svelte";
+  import PwaInstallPrompt from "$lib/sysui/device/PwaInstallPrompt.svelte";
 
-  import StatusBar from "$lib/os/components/StatusBar.svelte";
-  import { systemGlobalState } from "$lib/os/states";
-  import LoginScreen from "$lib/os/components/LoginScreen.svelte";
-  import NotificationBanner from "$lib/os/components/NotificationBanner.svelte";
+  import StatusBar from "$lib/sysui/status/StatusBar.svelte";
+  import { systemGlobalState } from "$lib/core/states";
+  import LoginScreen from "$lib/sysui/lockscreen/LoginScreen.svelte";
+  import NotificationBanner from "$lib/sysui/notifications/NotificationBanner.svelte";
 
   import { callState } from "$lib/apps/Phone/CallAppState.svelte";
   import IncomingCallScreen from "$lib/apps/Phone/components/IncomingCallScreen.svelte";
   import ActiveCallScreen from "$lib/apps/Phone/components/ActiveCallScreen.svelte";
-  import DialogModal from "$lib/os/components/DialogModal.svelte";
-  import AppSwitcher from "$lib/os/components/AppSwitcher.svelte";
-  import ControlCenter from "$lib/os/components/ControlCenter.svelte";
-  import { ShellState } from "./ShellState.svelte";
-  import { page } from "$app/stores";
+  import DialogModal from "$lib/sysui/notifications/DialogModal.svelte";
+  import AppSwitcher from "$lib/sysui/appswitcher/AppSwitcher.svelte";
+  import ControlCenter from "$lib/sysui/controlcenter/ControlCenter.svelte";
+  import { ShellState } from "$lib/core/states/ShellState.svelte";
   import { musicGlobalState } from "$lib/apps/Music/MusicAppState.svelte";
-  import DeviceFrame from "$lib/os/components/DeviceFrame.svelte";
-  import LockScreen from "$lib/os/components/LockScreen.svelte";
-  import AppTransitionContainer from "$lib/os/components/AppTransitionContainer.svelte";
+  import DeviceFrame from "$lib/sysui/device/DeviceFrame.svelte";
+  import LockScreen from "$lib/sysui/lockscreen/LockScreen.svelte";
 
   // App Registry for the App Switcher to render previews
   import { appsRegistry } from "$lib/apps/registry";
   const appComponents = appsRegistry;
 
   const state = new ShellState();
+  
+  import { setContext } from "svelte";
+  import { os } from "$lib/core/OS";
+  import AppRenderer from "$lib/core/AppRenderer.svelte";
+  
+  setContext("os", os);
 
   const { children } = $props();
 
@@ -89,9 +93,8 @@
         ></div>
       </div>
 
-      <AppTransitionContainer {state} pathname={$page.url.pathname}>
-        {@render children()}
-      </AppTransitionContainer>
+      <AppRenderer {state} />
+      {@render children()}
     {/if}
 
     <!-- Lock Screen Overlay -->

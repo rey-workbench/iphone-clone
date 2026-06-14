@@ -47,6 +47,7 @@
 		"@mercuryworkshop/wisp-js": "^0.4.1",
 		"@supabase/supabase-js": "^2.108.1",
 		"idb": "^8.0.3",
+		"localforage": "^1.10.0",
 		"lrclib-api": "^2.0.4",
 		"node-device-detector": "^2.2.5",
 		"ruhend-scraper": "^10.0.3",

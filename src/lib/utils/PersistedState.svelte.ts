@@ -1,11 +1,11 @@
 import type { LocalDBAdapter } from '$lib/config/localdb/core';
-import { BaseGlobalState } from '../os/states/baseGlobalState.svelte';
+import { BaseGlobalState } from '../core/states/baseGlobalState.svelte';
 
 /**
  * Base class Svelte 5 untuk manajemen state lokal (tanpa API).
  * Menangani boilerplate `typeof window` dan `$state.snapshot` secara otomatis.
  */
-export class PersistedState<T> extends BaseGlobalState {
+export abstract class PersistedState<T> extends BaseGlobalState {
     data = $state<T | null>(null);
 
     protected db: LocalDBAdapter<T>;

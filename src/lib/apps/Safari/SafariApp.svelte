@@ -1,7 +1,7 @@
 <script lang="ts">
   import { SafariAppState } from "./SafariAppState.svelte";
-  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
-  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import AppContainer from '$lib/sysui/ui/AppContainer.svelte';
+  import Skeleton from "$lib/sysui/ui/Skeleton.svelte";
   import {
     ChevronLeft,
     ChevronRight,

@@ -5,6 +5,7 @@ import { SyncState } from '$lib/utils/SyncState.svelte';
 import type { IPhotoItem } from '$lib/types';
 
 export class PhotosAppState extends SyncState<IPhotoItem[]> {
+    appName = 'Photos';
   selectedPhoto: IPhotoItem | null = $state(null);
   tab: 'library' | 'foryou' | 'albums' | 'search' = $state('library');
 

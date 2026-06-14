@@ -2,7 +2,7 @@
   ;
   import { ChevronLeft } from '@lucide/svelte';
   import { MailAppState } from './MailAppState.svelte';
-  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
+  import Skeleton from '$lib/sysui/ui/Skeleton.svelte';
 
   const state = new MailAppState();
 

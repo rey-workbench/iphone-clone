@@ -1,12 +1,10 @@
 import { requestCamera } from "$lib/utils/permissions";
-import type { IAppLifecycle } from "$lib/types";
 import type { TCameraMode } from "$lib/types";
 import { WebCameraAdapter, MockCameraAdapter, type ICameraHardware } from "$lib/utils/cameraAdapter";
-import { BaseGlobalState } from "$lib/os/states/baseGlobalState.svelte";
+import { BaseGlobalState } from "$lib/core/states/baseGlobalState.svelte";
 
-export class CameraAppState extends BaseGlobalState implements IAppLifecycle {
+export class CameraAppState extends BaseGlobalState  {
   appName = 'Camera';
-  isForeground = $state(false);
 
   photoTaken = $state(false);
   photoUrl = $state('');
@@ -27,17 +25,17 @@ export class CameraAppState extends BaseGlobalState implements IAppLifecycle {
     await this.startCamera();
   }
 
-  onSuspend() {
+  async onSuspend() {
     this.isForeground = false;
     this.stopCamera();
   }
 
-  onResume() {
+  async onResume() {
     this.isForeground = true;
     this.startCamera();
   }
 
-  onDestroy() {
+  async onDestroy() {
     this.isForeground = false;
     this.stopCamera();
   }

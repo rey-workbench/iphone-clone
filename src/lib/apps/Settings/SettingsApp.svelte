@@ -4,12 +4,12 @@
   import { SettingsAppState } from './SettingsGlobalState.svelte';
   import LinkedDevices from './LinkedDevices/LinkedDevices.svelte';
   import SettingsRow from './components/SettingsRow.svelte';
-  import { authGlobalState } from '$lib/os/states';
-  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
+  import { authGlobalState } from '$lib/core/states';
+  import Skeleton from '$lib/sysui/ui/Skeleton.svelte';
   
-  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
-  import AppHeader from '$lib/os/components/ui/AppHeader.svelte';
-  import IOSList from '$lib/os/components/ui/IOSList.svelte';
+  import AppContainer from '$lib/sysui/ui/AppContainer.svelte';
+  import AppHeader from '$lib/sysui/ui/AppHeader.svelte';
+  import IOSList from '$lib/sysui/ui/IOSList.svelte';
 
   const appState = new SettingsAppState();
   const toggleItems = $derived(appState.getToggleItems(settingsGlobalState));

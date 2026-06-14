@@ -2,7 +2,7 @@
   ;
   import { netflixState } from "../NetflixAppState.svelte";
   import { NetflixApiClient } from "$lib/client/services/NetflixApiClient";
-  import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
+  import { dialogGlobalState } from "$lib/core/states/dialogGlobalState.svelte";
 
   import MovieHero from "./MovieHero.svelte";
   import MovieInfo from "./MovieInfo.svelte";

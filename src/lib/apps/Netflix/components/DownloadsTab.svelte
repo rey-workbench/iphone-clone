@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Settings, ChevronRight } from "@lucide/svelte";
   import { netflixState } from "../NetflixAppState.svelte";
-  import { systemGlobalState } from "$lib/os/states";
+  import { systemGlobalState } from "$lib/core/states";
 
   // Generate mock downloads dynamically based on API data so it's not broken
   let downloads = $state<any[]>([]);

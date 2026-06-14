@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ContextMenu, { type ContextMenuItem } from "$lib/os/components/ui/ContextMenu.svelte";
+  import ContextMenu, { type ContextMenuItem } from "$lib/sysui/ui/ContextMenu.svelte";
 
   const {
     activeContextMenu,

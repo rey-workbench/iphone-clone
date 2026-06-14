@@ -5,6 +5,7 @@ import { SyncState } from '$lib/utils/SyncState.svelte';
 import type { TAppStoreTabId, IAppStoreData, IAppStoreProduct } from '$lib/types';
 
 export class AppStoreAppState extends SyncState<IAppStoreData | null> {
+    appName = 'AppStore';
     tab = $state<TAppStoreTabId>('today');
     featured: IAppStoreProduct[] = $state([]);
     topApps: IAppStoreProduct[] = $state([]);

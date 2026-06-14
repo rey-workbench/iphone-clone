@@ -1,7 +1,6 @@
 import { Sun, CloudSun, Cloud, CloudRain, Moon } from '@lucide/svelte';
 
 import type { IWeatherData, IWeatherRange, IWeatherHourly, IWeatherDaily, IWeatherLocation } from '$lib/types';
-import type { IAppLifecycle } from '$lib/types';
 
 import { SyncState } from '$lib/utils/SyncState.svelte';
 import { settingsDb } from '$lib/config/localdb';
@@ -17,9 +16,8 @@ const defaultData: WeatherCache = {
     wRange: { min: 8, range: 17 }
 };
 
-export class WeatherAppState extends SyncState<WeatherCache> implements IAppLifecycle {
+export class WeatherAppState extends SyncState<WeatherCache>  {
     appName = 'Weather';
-    isForeground = $state(false);
     cities = $state<IWeatherData[]>([]);
     searchQuery = $state("");
     searchResults = $state<IWeatherLocation[]>([]);
@@ -119,15 +117,15 @@ export class WeatherAppState extends SyncState<WeatherCache> implements IAppLife
         await this.init();
     }
 
-    onSuspend() {
+    async onSuspend() {
         this.isForeground = false;
     }
 
-    onResume() {
+    async onResume() {
         this.isForeground = true;
     }
 
-    onDestroy() {
+    async onDestroy() {
         this.isForeground = false;
     }
 

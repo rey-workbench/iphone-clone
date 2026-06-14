@@ -1,9 +1,10 @@
+
 import { Bot } from '@lucide/svelte';
 
-import { notificationGlobalState } from "$lib/os/states/notificationGlobalState.svelte";
-import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
+import { notificationGlobalState } from "$lib/core/states/notificationGlobalState.svelte";
+import { dialogGlobalState } from "$lib/core/states/dialogGlobalState.svelte";
 import { supabase } from '$lib/config/supabase';
-import { systemGlobalState, usersGlobalState } from '$lib/os/states';
+import { systemGlobalState, usersGlobalState } from '$lib/core/states';
 import { notesDb, NotesDBKey } from '$lib/config/localdb';
 import { MessagesApiClient } from '$lib/client/services/MessagesApiClient';
 import { goto } from '$app/navigation';

@@ -1,3 +1,4 @@
+
 import type { IAlarm } from '$lib/types';
 import { settingsDb } from '$lib/config/localdb';
 import { PersistedState } from '$lib/utils/PersistedState.svelte';
@@ -27,6 +28,7 @@ const defaultClock: ClockData = {
 };
 
 class ClockAppState extends PersistedState<ClockData> {
+    appName = 'Clock';
   constructor() {
     super(settingsDb, 'app_clock', defaultClock);
   }

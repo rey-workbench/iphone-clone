@@ -2,7 +2,7 @@
   ;
   import { ChevronLeft, Image, Heart, Folder, Search } from '@lucide/svelte';
   import { PhotosAppState } from './PhotosAppState.svelte';
-  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
+  import Skeleton from '$lib/sysui/ui/Skeleton.svelte';
 
   const state = new PhotosAppState();
 

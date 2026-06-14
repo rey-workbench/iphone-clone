@@ -5,7 +5,7 @@
   import MusicLibrary from "./components/MusicLibrary.svelte";
   import MusicBottomNav from "./components/MusicBottomNav.svelte";
   import MusicMiniPlayer from "./components/MusicMiniPlayer.svelte";
-  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
+  import AppContainer from '$lib/sysui/ui/AppContainer.svelte';
 
   const isPreview = getContext('isPreview');
   const state = musicGlobalState;

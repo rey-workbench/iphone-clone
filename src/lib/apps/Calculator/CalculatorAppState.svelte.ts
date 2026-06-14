@@ -1,6 +1,8 @@
+import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
 import type { IBtn } from '$lib/types';
 
-export class CalculatorAppState {
+export class CalculatorAppState extends BaseGlobalState {
+    appName = 'Calculator';
     buttons: IBtn[][] = [
         [{ label: 'AC', type: 'function', value: 'AC' }, { label: '+/−', type: 'function', value: 'negate' }, { label: '%', type: 'function', value: 'percent' }, { label: '÷', type: 'operator', value: '/' }],
         [{ label: '7', type: 'number', value: '7' }, { label: '8', type: 'number', value: '8' }, { label: '9', type: 'number', value: '9' }, { label: '×', type: 'operator', value: '*' }],
@@ -15,7 +17,8 @@ export class CalculatorAppState {
     waiting = $state(false);
     activeOp: string | null = $state(null);
 
-    constructor() {}
+    constructor() {
+        super();}
 
     calc(a: number, b: number, o: string): number {
         if (o === '+') return a + b;

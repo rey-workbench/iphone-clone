@@ -1,8 +1,12 @@
-import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
+
+import { dialogGlobalState } from "$lib/core/states/dialogGlobalState.svelte";
 import { NetflixApiClient } from '$lib/client/services/NetflixApiClient';
 import type { INetflixMedia, INetflixSeason, INetflixDetails } from '$lib/types';
 
-class NetflixAppState {
+import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
+
+export class NetflixAppState extends BaseGlobalState {
+  appName = 'Netflix';
   view = $state<'home' | 'detail' | 'player'>('home');
   selectedMedia = $state<INetflixMedia | null>(null);
 
@@ -42,6 +46,7 @@ class NetflixAppState {
   private idleTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
+    super();
     this.fetchTrending();
   }
 

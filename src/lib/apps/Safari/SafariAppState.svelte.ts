@@ -1,14 +1,15 @@
-import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
+import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
+import { dialogGlobalState } from "$lib/core/states/dialogGlobalState.svelte";
 import { SafariApiClient } from '$lib/client/services/SafariApiClient';
-import type { IAppLifecycle } from '$lib/types';
+
 
 import type { ISafariSearchResult, IScramjetController, IWindowWithScramjet, IScramjetFrame } from '$lib/types';
 
 let engineInitPromise: Promise<void> | null = null;
 
-export class SafariAppState implements IAppLifecycle {
+export class SafariAppState extends BaseGlobalState {
   appName = 'Safari';
-  isForeground = $state(false);
+
 
   url = $state('');
   inputUrl = $state('');
@@ -21,22 +22,24 @@ export class SafariAppState implements IAppLifecycle {
   frameObj: (HTMLIFrameElement & IScramjetFrame) | null = null;
   errorMessage = $state('');
 
-  constructor() {}
+  constructor() {
+    super();
+  }
 
   async onLaunch() {
     this.isForeground = true;
     await this.initEngine();
   }
 
-  onSuspend() {
+  async onSuspend() {
     this.isForeground = false;
   }
 
-  onResume() {
+  async onResume() {
     this.isForeground = true;
   }
 
-  onDestroy() {
+  async onDestroy() {
     this.isForeground = false;
   }
 

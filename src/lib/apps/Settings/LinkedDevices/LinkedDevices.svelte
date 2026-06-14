@@ -1,8 +1,8 @@
 <script lang="ts">
   import { ChevronLeft, Laptop, Smartphone, Monitor } from "@lucide/svelte";
-  import { systemGlobalState } from "$lib/os/states/systemGlobalState.svelte";
+  import { systemGlobalState } from "$lib/core/states/systemGlobalState.svelte";
   ;
-  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import Skeleton from "$lib/sysui/ui/Skeleton.svelte";
   import { LinkedDevicesAppState } from "./LinkedDevicesAppState.svelte";
 
   const { onBack } = $props<{ onBack: () => void }>();

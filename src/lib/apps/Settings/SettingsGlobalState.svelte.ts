@@ -1,8 +1,8 @@
 import { Plane, Wifi, Bluetooth, Antenna, Link, Bell, Volume2, Moon, Hourglass, Settings, Sun, LayoutGrid, Accessibility, Image, Battery, Lock } from '@lucide/svelte';
-import { systemGlobalState } from '$lib/os/states';
+import { systemGlobalState } from '$lib/core/states';
 import { settingsDb, SettingsDBKey } from '$lib/config/localdb';
 import { PersistedState } from '$lib/utils/PersistedState.svelte';
-import { BaseGlobalState } from '$lib/os/states/baseGlobalState.svelte';
+import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
 
 type SettingsData = {
   airplaneMode: boolean;
@@ -34,7 +34,8 @@ const defaultSettings: SettingsData = {
   lowPowerMode: false
 };
 
-class SettingsGlobalState extends PersistedState<SettingsData> {
+export class SettingsGlobalState extends PersistedState<SettingsData> {
+    appName = 'Settings';
   constructor() {
     super(settingsDb, SettingsDBKey.SETTINGS, defaultSettings);
   }
@@ -43,6 +44,7 @@ class SettingsGlobalState extends PersistedState<SettingsData> {
 export const settingsGlobalState = new SettingsGlobalState();
 
 export class SettingsAppState extends BaseGlobalState {
+    appName = 'Settings';
   searchText = $state('');
 
   get profile() {

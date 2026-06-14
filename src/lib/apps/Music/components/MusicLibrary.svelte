@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { MusicAppState } from "../MusicAppState.svelte";
   import { Play, Search } from "@lucide/svelte";
-  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import Skeleton from "$lib/sysui/ui/Skeleton.svelte";
 
   const { state }: { state: MusicAppState } = $props();
 

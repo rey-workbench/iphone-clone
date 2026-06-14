@@ -1,4 +1,5 @@
-import { dialogGlobalState } from '$lib/os/states';
+import { dialogGlobalState } from '$lib/core/states';
+import { processManager } from '$lib/core/ProcessManager.svelte';
 
 /**
  * Request camera permission (for future FaceTime or Camera app)
@@ -15,8 +16,7 @@ export async function requestCamera(): Promise<boolean> {
         }
     }
 
-    const path = typeof window !== 'undefined' ? window.location.pathname.replace('/', '') : '';
-    const activeAppId = path || 'App';
+    const activeAppId = processManager.activeAppId || 'App';
     const appName = activeAppId.charAt(0).toUpperCase() + activeAppId.slice(1);
 
     const allowed = await dialogGlobalState.show({

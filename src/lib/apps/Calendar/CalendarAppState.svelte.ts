@@ -1,4 +1,6 @@
-export class CalendarAppState {
+import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
+export class CalendarAppState extends BaseGlobalState {
+    appName = 'Calendar';
   selectedDate = $state(new Date());
 
   year = $derived(this.selectedDate.getFullYear());

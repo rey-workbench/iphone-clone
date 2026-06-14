@@ -4,6 +4,7 @@ import { SyncState } from '$lib/utils/SyncState.svelte';
 import type { IEmail } from '$lib/types';
 
 export class MailAppState extends SyncState<IEmail[]> {
+    appName = 'Mail';
   selected: IEmail | null = $state(null);
 
   constructor() {

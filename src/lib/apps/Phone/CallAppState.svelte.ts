@@ -1,9 +1,10 @@
-import { systemGlobalState, webrtcGlobalState, type CallStatus } from '$lib/os/states';
-import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
-import { BaseGlobalState } from '$lib/os/states/baseGlobalState.svelte';
+import { systemGlobalState, webrtcGlobalState, type CallStatus } from '$lib/core/states';
+import { dialogGlobalState } from "$lib/core/states/dialogGlobalState.svelte";
+import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
 import type { IContact, ISignalingPayload } from '$lib/types';
 
 class CallAppState extends BaseGlobalState {
+    appName = 'Call';
     status = $state<CallStatus>('idle');
     remoteContact = $state<IContact | null>(null);
     duration = $state(0);

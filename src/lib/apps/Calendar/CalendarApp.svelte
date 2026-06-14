@@ -1,9 +1,9 @@
 <script lang="ts">
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { CalendarAppState } from './CalendarAppState.svelte';
-  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
-  import AppHeader from '$lib/os/components/ui/AppHeader.svelte';
-  import IOSList from '$lib/os/components/ui/IOSList.svelte';
+  import AppContainer from '$lib/sysui/ui/AppContainer.svelte';
+  import AppHeader from '$lib/sysui/ui/AppHeader.svelte';
+  import IOSList from '$lib/sysui/ui/IOSList.svelte';
 
   const state = new CalendarAppState();
 

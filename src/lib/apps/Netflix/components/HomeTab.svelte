@@ -1,6 +1,6 @@
 <script lang="ts">
   import { netflixState } from "../NetflixAppState.svelte";
-  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import Skeleton from "$lib/sysui/ui/Skeleton.svelte";
   import { Plus, Info } from "@lucide/svelte";
 
   const { handleScroll } = $props<{ handleScroll: (e: Event) => void }>();

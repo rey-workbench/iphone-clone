@@ -1,7 +1,7 @@
 <script lang="ts">
   import { netflixState } from "../NetflixAppState.svelte";
   import type { INetflixMedia } from "$lib/types";
-  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
+  import Skeleton from "$lib/sysui/ui/Skeleton.svelte";
   import MovieEpisodes from "./MovieEpisodes.svelte";
 
   let {

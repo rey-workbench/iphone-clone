@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Trash2, SquarePen, ChevronLeft } from '@lucide/svelte';
   import { NotesAppState } from './NotesAppState.svelte';
-  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
-  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
-  import IOSList from '$lib/os/components/ui/IOSList.svelte';
+  import Skeleton from '$lib/sysui/ui/Skeleton.svelte';
+  import AppContainer from '$lib/sysui/ui/AppContainer.svelte';
+  import IOSList from '$lib/sysui/ui/IOSList.svelte';
 
   const state = new NotesAppState();
 

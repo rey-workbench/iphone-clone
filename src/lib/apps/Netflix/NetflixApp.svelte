@@ -170,7 +170,7 @@
         <span
           class="text-[10px] {activeTab === 'downloads'
             ? 'text-white font-medium'
-            : 'text-[#8E8E93]'}">Downloads</span
+            : 'text-ios-gray'}">Downloads</span
         >
       </button>
 
@@ -180,13 +180,13 @@
       >
         <Menu
           size={22}
-          class={activeTab === "more" ? "text-white" : "text-[#8E8E93]"}
+          class={activeTab === "more" ? "text-white" : "text-ios-gray"}
           strokeWidth={activeTab === "more" ? 2.5 : 2}
         />
         <span
           class="text-[10px] {activeTab === 'more'
             ? 'text-white font-medium'
-            : 'text-[#8E8E93]'}">More</span
+            : 'text-ios-gray'}">More</span
         >
       </button>
     </div>

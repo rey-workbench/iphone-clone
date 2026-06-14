@@ -2,7 +2,7 @@
   import { getContext } from 'svelte';
   import { RefreshCw } from '@lucide/svelte';
   import { CameraAppState } from './CameraAppState.svelte';
-  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
+  import AppContainer from '$lib/sysui/ui/AppContainer.svelte';
   import type { TCameraMode } from '$lib/types';
 
   const isPreview = getContext<boolean>('isPreview');

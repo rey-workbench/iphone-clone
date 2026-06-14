@@ -1,9 +1,9 @@
 <script lang="ts">
-  import AppIcon from "$lib/os/components/AppIcon.svelte";
-  import Dock from "$lib/os/components/Dock.svelte";
+  import AppIcon from "$lib/sysui/springboard/AppIcon.svelte";
+  import Dock from "$lib/sysui/springboard/Dock.svelte";
   import { homeScreenApps } from "$lib/config/apps";
 
-  import { ShellState } from "./ShellState.svelte";
+  import { ShellState } from "$lib/core/states/ShellState.svelte";
 
   // Note: we might need a simpler state for just the home screen, 
   // but for now we can instantiate or import a local state instance.

@@ -1,5 +1,5 @@
 import type { LocalDBAdapter } from '$lib/config/localdb/core';
-import { BaseGlobalState } from '../os/states/baseGlobalState.svelte';
+import { BaseGlobalState } from '../core/states/baseGlobalState.svelte';
 
 /**
  * Base class Svelte 5 untuk manajemen state reaktif.
@@ -9,7 +9,7 @@ import { BaseGlobalState } from '../os/states/baseGlobalState.svelte';
  * 2. Optimistic UI: Menerapkan mutasi ke layar dan cache langsung, 
  *    lalu otomatis me-revert jika API mengembalikan error.
  */
-export class SyncState<T> extends BaseGlobalState {
+export abstract class SyncState<T> extends BaseGlobalState {
     data = $state<T | null>(null);
 
     protected db: LocalDBAdapter<T>;

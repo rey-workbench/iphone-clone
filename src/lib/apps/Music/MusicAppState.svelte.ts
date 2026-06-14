@@ -1,12 +1,13 @@
+import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
 import { MusicApiClient } from '$lib/client/services/MusicApiClient';
 import { EMusicItemType, EMusicAction, type IMusicTrack, type IYouTubePlayer, type IYouTubeEvent, type IWindowWithYouTube } from "$lib/types";
-import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
-import type { IAppLifecycle } from "$lib/types";
-import { osMediator } from "$lib/os/mediator.svelte";
+import { dialogGlobalState } from "$lib/core/states/dialogGlobalState.svelte";
 
-export class MusicAppState implements IAppLifecycle {
+import { intentManager } from '$lib/core/IntentManager';
+
+export class MusicAppState extends BaseGlobalState {
     appName = 'Music';
-    isForeground = $state(false);
+
 
     activeTab = $state("listen_now");
     searchQuery = $state("");
@@ -35,21 +36,23 @@ export class MusicAppState implements IAppLifecycle {
     progressInterval: ReturnType<typeof setInterval> | undefined = undefined;
     searchTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
-    constructor() {}
+    constructor() {
+        super();
+    }
 
-    onLaunch() {
+    async onLaunch() {
         this.isForeground = true;
     }
 
-    onSuspend() {
+    async onSuspend() {
         this.isForeground = false;
     }
 
-    onResume() {
+    async onResume() {
         this.isForeground = true;
     }
 
-    onDestroy() {
+    async onDestroy() {
         this.isForeground = false;
         this.destroyPlayer();
     }
@@ -92,18 +95,20 @@ export class MusicAppState implements IAppLifecycle {
             clearInterval(this.progressInterval);
             this.progressInterval = setInterval(() => this.updateProgress(), 500);
             if (this.current) {
-                osMediator.emit({
-                    type: 'MUSIC_PLAYING',
-                    payload: { trackName: this.current.name, artist: this.current.artist || 'Unknown Artist', isPlaying: true }
+                intentManager.send('MUSIC_PLAYING', {
+                    trackName: this.current.name,
+                    artist: this.current.artist || 'Unknown Artist',
+                    isPlaying: true
                 });
             }
         } else {
             this.isPlaying = false;
             clearInterval(this.progressInterval);
             if (this.current) {
-                osMediator.emit({
-                    type: 'MUSIC_PLAYING',
-                    payload: { trackName: this.current.name, artist: this.current.artist || 'Unknown Artist', isPlaying: false }
+                intentManager.send('MUSIC_PLAYING', {
+                    trackName: this.current.name,
+                    artist: this.current.artist || 'Unknown Artist',
+                    isPlaying: false
                 });
             }
             if (event.data === windowObj.YT!.PlayerState.ENDED) {
@@ -213,9 +218,8 @@ export class MusicAppState implements IAppLifecycle {
         this.showLyrics = false;
         this.lyricsText = "";
         
-        osMediator.emit({
-            type: 'MUSIC_PLAYING',
-            payload: { trackName: t.name, artist: t.artist || 'Unknown Artist', isPlaying: true }
+        intentManager.send('MUSIC_PLAYING', {
+            trackName: t.name, artist: t.artist || 'Unknown Artist', isPlaying: true
         });
         
         const tryPlay = (retries = 5) => {

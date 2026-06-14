@@ -2,9 +2,9 @@
   import { Copy, Reply, Trash2, MoreHorizontal, Undo2 } from '@lucide/svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import { messagesState as appState } from './MessagesAppState.svelte';
-  import { usersGlobalState } from '$lib/os/states';
-  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
-  import { type ContextMenuItem } from '$lib/os/components/ui/ContextMenu.svelte';
+  import { usersGlobalState } from '$lib/core/states';
+  import Skeleton from '$lib/sysui/ui/Skeleton.svelte';
+  import { type ContextMenuItem } from '$lib/sysui/ui/ContextMenu.svelte';
   import MessagesChatHeader from './components/MessagesChatHeader.svelte';
   import MessagesInputBar from './components/MessagesInputBar.svelte';
   import MessagesContextMenu from './components/MessagesContextMenu.svelte';

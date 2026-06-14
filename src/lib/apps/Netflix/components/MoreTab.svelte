@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Settings, User, HelpCircle } from "@lucide/svelte";
-  import { systemGlobalState } from "$lib/os/states";
+  import { systemGlobalState } from "$lib/core/states";
 </script>
 
 <div class="w-full h-full pt-16 px-4">

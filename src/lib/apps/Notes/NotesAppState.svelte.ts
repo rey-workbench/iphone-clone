@@ -2,7 +2,7 @@
 import type { INote } from '$lib/types';
 import { notesDb, NotesDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
-import { systemGlobalState } from '$lib/os/states/systemGlobalState.svelte';
+import { systemGlobalState } from '$lib/core/states/systemGlobalState.svelte';
 import { NotesApiClient } from '$lib/client/services/NotesApiClient';
 
 const defaultNotes: INote[] = [
@@ -10,6 +10,7 @@ const defaultNotes: INote[] = [
 ];
 
 export class NotesAppState extends SyncState<INote[]> {
+    appName = 'Notes';
     selectedNote: INote | null = $state(null);
     editContent = $state('');
     editTitle = $state('');

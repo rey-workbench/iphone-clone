@@ -1,10 +1,11 @@
 
-import { usersGlobalState } from '$lib/os/states';
-import { BaseGlobalState } from '$lib/os/states/baseGlobalState.svelte';
+import { usersGlobalState } from '$lib/core/states';
+import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
 
 import type { TPhoneTabId, ICallHistoryEntry, IContact } from '$lib/types';
 
 export class PhoneAppState extends BaseGlobalState {
+    appName = 'Phone';
     tab = $state<TPhoneTabId>('keypad');
     dialNumber = $state('');
 

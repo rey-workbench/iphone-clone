@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Phone } from '@lucide/svelte';
-  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
+  import Skeleton from '$lib/sysui/ui/Skeleton.svelte';
   import type { PhoneAppState } from '../PhoneAppState.svelte';
   import { callState } from '../CallAppState.svelte';
   import type { IUser } from '$lib/types';
