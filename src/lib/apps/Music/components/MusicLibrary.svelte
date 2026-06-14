@@ -44,7 +44,7 @@
   {/if}
 {/snippet}
 
-{#snippet trackItem(t: import('$lib/types/music').IMusicTrack, i: number, isSearch: boolean)}
+{#snippet trackItem(t: import('$lib/types').IMusicTrack, i: number, isSearch: boolean)}
   <button data-id={t.id || t.name} class="flex gap-3 p-2 px-3 w-full border-none bg-transparent cursor-pointer text-left text-white items-center" onclick={isSearch ? handleSearchResultPlay : handlePlay}>
     <img src={t.art} alt={t.name} class="w-12 h-12 rounded-lg object-cover shrink-0" />
     <div class="flex-1 min-w-0">

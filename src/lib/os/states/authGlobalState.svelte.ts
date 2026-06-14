@@ -1,6 +1,6 @@
 import { systemGlobalState } from '$lib/os/states/systemGlobalState.svelte';
 import { AuthApiClient } from '$lib/client/services/AuthApiClient';
-import type { IAuthGlobalState } from '$lib/types/os';
+import type { IAuthGlobalState } from '$lib/types';
 import { BaseGlobalState } from './baseGlobalState.svelte';
 
 class AuthGlobalState extends BaseGlobalState implements IAuthGlobalState {

@@ -1,5 +1,5 @@
-import { ApiConfig } from '$lib/config/api';
 import type { INote } from '$lib/types';
+import { ApiConfig } from '$lib/config/api';
 
 export class NotesApiClient {
     static async getNotes(userId: string) {

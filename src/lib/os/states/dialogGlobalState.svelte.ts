@@ -1,5 +1,5 @@
 
-import type { IDialogGlobalState, IDialogOptions } from '$lib/types/os';
+import type { IDialogGlobalState, IDialogOptions } from '$lib/types';
 import { BaseGlobalState } from './baseGlobalState.svelte';
 
 class DialogGlobalState extends BaseGlobalState implements IDialogGlobalState {

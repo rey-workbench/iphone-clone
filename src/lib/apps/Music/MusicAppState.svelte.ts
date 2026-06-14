@@ -1,7 +1,7 @@
 import { MusicApiClient } from '$lib/client/services/MusicApiClient';
-import { EMusicItemType, EMusicAction, type IMusicTrack, type IYouTubePlayer, type IYouTubeEvent, type IWindowWithYouTube } from "$lib/types/music";
+import { EMusicItemType, EMusicAction, type IMusicTrack, type IYouTubePlayer, type IYouTubeEvent, type IWindowWithYouTube } from "$lib/types";
 import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
-import type { IAppLifecycle } from "$lib/types/app";
+import type { IAppLifecycle } from "$lib/types";
 import { osMediator } from "$lib/os/mediator.svelte";
 
 export class MusicAppState implements IAppLifecycle {

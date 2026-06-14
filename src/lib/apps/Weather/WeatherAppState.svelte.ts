@@ -1,7 +1,7 @@
 import { Sun, CloudSun, Cloud, CloudRain, Moon } from '@lucide/svelte';
 
 import type { IWeatherData, IWeatherRange, IWeatherHourly, IWeatherDaily, IWeatherTile, IWeatherLocation } from '$lib/types';
-import type { IAppLifecycle } from '$lib/types/app';
+import type { IAppLifecycle } from '$lib/types';
 import { ApiEndpoints } from '$lib/config/api/endpoints';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 import { settingsDb } from '$lib/config/localdb';

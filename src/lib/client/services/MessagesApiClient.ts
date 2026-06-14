@@ -1,12 +1,13 @@
+import type { IChatMessage, IMessage } from '$lib/types';
 import { ApiConfig } from '$lib/config/api';
 
 export class MessagesApiClient {
-    static async getInbox(userId: string) {
+    static async getInbox(userId: string): Promise<{ success: boolean; data?: IMessage[] }> {
         const res = await fetch(`${ApiConfig.MESSAGES}?userId=${userId}`);
         return await res.json();
     }
 
-    static async getMessages(userId: string, chatId: string) {
+    static async getMessages(userId: string, chatId: string): Promise<{ success: boolean; data?: IChatMessage[] }> {
         const res = await fetch(`${ApiConfig.MESSAGES}?userId=${userId}&chatId=${chatId}`);
         return await res.json();
     }

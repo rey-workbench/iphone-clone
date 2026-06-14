@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ShellState } from "../../../routes/ShellState.svelte";
-  import type { ISystemGlobalState } from "$lib/types/os";
+  import type { ISystemGlobalState } from "$lib/types";
 
   let { state, systemGlobalState }: { state: ShellState, systemGlobalState: any } = $props();
 

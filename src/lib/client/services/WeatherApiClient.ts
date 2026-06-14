@@ -9,7 +9,7 @@ export class WeatherApiClient {
         return data.address?.city || data.address?.town || data.address?.village || data.address?.county || 'Current Location';
     }
 
-    static async getIpLocation(): Promise<any> {
+    static async getIpLocation(): Promise<{ latitude: number; longitude: number; city: string }> {
         const providers = ApiConfig.WEATHER_IP_PROVIDERS;
 
         for (const url of providers) {
@@ -35,7 +35,7 @@ export class WeatherApiClient {
         throw new Error("All IP geolocation providers failed");
     }
 
-    static async getForecast(lat: number, lon: number) {
+    static async getForecast(lat: number, lon: number): Promise<{ current: any; hourly: any; daily: any }> {
         const url = `${ApiConfig.WEATHER_FORECAST}?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,relative_humidity_2m,surface_pressure,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto`;
         return await fetchWithCache<any>(url);
     }

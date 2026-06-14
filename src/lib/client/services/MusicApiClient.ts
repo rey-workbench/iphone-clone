@@ -1,6 +1,6 @@
+import type { IMusicTrack, IMusicSearchOptions } from '$lib/types';
 import { ApiConfig } from '$lib/config/api';
 import { fetchWithCache } from '$lib/utils/fetchWithCache';
-import type { IMusicSearchOptions } from '$lib/types/music';
 
 export class MusicApiClient {
     static async search(options: IMusicSearchOptions): Promise<any> {

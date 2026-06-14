@@ -13,7 +13,7 @@
   $effect(() => {
     if (isPreview) return;
 
-    const win = window as unknown as import('$lib/types/music').IWindowWithYouTube;
+    const win = window as unknown as import('$lib/types').IWindowWithYouTube;
     if (!win.YT) {
       let tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';

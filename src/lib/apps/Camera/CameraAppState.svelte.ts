@@ -1,5 +1,5 @@
 import { requestCamera } from "$lib/utils/permissions";
-import type { IAppLifecycle } from "$lib/types/app";
+import type { IAppLifecycle } from "$lib/types";
 import type { TCameraMode } from "$lib/types";
 import { WebCameraAdapter, MockCameraAdapter, type ICameraHardware } from "$lib/utils/cameraAdapter";
 import { BaseGlobalState } from "$lib/os/states/baseGlobalState.svelte";

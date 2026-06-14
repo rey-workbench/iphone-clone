@@ -1,4 +1,4 @@
-import type { IUser } from './users';
+import type { IUser } from '../os/users';
 
 export interface IMessage {
   id: string;

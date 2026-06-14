@@ -1,7 +1,7 @@
 import { userDb, UserDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 import { UsersApiClient } from '$lib/client/services/UsersApiClient';
-import type { IUsersGlobalState } from '$lib/types/os';
+import type { IUsersGlobalState } from '$lib/types';
 import type { IUser } from '$lib/types';
 
 class UsersGlobalState extends SyncState<IUser[]> implements IUsersGlobalState {

@@ -4,8 +4,8 @@ import { requestMicrophone, requestCamera } from '$lib/utils/permissions';
 import { WebRTCApiClient } from '$lib/client/services/WebRTCApiClient';
 import { BaseGlobalState } from './baseGlobalState.svelte';
 
-export type { CallStatus } from '$lib/types/os';
-import type { IWebrtcGlobalState, ISignalCallback } from '$lib/types/os';
+export type { CallStatus } from '$lib/types';
+import type { IWebrtcGlobalState, ISignalCallback } from '$lib/types';
 
 /**
  * WebrtcGlobalState — Pure WebRTC & Supabase signaling layer.

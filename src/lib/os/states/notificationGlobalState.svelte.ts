@@ -1,4 +1,4 @@
-import type { INotificationGlobalState, INotificationOptions, INotificationItem } from '$lib/types/os';
+import type { INotificationGlobalState, INotificationOptions, INotificationItem } from '$lib/types';
 import { BaseGlobalState } from './baseGlobalState.svelte';
 
 class NotificationGlobalState extends BaseGlobalState implements INotificationGlobalState {

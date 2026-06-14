@@ -1,6 +1,6 @@
 import { SystemApiClient } from '$lib/client/services/SystemApiClient';
 import { sessionDb, SessionDBKey } from '$lib/config/localdb';
-import type { ISystemGlobalState, ISystemCurrentUser } from '$lib/types/os';
+import type { ISystemGlobalState, ISystemCurrentUser } from '$lib/types';
 import { BaseGlobalState } from './baseGlobalState.svelte';
 
 class SystemGlobalState extends BaseGlobalState implements ISystemGlobalState {

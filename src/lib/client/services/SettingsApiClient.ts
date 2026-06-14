@@ -1,12 +1,13 @@
+import type { ILinkedDevice } from '$lib/types';
 import { ApiConfig } from "$lib/config/api";
 
 export class SettingsApiClient {
-    static async getDevices(userId: string) {
+    static async getDevices(userId: string): Promise<{ devices: ILinkedDevice[] }> {
         const res = await fetch(`${ApiConfig.AUTH_DEVICES}?userId=${userId}`);
         return await res.json();
     }
 
-    static async revokeDevice(userId: string, deviceId: string) {
+    static async revokeDevice(userId: string, deviceId: string): Promise<any> {
         const res = await fetch(ApiConfig.AUTH_DEVICES, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
