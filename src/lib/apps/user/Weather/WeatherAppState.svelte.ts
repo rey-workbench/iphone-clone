@@ -11,6 +11,7 @@ import type {
 import { SyncState } from '$lib/os/state/SyncState.svelte';
 import { settingsDb } from '$lib/framework/db';
 import { WeatherApiClient } from '$lib/framework/api/services/WeatherApiClient';
+import { requestLocation } from '$lib/os/services/permissions';
 
 type WeatherCache = { w: IWeatherData; wRange: IWeatherRange };
 
@@ -42,11 +43,12 @@ export class WeatherAppState extends SyncState<WeatherCache> {
 			let lon = -122.4194;
 			let city = 'San Francisco';
 			try {
+				const hasPerm = await requestLocation();
+				if (!hasPerm) {
+					throw new Error('Location permission denied');
+				}
 				const geoData = await new Promise<{ lat: number; lon: number; city: string }>(
 					(resolve, reject) => {
-						if (typeof navigator === 'undefined' || !navigator.geolocation) {
-							return reject(new Error('Geolocation not supported'));
-						}
 						navigator.geolocation.getCurrentPosition(
 							async (pos) => {
 								const latitude = pos.coords.latitude;

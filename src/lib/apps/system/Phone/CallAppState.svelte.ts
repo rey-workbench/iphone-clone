@@ -58,26 +58,10 @@ class CallAppState extends BaseGlobalState {
 		this.direction = 'outgoing';
 
 		try {
-			await webrtcGlobalState.getLocalStream();
-			await webrtcGlobalState.createPeerConnection(() => this.cleanup());
-
-			webrtcGlobalState.setIceCandidateCallback(async (candidate) => {
-				if (this.remoteContact) {
-					await webrtcGlobalState.sendSignal(
-						this.remoteContact.id,
-						'ice_candidate',
-						{ candidate },
-						this.remoteDeviceId || undefined
-					);
-				}
-			});
-
-			webrtcGlobalState.addLocalTracksToPc();
-
-			const offer = await webrtcGlobalState.createOffer();
-
-			await webrtcGlobalState.sendSignal(contact.id, 'call_offer', {
-				offer,
+			await webrtcGlobalState.getLocalStream(false);
+			await webrtcGlobalState.createPeerConnection(contact.id, undefined, () => this.cleanup());
+			
+			await webrtcGlobalState.createOffer(contact.id, {
 				from: { id: user.id, name: user.name }
 			});
 		} catch (e: unknown) {
@@ -102,12 +86,10 @@ class CallAppState extends BaseGlobalState {
 				// Renegotiation for video
 				try {
 					if (payload.offer) {
-						const answer = await webrtcGlobalState.setRemoteOffer(payload.offer);
-						await webrtcGlobalState.sendSignal(
+						await webrtcGlobalState.setRemoteOffer(
+							payload.offer,
 							this.remoteContact!.id,
-							'call_answer',
-							{ answer },
-							this.remoteDeviceId || undefined
+							this.remoteDeviceId || ''
 						);
 					}
 				} catch {
@@ -136,29 +118,17 @@ class CallAppState extends BaseGlobalState {
 		this.startTimer();
 
 		try {
-			await webrtcGlobalState.getLocalStream();
-			await webrtcGlobalState.createPeerConnection(() => this.cleanup());
+			await webrtcGlobalState.getLocalStream(this.isVideo);
+			await webrtcGlobalState.createPeerConnection(
+				this.remoteContact.id, 
+				this.remoteDeviceId || undefined, 
+				() => this.cleanup()
+			);
 
-			webrtcGlobalState.setIceCandidateCallback(async (candidate) => {
-				if (this.remoteContact) {
-					await webrtcGlobalState.sendSignal(
-						this.remoteContact.id,
-						'ice_candidate',
-						{ candidate },
-						this.remoteDeviceId || undefined
-					);
-				}
-			});
-
-			webrtcGlobalState.addLocalTracksToPc();
-
-			const answer = await webrtcGlobalState.setRemoteOffer(this.pendingOffer);
-
-			await webrtcGlobalState.sendSignal(
+			await webrtcGlobalState.setRemoteOffer(
+				this.pendingOffer,
 				this.remoteContact.id,
-				'call_answer',
-				{ answer },
-				this.remoteDeviceId || undefined
+				this.remoteDeviceId || ''
 			);
 
 			// Tell other tabs on our account to stop ringing
@@ -256,11 +226,7 @@ class CallAppState extends BaseGlobalState {
 	async toggleVideo() {
 		if (!this.remoteContact) return;
 		const willEnable = !this.isLocalVideo;
-		const success = await webrtcGlobalState.toggleVideo(
-			willEnable,
-			this.remoteContact.id,
-			this.remoteDeviceId || undefined
-		);
+		const success = await webrtcGlobalState.toggleVideo(willEnable);
 		if (success) {
 			this.isLocalVideo = willEnable;
 		}

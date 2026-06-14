@@ -1,321 +1,149 @@
-import { supabase } from '$lib/backend/config/supabase';
-import { systemGlobalState } from '$lib/os/state';
-import { requestMicrophone, requestCamera } from '$lib/os/services/permissions';
-import { WebRTCApiClient } from '$lib/framework/api/services/WebRTCApiClient';
 import { BaseGlobalState } from './baseGlobalState.svelte';
+import { SignalingManager } from '../kernel/webrtc/SignalingManager';
+import { MediaManager } from '../kernel/webrtc/MediaManager';
+import { PeerConnectionManager } from '../kernel/webrtc/PeerConnectionManager';
 
-export type { CallStatus } from '$lib/framework/types';
-import type { IWebrtcGlobalState, ISignalCallback } from '$lib/framework/types';
+import type { ISignalCallback, IWebrtcGlobalState } from '../types/os/webrtc';
 
-/**
- * WebrtcGlobalState — Pure WebRTC & Supabase signaling layer.
- * Focuses only on connection logic, devoid of UI states.
- */
+export type { CallStatus } from '../types/os/webrtc';
+
 class WebrtcGlobalState extends BaseGlobalState implements IWebrtcGlobalState {
-	appName = 'Webrtc';
-	// ─── Core WebRTC ──────────────────────────────────────────────────────────
-	private pc: RTCPeerConnection | null = null;
-	localStream = $state<MediaStream | null>(null);
+	appName = 'WebRTCKernel';
+
+	private signaling: SignalingManager;
+	private media: MediaManager;
+	private peerConnection: PeerConnectionManager;
+
 	remoteStream = $state<MediaStream | null>(null);
-	private iceQueue: RTCIceCandidateInit[] = [];
-	private pendingIceCallback: ((c: RTCIceCandidate) => void) | null = null;
 
-	// ─── Signaling (Supabase) ─────────────────────────────────────────────────
-	private channel: any = null;
-	private isSubscribed = false;
+	constructor() {
+		super();
+		this.signaling = new SignalingManager();
+		this.media = new MediaManager();
+		this.peerConnection = new PeerConnectionManager();
+	}
 
 	// ============================================================================
-	// 1. SIGNALING SETUP
+	// 1. SIGNALING
 	// ============================================================================
-
 	setupSignaling(callbacks: ISignalCallback) {
-		const user = systemGlobalState.currentUser;
-		if (!user) {
-			const unsub = $effect.root(() => {
-				$effect(() => {
-					if (systemGlobalState.currentUser) {
-						this.setupSignaling(callbacks);
-						unsub();
-					}
-				});
-			});
-			return;
-		}
-
-		const handleIfForMe = (payload: any, cb: (p: any) => void) => {
-			if (payload.to === systemGlobalState.currentUser?.id) {
-				// If it's targeted to a specific device, only process if it matches our deviceId
-				if (payload.toDeviceId && payload.toDeviceId !== systemGlobalState.deviceId) {
-					return;
-				}
-				cb(payload);
-			}
-		};
-
-		this.channel = supabase
-			.channel('global-call-signaling', {
-				config: { broadcast: { ack: true } }
-			})
-			.on('broadcast', { event: 'call_offer' }, ({ payload }: any) =>
-				handleIfForMe(payload, callbacks.onOffer)
-			)
-			.on('broadcast', { event: 'call_answer' }, ({ payload }: any) =>
-				handleIfForMe(payload, callbacks.onAnswer)
-			)
-			.on('broadcast', { event: 'ice_candidate' }, ({ payload }: any) =>
-				handleIfForMe(payload, callbacks.onIceCandidate)
-			)
-			.on('broadcast', { event: 'call_end' }, ({ payload }: any) =>
-				handleIfForMe(payload, callbacks.onEnd)
-			)
-			.on('broadcast', { event: 'call_answered_elsewhere' }, ({ payload }: any) =>
-				handleIfForMe(payload, callbacks.onAnsweredElsewhere)
-			)
-			.on('broadcast', { event: 'force_logout' }, ({ payload }: any) => {
-				if (
-					payload.to === systemGlobalState.currentUser?.id &&
-					payload.toDeviceId === systemGlobalState.deviceId
-				) {
-					// console.warn('[System] Received force_logout. Logging out...');
-					localStorage.removeItem('reyos_currentUser');
-					window.location.reload();
-				}
-			})
-			.subscribe((status: string) => {
-				this.isSubscribed = status === 'SUBSCRIBED';
-			});
+		this.signaling.setupSignaling(callbacks);
 	}
 
 	async waitForSubscription(timeout = 5000): Promise<boolean> {
-		if (this.isSubscribed) return true;
-		return new Promise((resolve) => {
-			let elapsed = 0;
-			const interval = setInterval(() => {
-				if (this.isSubscribed) {
-					clearInterval(interval);
-					resolve(true);
-				}
-				elapsed += 100;
-				if (elapsed >= timeout) {
-					clearInterval(interval);
-					resolve(false);
-				}
-			}, 100);
-		});
+		return await this.signaling.waitForSubscription(timeout);
 	}
 
 	async sendSignal(toUserId: string, event: string, payload: any = {}, toDeviceId?: string) {
-		const ready = await this.waitForSubscription();
-		if (!this.channel || !ready) {
-			// console.warn('[WebRTC] Cannot send signal, channel not subscribed yet');
-			return;
-		}
-
-		await this.channel.send({
-			type: 'broadcast',
-			event,
-			payload: {
-				...payload,
-				to: toUserId,
-				toDeviceId,
-				fromDeviceId: systemGlobalState.deviceId
-			}
-		});
+		await this.signaling.sendSignal(toUserId, event, payload, toDeviceId);
 	}
 
 	// ============================================================================
-	// 2. MEDIA DEVICE SETUP
+	// 2. MEDIA
 	// ============================================================================
+	get localStream() {
+		return this.media.getStream();
+	}
 
 	async getLocalStream(withVideo: boolean = false): Promise<MediaStream> {
-		if (!this.localStream) {
-			const hasPerm = await requestMicrophone();
-			if (!hasPerm) {
-				throw new Error('Microphone permission denied');
-			}
-			if (withVideo) {
-				const hasCameraPerm = await requestCamera();
-				if (!hasCameraPerm) {
-					throw new Error('Camera permission denied by user.');
-				}
-			}
-			this.localStream = await navigator.mediaDevices.getUserMedia({
-				audio: true,
-				video: withVideo
-			});
-		}
-		return this.localStream;
+		return await this.media.getLocalStream(withVideo);
 	}
-
-	// ============================================================================
-	// 3. WEBRTC PEER CONNECTION
-	// ============================================================================
-
-	async createPeerConnection(onDisconnect: () => void): Promise<RTCPeerConnection> {
-		const config = await WebRTCApiClient.getTurnCredentials();
-		this.pc = new RTCPeerConnection(config);
-
-		this.pc.onicecandidate = async (event) => {
-			if (event.candidate) {
-				this.pendingIceCallback?.(event.candidate);
-			}
-		};
-
-		this.pc.ontrack = (event) => {
-			if (!this.remoteStream) {
-				this.remoteStream = new MediaStream();
-			}
-			this.remoteStream.addTrack(event.track);
-
-			if (event.track.kind === 'video') {
-				if (typeof window !== 'undefined') {
-					window.dispatchEvent(new CustomEvent('reyos:remote_video'));
-				}
-			}
-
-			// Keep the audio fallback working
-			if (event.track.kind === 'audio') {
-				const audio = document.getElementById('remote-audio') as HTMLAudioElement;
-				if (audio) {
-					if (!audio.srcObject) audio.srcObject = new MediaStream();
-					(audio.srcObject as MediaStream).addTrack(event.track);
-					audio.play().catch(() => {});
-				}
-			}
-		};
-
-		this.pc.onconnectionstatechange = () => {
-			const state = this.pc?.connectionState;
-			if (state === 'failed' || state === 'closed') {
-				onDisconnect();
-			}
-		};
-
-		this.pc.oniceconnectionstatechange = () => {};
-
-		return this.pc;
-	}
-
-	setIceCandidateCallback(cb: (c: RTCIceCandidate) => void) {
-		this.pendingIceCallback = cb;
-	}
-
-	addLocalTracksToPc() {
-		if (!this.pc || !this.localStream) return;
-		this.localStream.getTracks().forEach((t) => this.pc!.addTrack(t, this.localStream!));
-	}
-
-	// ============================================================================
-	// 4. WEBRTC SIGNALING LOGIC (SDP & ICE)
-	// ============================================================================
-
-	async createOffer(): Promise<RTCSessionDescriptionInit> {
-		if (!this.pc) throw new Error('No peer connection');
-		const offer = await this.pc.createOffer();
-		await this.pc.setLocalDescription(offer);
-		return offer;
-	}
-
-	async setRemoteOffer(offer: RTCSessionDescriptionInit): Promise<RTCSessionDescriptionInit> {
-		if (!this.pc) throw new Error('No peer connection');
-		await this.pc.setRemoteDescription(new RTCSessionDescription(offer));
-		const answer = await this.pc.createAnswer();
-		await this.pc.setLocalDescription(answer);
-		await this.flushIceQueue();
-		return answer;
-	}
-
-	async setRemoteAnswer(answer: RTCSessionDescriptionInit) {
-		if (!this.pc) throw new Error('No peer connection');
-		if (this.pc.signalingState !== 'have-local-offer') {
-			// console.warn('[WebRTC] Ignoring duplicate/invalid answer. Current state:', this.pc.signalingState);
-			return;
-		}
-		await this.pc.setRemoteDescription(new RTCSessionDescription(answer));
-		await this.flushIceQueue();
-	}
-
-	async addIceCandidate(candidate: RTCIceCandidateInit) {
-		if (!this.pc || !this.pc.remoteDescription) {
-			this.iceQueue.push(candidate);
-			return;
-		}
-		await this.pc.addIceCandidate(new RTCIceCandidate(candidate));
-	}
-
-	private async flushIceQueue() {
-		if (!this.pc || !this.pc.remoteDescription) return;
-		while (this.iceQueue.length > 0) {
-			const candidate = this.iceQueue.shift();
-			if (candidate) {
-				await this.pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(() => {});
-			}
-		}
-	}
-
-	// ============================================================================
-	// 5. MEDIA CONTROLS & CLEANUP
-	// ============================================================================
 
 	setMuted(muted: boolean) {
-		this.localStream?.getAudioTracks().forEach((t) => (t.enabled = !muted));
+		this.media.setMuted(muted);
 	}
 
 	setSpeakerVolume(loud: boolean) {
-		const audio = document.getElementById('remote-audio') as HTMLAudioElement;
-		if (audio) audio.volume = loud ? 1 : 0.8;
+		this.media.setSpeakerVolume(loud);
 	}
 
-	async toggleVideo(enable: boolean, toUserId: string, toDeviceId?: string) {
-		if (!this.pc || !this.localStream) return false;
-
-		try {
-			if (enable) {
-				const hasCameraPerm = await requestCamera();
-				if (!hasCameraPerm) return false;
-
-				const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
-				const videoTrack = videoStream.getVideoTracks()[0];
-
-				this.localStream.addTrack(videoTrack);
-				this.pc.addTrack(videoTrack, this.localStream);
-			} else {
-				const videoTrack = this.localStream.getVideoTracks()[0];
-				if (videoTrack) {
-					videoTrack.stop();
-					this.localStream.removeTrack(videoTrack);
-					const sender = this.pc.getSenders().find((s) => s.track === videoTrack);
-					if (sender) this.pc.removeTrack(sender);
+	async toggleVideo(enable: boolean) {
+		if (enable) {
+			const track = await this.media.enableVideo();
+			if (track) {
+				const stream = this.media.getStream();
+				if (stream) {
+					this.peerConnection.addTrack(track, stream);
 				}
+				return true;
 			}
-
-			// Renegotiate
-			const offer = await this.createOffer();
-			await this.sendSignal(
-				toUserId,
-				'call_offer',
-				{
-					offer,
-					from: { id: systemGlobalState.currentUser?.id, name: systemGlobalState.currentUser?.name }
-				},
-				toDeviceId
-			);
-
-			return true;
-		} catch {
-			// console.error("Failed to toggle video", e);
 			return false;
+		} else {
+			const track = this.media.disableVideo();
+			if (track) {
+				this.peerConnection.removeTrack(track);
+			}
+			return true;
 		}
 	}
 
+	// ============================================================================
+	// 3. PEER CONNECTION
+	// ============================================================================
+	async createPeerConnection(toUserId: string, toDeviceId?: string, onDisconnect?: () => void): Promise<RTCPeerConnection> {
+		const pc = await this.peerConnection.createPeerConnection(
+			() => {
+				this.cleanup();
+				onDisconnect?.();
+			},
+			(stream) => { this.remoteStream = stream; }
+		);
+
+		this.peerConnection.setIceCandidateCallback((candidate) => {
+			this.sendSignal(
+				toUserId,
+				'ice_candidate',
+				{ candidate: candidate.toJSON() },
+				toDeviceId
+			);
+		});
+
+		const localStream = this.media.getStream();
+		if (localStream) {
+			this.peerConnection.addAllTracks(localStream);
+		}
+
+		return pc;
+	}
+
+	async createOffer(toUserId: string, payloadParams: any = {}): Promise<RTCSessionDescriptionInit> {
+		const offer = await this.peerConnection.createOffer();
+		await this.sendSignal(toUserId, 'call_offer', { offer, ...payloadParams });
+		return offer;
+	}
+
+	async setRemoteOffer(offer: RTCSessionDescriptionInit, toUserId: string, toDeviceId: string) {
+		const answer = await this.peerConnection.setRemoteOffer(offer);
+		await this.sendSignal(toUserId, 'call_answer', { answer }, toDeviceId);
+	}
+
+	async setRemoteAnswer(answer: RTCSessionDescriptionInit) {
+		await this.peerConnection.setRemoteAnswer(answer);
+	}
+
+	async addIceCandidate(candidate: RTCIceCandidateInit) {
+		await this.peerConnection.addIceCandidate(candidate);
+	}
+
+	// ============================================================================
+	// 4. CLEANUP
+	// ============================================================================
 	cleanup() {
-		this.pc?.close();
-		this.pc = null;
-		this.localStream?.getTracks().forEach((t) => t.stop());
-		this.localStream = null;
+		this.signaling.cleanup();
+		this.media.cleanup();
+		this.peerConnection.cleanup();
 		this.remoteStream = null;
-		this.pendingIceCallback = null;
-		this.iceQueue = [];
+
+		const audio = document.getElementById('remote-audio') as HTMLAudioElement;
+		if (audio) {
+			audio.srcObject = null;
+			audio.pause();
+		}
+	}
+
+	async onSuspend() {
+		// Clean up WebRTC on suspend
+		this.cleanup();
 	}
 }
 

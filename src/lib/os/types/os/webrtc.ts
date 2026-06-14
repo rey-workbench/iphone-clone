@@ -24,17 +24,15 @@ export interface IWebrtcGlobalState {
 	): Promise<void>;
 
 	getLocalStream(withVideo?: boolean): Promise<MediaStream>;
-	createPeerConnection(onDisconnect: () => void): Promise<RTCPeerConnection>;
-	setIceCandidateCallback(cb: (c: RTCIceCandidate) => void): void;
-	addLocalTracksToPc(): void;
+	createPeerConnection(toUserId: string, toDeviceId?: string, onDisconnect?: () => void): Promise<RTCPeerConnection>;
 
-	createOffer(): Promise<RTCSessionDescriptionInit>;
-	setRemoteOffer(offer: RTCSessionDescriptionInit): Promise<RTCSessionDescriptionInit>;
+	createOffer(toUserId: string, payloadParams?: any): Promise<RTCSessionDescriptionInit>;
+	setRemoteOffer(offer: RTCSessionDescriptionInit, toUserId: string, toDeviceId: string): Promise<void>;
 	setRemoteAnswer(answer: RTCSessionDescriptionInit): Promise<void>;
 	addIceCandidate(candidate: RTCIceCandidateInit): Promise<void>;
 
 	setMuted(muted: boolean): void;
 	setSpeakerVolume(loud: boolean): void;
-	toggleVideo(enable: boolean, toUserId: string, toDeviceId?: string): Promise<boolean>;
+	toggleVideo(enable: boolean): Promise<boolean>;
 	cleanup(): void;
 }
