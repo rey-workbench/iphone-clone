@@ -2,7 +2,7 @@
   import { settingsGlobalState } from '$lib/apps/Settings/SettingsGlobalState.svelte';
   import { ChevronRight } from '@lucide/svelte';
   import { SettingsAppState } from './SettingsGlobalState.svelte';
-  import LinkedDevices from './LinkedDevices.svelte';
+  import LinkedDevices from './LinkedDevices/LinkedDevices.svelte';
   import SettingsRow from './components/SettingsRow.svelte';
   import { authGlobalState } from '$lib/os/states';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
