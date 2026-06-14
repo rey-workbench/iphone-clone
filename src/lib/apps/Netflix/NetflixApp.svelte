@@ -69,7 +69,7 @@
         <!-- Top Global Header -->
         <div
           class="absolute top-0 left-0 w-full z-50 flex items-center justify-between px-4 pt-12 pb-4 bg-linear-to-b from-[#141414]/90 via-[#141414]/50 to-transparent transition-opacity duration-300"
-          style="opacity: {activeTab === 'home' ? 1 - headerOpacity : 1}"
+          style:opacity={activeTab === 'home' ? 1 - headerOpacity : 1}
         >
           <!-- Top Bar -->
           <div class="flex items-center px-4 mb-2 gap-4">

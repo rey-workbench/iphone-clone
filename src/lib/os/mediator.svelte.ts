@@ -1,4 +1,4 @@
-export type OSEventType = 
+type OSEventType = 
   | { type: 'TRIGGER_NOTIFICATION'; payload: { title: string; body: string } }
   | { type: 'MUSIC_PLAYING'; payload: { trackName: string; artist: string; isPlaying: boolean } }
   | { type: 'INCOMING_CALL'; payload: { callerName: string } }

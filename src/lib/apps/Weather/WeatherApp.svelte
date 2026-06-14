@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
   import { WeatherAppState } from "./WeatherAppState.svelte";
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import WeatherDailyForecast from "./components/WeatherDailyForecast.svelte";
@@ -8,10 +7,9 @@
 
   $effect(() => {
     state.onLaunch();
-  });
-  
-  onDestroy(() => {
-    state.onDestroy();
+    return () => {
+      state.onDestroy();
+    };
   });
 </script>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, onDestroy } from 'svelte';
+  import { getContext } from 'svelte';
   import { RefreshCw } from '@lucide/svelte';
   import { CameraAppState } from './CameraAppState.svelte';
 
@@ -10,6 +10,9 @@
 
   $effect(() => {
     appState.onLaunch();
+    return () => {
+      appState.onDestroy();
+    };
   });
 
   $effect(() => {
@@ -18,9 +21,7 @@
     }
   });
 
-  onDestroy(() => {
-    appState.onDestroy();
-  });
+
 
   const retake = () => appState.retake();
   

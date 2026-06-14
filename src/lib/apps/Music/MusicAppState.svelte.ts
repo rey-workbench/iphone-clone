@@ -58,6 +58,8 @@ export class MusicAppState implements IAppLifecycle {
     }
 
     initPlayer(windowObj: any) {
+        if (this.player) return; // Prevent multiple initializations
+
         this.player = new windowObj.YT.Player("youtube-player", {
             height: "0",
             width: "0",
@@ -79,8 +81,12 @@ export class MusicAppState implements IAppLifecycle {
     destroyPlayer() {
         clearInterval(this.progressInterval);
         if (this.player && typeof this.player.destroy === "function") {
-            this.player.destroy();
+            try { this.player.destroy(); } catch(e) {}
         }
+        this.player = null;
+        this.isPlaying = false;
+        this.current = null;
+        this.showPlayer = false;
     }
 
     onPlayerStateChange(event: any, windowObj: any) {
@@ -355,3 +361,6 @@ export class MusicAppState implements IAppLifecycle {
         return parsed;
     }
 }
+
+export const musicGlobalState = new MusicAppState();
+

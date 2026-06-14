@@ -1,13 +1,13 @@
 <script lang="ts">
   import { untrack, getContext } from 'svelte';
-  import { MusicAppState } from "./MusicAppState.svelte";
+  import { MusicAppState, musicGlobalState } from "./MusicAppState.svelte";
   import MusicPlayer from "./components/MusicPlayer.svelte";
   import MusicLibrary from "./components/MusicLibrary.svelte";
   import MusicBottomNav from "./components/MusicBottomNav.svelte";
   import MusicMiniPlayer from "./components/MusicMiniPlayer.svelte";
 
   const isPreview = getContext('isPreview');
-  const state = new MusicAppState();
+  const state = musicGlobalState;
 
   $effect(() => {
     if (isPreview) return;
@@ -25,10 +25,6 @@
     } else {
       state.initPlayer(window);
     }
-
-    return () => {
-      state.destroyPlayer();
-    };
   });
 
   $effect(() => {
@@ -62,8 +58,6 @@
 </script>
 
 <div class="h-full bg-black flex flex-col relative overflow-hidden">
-  <!-- HIDDEN YOUTUBE PLAYER -->
-  <div id="youtube-player" class="absolute opacity-0 pointer-events-none w-0 h-0"></div>
 
   {#if state.showPlayer && state.current}
     <MusicPlayer {state} />
