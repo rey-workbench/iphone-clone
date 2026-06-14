@@ -3,13 +3,14 @@
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
   import type { PhoneAppState } from '../PhoneAppState.svelte';
   import { callState } from '../CallAppState.svelte';
+  import type { IUser } from '$lib/types';
 
   let { state } = $props<{ state: PhoneAppState }>();
 
   const handleContactCall = (e: MouseEvent) => {
     const id = (e.currentTarget as HTMLElement).dataset.id;
     if (id) {
-      const c = state.contacts.find((contact: any) => String(contact.id) === id);
+      const c = state.contacts.find((contact: IUser) => String(contact.id) === id);
       if (c) callState.initiateCall(c);
     }
   };

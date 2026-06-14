@@ -31,7 +31,7 @@ class CallAppState extends BaseGlobalState {
             webrtcGlobalState.setupSignaling({
                 onOffer: (payload) => this.handleOffer(payload),
                 onAnswer: (payload) => this.handleAnswer(payload),
-                onIceCandidate: (payload: any) => this.handleIceCandidate(payload),
+                onIceCandidate: (payload: ISignalingPayload) => this.handleIceCandidate(payload),
                 onEnd: () => this.handleRemoteEnd(),
                 onAnsweredElsewhere: () => this.handleAnsweredElsewhere()
             });
@@ -74,8 +74,8 @@ class CallAppState extends BaseGlobalState {
                 offer,
                 from: { id: user.id, name: user.name }
             });
-        } catch (e: any) {
-            dialogGlobalState.show({ title: 'Call Error', message: e.message || 'Failed to initiate call', confirmText: 'OK' });
+        } catch (e: unknown) {
+            dialogGlobalState.show({ title: 'Call Error', message: (e as Error).message || 'Failed to initiate call', confirmText: 'OK' });
             this.cleanup();
         }
     }
@@ -138,8 +138,8 @@ class CallAppState extends BaseGlobalState {
             }
 
             this.pendingOffer = null;
-        } catch (e: any) {
-            dialogGlobalState.show({ title: 'Call Error', message: e.message || 'Failed to accept call', confirmText: 'OK' });
+        } catch (e: unknown) {
+            dialogGlobalState.show({ title: 'Call Error', message: (e as Error).message || 'Failed to accept call', confirmText: 'OK' });
             this.cleanup();
         }
     }

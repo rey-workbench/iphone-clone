@@ -28,7 +28,7 @@ export class MessagesApiClient {
         return { res, result };
     }
 
-    static async sendAiMessage(messages: any[]) {
+    static async sendAiMessage(messages: { role: string; content: string }[]): Promise<{ choices?: { message: { content: string } }[], error?: string }> {
         const res = await fetch(ApiConfig.CHAT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

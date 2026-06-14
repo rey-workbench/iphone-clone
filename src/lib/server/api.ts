@@ -7,7 +7,7 @@ export class ApiError extends Error {
     }
 }
 
-export async function apiHandler(callback: () => Promise<any> | any) {
+export async function apiHandler(callback: () => Promise<unknown> | unknown) {
     try {
         const result = await callback();
         // If the callback returns a raw Response object (e.g. from json()), return it directly
@@ -15,9 +15,9 @@ export async function apiHandler(callback: () => Promise<any> | any) {
         
         // Otherwise, wrap in { success: true, ...result } if it's an object
         return json({ success: true, ...(typeof result === 'object' ? result : {}) });
-    } catch (e: any) {
-        // console.error('API Error:', e);
-        const status = e instanceof ApiError ? e.status : (e.status || 500);
-        return json({ success: false, error: e.message || String(e) }, { status });
+    } catch (e: unknown) {
+        console.error("API Error:", (e as Error).message);
+        const status = e instanceof ApiError ? e.status : ((e as any).status || 500);
+        return json({ success: false, error: (e as Error).message || String(e) }, { status });
     }
 }

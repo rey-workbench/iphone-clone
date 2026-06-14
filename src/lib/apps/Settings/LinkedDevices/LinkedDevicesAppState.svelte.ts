@@ -20,10 +20,10 @@ export class LinkedDevicesAppState extends BaseGlobalState {
       if (data.devices) {
         this.devices = data.devices;
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       dialogGlobalState.show({ 
         title: 'Device Error', 
-        message: e.message || 'Failed to fetch devices', 
+        message: (e as Error).message || 'Failed to fetch devices', 
         confirmText: 'OK' 
       });
     } finally {
@@ -39,7 +39,6 @@ export class LinkedDevicesAppState extends BaseGlobalState {
       if (!systemGlobalState.currentUser?.id) return;
       await SettingsApiClient.revokeDevice(systemGlobalState.currentUser.id, deviceId);
 
-      // Send force_logout broadcast so the other tab logs out immediately
       webrtcGlobalState.sendSignal(
         systemGlobalState.currentUser?.id!,
         "force_logout",

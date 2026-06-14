@@ -1,16 +1,14 @@
 <script lang="ts">
-  import { Star, Clock, User, Grid3x3, Voicemail, Phone, Delete, Info, PhoneIncoming, PhoneOutgoing, PhoneMissed, Video } from '@lucide/svelte';
+  import { Star, Clock, User, Grid3x3, Voicemail, Phone, Delete } from '@lucide/svelte';
+  import type { Component } from 'svelte';
   import { PhoneAppState } from './PhoneAppState.svelte';
   import { callState } from './CallAppState.svelte';
-  import IncomingCallScreen from './components/IncomingCallScreen.svelte';
-  import ActiveCallScreen from './components/ActiveCallScreen.svelte';
   import PhoneRecents from './components/PhoneRecents.svelte';
   import PhoneContacts from './components/PhoneContacts.svelte';
-  import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
-
+  
   const state = new PhoneAppState();
 
-  const tabItems: { id: any; label: string; icon: any }[] = [
+  const tabItems: { id: 'favorites' | 'recents' | 'contacts' | 'keypad' | 'voicemail'; label: string; icon: Component }[] = [
     { id: 'favorites', label: 'Favorites', icon: Star },
     { id: 'recents', label: 'Recents', icon: Clock },
     { id: 'contacts', label: 'Contacts', icon: User },
@@ -33,7 +31,7 @@
 
   const handleTabClick = (e: MouseEvent) => {
     const tabId = (e.currentTarget as HTMLElement).dataset.tab;
-    if (tabId) state.tab = tabId as any;
+    if (tabId) state.tab = tabId as 'favorites' | 'recents' | 'contacts' | 'keypad' | 'voicemail';
   };
 </script>
 

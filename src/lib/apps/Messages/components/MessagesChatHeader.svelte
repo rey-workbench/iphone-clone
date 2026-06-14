@@ -1,22 +1,26 @@
 <script lang="ts">
   import { ChevronLeft, ChevronRight, Video } from "@lucide/svelte";
-  import type { IUsersGlobalState } from "$lib/types";
+  import type { IUser } from "$lib/types";
+
+  interface ChatAppState {
+    currentChatId: string;
+    currentChatName: string;
+    isTyping: boolean;
+    totalUnread: number;
+  }
+
+  interface Props {
+    appState: ChatAppState;
+    usersGlobalState: any;
+    closeChat: () => void;
+    handleBack?: () => void;
+  }
 
   let {
     appState,
     usersGlobalState,
     closeChat,
-  }: {
-    handleBack: () => void;
-    appState: {
-      currentChatId: string;
-      currentChatName: string;
-      isTyping: boolean;
-      totalUnread: number;
-    };
-    usersGlobalState: IUsersGlobalState;
-    closeChat: () => void;
-  } = $props();
+  }: Props = $props();
 </script>
 
 <div
@@ -43,7 +47,7 @@
     <div
       class="w-[50px] h-[50px] rounded-full bg-ios-bg2 text-white flex items-center justify-center text-[22px] font-semibold"
       style:background={usersGlobalState.users.find(
-        (u: any) => u.name === appState.currentChatName,
+        (u: IUser) => u.name === appState.currentChatName,
       )?.color || "#666"}
     >
       {appState.currentChatName.charAt(0)}

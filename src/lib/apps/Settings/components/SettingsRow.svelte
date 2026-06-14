@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ChevronRight } from '@lucide/svelte';
+  import type { Component } from 'svelte';
 
   let {
     item,
@@ -9,7 +10,7 @@
       id: string;
       label: string;
       bg: string;
-      icon: any;
+      icon: Component;
       toggle?: boolean;
       value?: boolean;
       detail?: string;

@@ -1,4 +1,3 @@
-import { systemGlobalState } from "$lib/os/states/systemGlobalState.svelte";
 import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
 import { NetflixApiClient } from '$lib/client/services/NetflixApiClient';
 import type { INetflixMedia, INetflixSeason, INetflixDetails } from '$lib/types';
@@ -52,7 +51,7 @@ class NetflixAppState {
       const { res, result: data } = await NetflixApiClient.getTrending();
       if (res.ok && data) {
         
-        const mapMedia = (m: any) => ({
+        const mapMedia = (m: INetflixMedia) => ({
           ...m,
           poster_path: m.poster_path?.startsWith('/') ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : m.poster_path,
           backdrop_path: m.backdrop_path?.startsWith('/') ? `https://image.tmdb.org/t/p/w500${m.backdrop_path}` : m.backdrop_path

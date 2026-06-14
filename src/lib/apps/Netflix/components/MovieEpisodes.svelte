@@ -1,6 +1,7 @@
 <script lang="ts">
 
   import { netflixState } from "../NetflixAppState.svelte";
+  import type { INetflixMedia } from "$lib/types";
 
   let {
     media,
@@ -8,7 +9,7 @@
     selectedEpisode = $bindable(1),
     isPlaying = $bindable(false),
   } = $props<{
-    media: any;
+    media: INetflixMedia;
     selectedSeason: number;
     selectedEpisode: number;
     isPlaying: boolean;

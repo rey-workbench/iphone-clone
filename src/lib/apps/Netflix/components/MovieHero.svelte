@@ -1,6 +1,7 @@
 <script lang="ts">
 
   import { netflixState } from "../NetflixAppState.svelte";
+  import type { INetflixMedia } from "$lib/types";
 
   let {
     media,
@@ -10,7 +11,7 @@
     iframeSrc,
     isPlaying,
   } = $props<{
-    media: any;
+    media: INetflixMedia;
     isTvShow: boolean;
     selectedSeason: number;
     selectedEpisode: number;

@@ -29,7 +29,7 @@
 
   const state = new ShellState();
 
-  let { children } = $props();
+  const { children } = $props();
 
   $effect(() => {
     // 1. PWA Registration

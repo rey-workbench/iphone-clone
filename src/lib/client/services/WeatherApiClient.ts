@@ -20,7 +20,7 @@ export class WeatherApiClient {
 
                 let lat = data.latitude !== undefined ? data.latitude : data.lat;
                 let lon = data.longitude !== undefined ? data.longitude : data.lon;
-                let city = data.city || data.cityName;
+                const city = data.city || data.cityName;
 
                 if (typeof lat === 'string') lat = parseFloat(lat);
                 if (typeof lon === 'string') lon = parseFloat(lon);

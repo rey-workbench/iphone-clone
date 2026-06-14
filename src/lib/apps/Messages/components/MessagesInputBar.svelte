@@ -1,17 +1,23 @@
 <script lang="ts">
   import { Plus, Mic, ArrowUp } from "@lucide/svelte";
 
+  interface InputBarAppState {
+    inputText: string;
+  }
+
+  interface Props {
+    appState: InputBarAppState;
+    adjustTextareaHeight: (e: Event) => void;
+    handleInputKeydown: (e: KeyboardEvent) => void;
+    handleSend: () => void;
+  }
+
   let {
     appState,
     adjustTextareaHeight,
     handleInputKeydown,
     handleSend,
-  }: {
-    appState: any;
-    adjustTextareaHeight: (e: Event) => void;
-    handleInputKeydown: (e: KeyboardEvent) => void;
-    handleSend: () => void;
-  } = $props();
+  }: Props = $props();
 </script>
 
 <div

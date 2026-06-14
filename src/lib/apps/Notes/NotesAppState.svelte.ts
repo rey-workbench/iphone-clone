@@ -20,13 +20,13 @@ export class NotesAppState extends SyncState<INote[]> {
             if (!userId) return [];
             const resData = await NotesApiClient.getNotes(userId);
             if (resData.success && resData.notes) {
-                return resData.notes.map((n: any) => ({ ...n, date: new Date(n.date) }));
+                return resData.notes.map((n: INote) => ({ ...n, date: new Date(n.date) }));
             }
             return []; // Kembalikan kosong jika tidak ada notes
         });
     }
 
-    protected parseCache(cached: any): INote[] {
+    protected parseCache(cached: INote[]): INote[] {
         if (!cached || !Array.isArray(cached)) return defaultNotes;
         return cached.map(n => ({ ...n, date: new Date(n.date) }));
     }

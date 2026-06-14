@@ -11,7 +11,7 @@ export class AuthApiClient {
         return await res.json();
     }
 
-    static async logout(userId: string, deviceId: string): Promise<any> {
+    static async logout(userId: string, deviceId: string): Promise<Response> {
         return await fetch(ApiConfig.AUTH_DEVICES, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },

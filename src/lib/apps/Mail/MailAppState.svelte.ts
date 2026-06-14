@@ -10,8 +10,8 @@ export class MailAppState extends SyncState<IEmail[]> {
     super(mailDb, MailDBKey.MAIL_INBOX, [], async () => {
       const { MailApiClient } = await import('$lib/client/services/MailApiClient');
       const data = await MailApiClient.getComments();
-      if (data) {
-        return data.map((item: any, i: number) => ({
+      if (data && Array.isArray(data)) {
+        return data.map((item: {id: number, name: string, email: string, body: string}, i: number) => ({
           id: String(item.id),
           from: item.name.split(' ')[0] || item.email.split('@')[0], 
           subject: item.name,

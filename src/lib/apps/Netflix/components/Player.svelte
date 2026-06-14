@@ -2,8 +2,8 @@
   import { netflixState } from "../NetflixAppState.svelte";
   ;
 
-  let media = $derived(netflixState.selectedMedia);
-  let isTvShow = $derived(
+  const media = $derived(netflixState.selectedMedia);
+  const isTvShow = $derived(
     media?.media_type === "tv" || media?.title === undefined,
   );
 

@@ -12,11 +12,15 @@
       downloads = [];
       return;
     }
-    
+
     downloads = [
       {
-        profile: systemGlobalState.currentUser?.name || systemGlobalState.currentUser?.username || "My Profile",
-        avatar: "https://wallpapers.com/images/hd/netflix-profile-pictures-1000-x-1000-88wkdmjrorckekha.jpg",
+        profile:
+          systemGlobalState.currentUser?.name ||
+          systemGlobalState.currentUser?.username ||
+          "My Profile",
+        avatar:
+          "https://wallpapers.com/images/hd/netflix-profile-pictures-1000-x-1000-88wkdmjrorckekha.jpg",
         items: [
           {
             title: apiData[0]?.title || apiData[0]?.name || "Stranger Things",
@@ -28,7 +32,8 @@
       },
       {
         profile: "Kids",
-        avatar: "https://mir-s3-cdn-cf.behance.net/project_modules/disp/84c20033850498.56ba69ac290ea.png",
+        avatar:
+          "https://mir-s3-cdn-cf.behance.net/project_modules/disp/84c20033850498.56ba69ac290ea.png",
         items: [
           {
             title: apiData[1]?.title || apiData[1]?.name || "Peppa Pig",
@@ -71,7 +76,7 @@
             >
               <!-- Poster -->
               <div
-                class="w-[120px] h-[68px] rounded overflow-hidden flex-shrink-0 relative bg-black"
+                class="w-[120px] h-[68px] rounded overflow-hidden shrink-0 relative bg-black"
               >
                 <img
                   src={item.image}

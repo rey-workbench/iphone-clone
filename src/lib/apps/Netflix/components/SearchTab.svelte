@@ -1,19 +1,19 @@
 <script lang="ts">
   import { netflixState } from "../NetflixAppState.svelte";
-
+  import type { INetflixMedia } from "$lib/types";
 
   let {
     searchQuery = $bindable(""),
     searchResults = [],
   } = $props<{
     searchQuery: string;
-    searchResults: any[];
+    searchResults: INetflixMedia[];
   }>();
 
   const handleSelectSearchItem = (e: MouseEvent) => {
     const id = (e.currentTarget as HTMLElement).dataset.id;
     if (id) {
-      const item = searchResults.find((m: any) => String(m.id) === id);
+      const item = searchResults.find((m: INetflixMedia) => String(m.id) === id);
       if (item) netflixState.selectMedia(item);
     }
   };
