@@ -3,6 +3,8 @@ import { SafariApiClient } from '$lib/client/services/SafariApiClient';
 import type { IAppLifecycle } from '$lib/types/app';
 import { osMediator } from '$lib/os/mediator.svelte';
 
+let engineInitPromise: Promise<void> | null = null;
+
 export class SafariAppState implements IAppLifecycle {
   appName = 'Safari';
   isForeground = $state(false);
@@ -41,24 +43,65 @@ export class SafariAppState implements IAppLifecycle {
   }
 
   async initEngine() {
+    if (this.isReady) return;
+
+    if (!engineInitPromise) {
+      engineInitPromise = this.doInitEngine();
+    }
+    
+    try {
+      await engineInitPromise;
+      this.isReady = true;
+      this.initFrame();
+    } catch (err: any) {
+      engineInitPromise = null;
+      dialogGlobalState.show({
+        title: "Safari Proxy Error",
+        message: err.message || "Scramjet initialization failed.",
+        confirmText: "OK",
+      });
+    }
+  }
+
+  initFrame() {
+    if (!this.frameObj && document.getElementById("safari-container")) {
+      const iframe = document.createElement("iframe");
+      iframe.className = "absolute inset-0 w-full h-full border-none bg-white";
+      this.frameObj = this.scramjet.createFrame(iframe);
+      document.getElementById("safari-container")!.appendChild(iframe);
+      if (this.url) {
+        this.frameObj.go(this.url);
+      }
+    }
+  }
+
+  async doInitEngine() {
     if ("serviceWorker" in navigator) {
       const loadScript = (src: string) =>
         new Promise<void>((resolve, reject) => {
-          if (document.querySelector(`script[src="${src}"]`)) return resolve();
+          const existing = document.querySelector(`script[src="${src}"]`) as HTMLScriptElement;
+          if (existing) {
+            if (existing.dataset.loaded) return resolve();
+            existing.addEventListener('load', () => resolve());
+            existing.addEventListener('error', reject);
+            return;
+          }
           const script = document.createElement("script");
           script.src = src;
-          script.onload = () => resolve();
+          script.onload = () => {
+            script.dataset.loaded = 'true';
+            resolve();
+          };
           script.onerror = reject;
           document.head.appendChild(script);
         });
 
-      try {
-        const origExports = (window as any).exports;
-        const origModule = (window as any).module;
-        const origDefine = (window as any).define;
-        (window as any).exports = undefined;
-        (window as any).module = undefined;
-        (window as any).define = undefined;
+      const origExports = (window as any).exports;
+      const origModule = (window as any).module;
+      const origDefine = (window as any).define;
+      (window as any).exports = undefined;
+      (window as any).module = undefined;
+      (window as any).define = undefined;
 
         await loadScript("/scram/scramjet_bundled.js");
         await loadScript("/scram/controller.api.js");
@@ -152,13 +195,6 @@ export class SafariAppState implements IAppLifecycle {
             this.frameObj.go(this.url);
           }
         }
-      } catch (err: any) {
-        dialogGlobalState.show({
-          title: "Safari Proxy Error",
-          message: err.message || "Scramjet initialization failed.",
-          confirmText: "OK",
-        });
-      }
     }
   }
 
