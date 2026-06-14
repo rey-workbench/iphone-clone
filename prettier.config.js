@@ -1,0 +1,8 @@
+/** @type {import('prettier').Config} */
+export default {
+	plugins: ['prettier-plugin-svelte'],
+	useTabs: true,
+	singleQuote: true,
+	trailingComma: 'none',
+	printWidth: 100
+};

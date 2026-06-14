@@ -3,9 +3,6 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import { defineConfig } from 'vite';
 import { server as wispServer } from '@mercuryworkshop/wisp-js';
-import http from 'node:http';
-import https from 'node:https';
-import { URL } from 'node:url';
 
 /** Wisp WebSocket tunnel (for WebSocket proxying via epoxy) */
 function wispServerPlugin() {
@@ -21,7 +18,6 @@ function wispServerPlugin() {
 	};
 }
 
-
 export default defineConfig({
 	plugins: [
 		wispServerPlugin(),
@@ -30,7 +26,7 @@ export default defineConfig({
 		SvelteKitPWA({
 			registerType: 'autoUpdate',
 			workbox: {
-				maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+				maximumFileSizeToCacheInBytes: 10 * 1024 * 1024
 			},
 			devOptions: {
 				enabled: true,
@@ -38,9 +34,9 @@ export default defineConfig({
 			},
 			disable: process.env.VERCEL === '1',
 			manifest: {
-				name: 'MyPhone',
-				short_name: 'MyPhone',
-				description: 'MyPhone Simulator built with SvelteKit',
+				name: 'ReyOS',
+				short_name: 'ReyOS',
+				description: 'ReyOS by Reysilvaa',
 				theme_color: '#000000',
 				background_color: '#000000',
 				display: 'standalone',

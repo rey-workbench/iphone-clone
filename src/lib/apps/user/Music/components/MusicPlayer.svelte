@@ -1,0 +1,296 @@
+<script lang="ts">
+	import type { MusicAppState } from '../MusicAppState.svelte';
+	import {
+		Play,
+		Pause,
+		SkipBack,
+		SkipForward,
+		Volume1,
+		Volume2,
+		MoreHorizontal,
+		MessageSquareQuote,
+		Airplay,
+		ListMusic,
+		Loader2,
+		ChevronDown
+	} from '@lucide/svelte';
+
+	const { state }: { state: MusicAppState } = $props();
+
+	function formatTime(seconds: number, isRemaining = false) {
+		if (!seconds || isNaN(seconds)) return isRemaining ? '-00:00' : '00:00';
+		const absSeconds = Math.abs(seconds);
+		const m = Math.floor(absSeconds / 60);
+		const s = Math.floor(absSeconds % 60);
+		const formatted = `${m}:${s < 10 ? '0' : ''}${s}`;
+		return isRemaining ? `-${formatted}` : formatted;
+	}
+
+	function handleSeek(e: MouseEvent) {
+		if (!state.player || typeof state.player.getDuration !== 'function') return;
+		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+		const pos = (e.clientX - rect.left) / rect.width;
+		const newTime = pos * state.player.getDuration();
+		state.player.seekTo(newTime, true);
+		state.progress = pos * 100;
+	}
+
+	function handleVolume(e: MouseEvent) {
+		if (!state.player || typeof state.player.setVolume !== 'function') return;
+		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+		const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+		state.volume = pos * 100;
+		state.player.setVolume(state.volume);
+	}
+
+	const closePlayer = () => (state.showPlayer = false);
+	const seekToLyric = (e: MouseEvent) => {
+		const time = Number((e.currentTarget as HTMLElement).dataset.time);
+		if (state.player && typeof state.player.seekTo === 'function' && !isNaN(time)) {
+			state.player.seekTo(time, true);
+		}
+	};
+	const handlePlayNextPrev = () => state.playNext(-1);
+	const handleTogglePlay = () => state.togglePlay();
+	const handlePlayNextForward = () => state.playNext(1);
+	const handleFetchLyrics = () => state.fetchLyrics();
+	const handleFetchUpNext = () => state.fetchUpNext();
+	const adjustLyricsPositive = () => state.adjustLyricsOffset(0.5);
+	const adjustLyricsNegative = () => state.adjustLyricsOffset(-0.5);
+	const handleSeekKeydown = (e: KeyboardEvent) => {
+		if (e.key === 'Enter' || e.key === ' ') handleSeek(e as unknown as MouseEvent);
+	};
+	const handleVolumeKeydown = (e: KeyboardEvent) => {
+		if (e.key === 'Enter' || e.key === ' ') handleVolume(e as unknown as MouseEvent);
+	};
+</script>
+
+<!-- Background Blur -->
+<div class="absolute inset-0 z-10 bg-black overflow-hidden">
+	<img
+		src={state.current?.art || state.current?.thumbnails?.[0]?.url}
+		alt="bg"
+		class="absolute inset-0 w-full h-full object-cover opacity-30 blur-2xl saturate-150 transform scale-110"
+	/>
+	<div class="absolute inset-0 bg-black/40"></div>
+</div>
+
+<!-- Player Content -->
+<div class="absolute inset-0 z-20 flex flex-col px-6 pt-13.5 pb-6">
+	<!-- Header -->
+	<div class="relative flex justify-between items-center mb-8 shrink-0">
+		<button
+			class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition-all cursor-pointer border-none"
+			onclick={closePlayer}
+		>
+			<ChevronDown class="w-6 h-6 text-white" />
+		</button>
+		<div class="flex flex-col items-center">
+			<span class="text-[11px] font-medium tracking-widest text-white/50 uppercase"
+				>PLAYING FROM</span
+			>
+			<span class="text-[13px] font-semibold text-white truncate max-w-50">
+				{state.current?.album || state.current?.name || 'Music'}
+			</span>
+		</div>
+		<div class="w-10"></div>
+	</div>
+
+	{#if state.showLyrics}
+		<div
+			class="flex-1 overflow-y-auto mb-6 w-full px-6 text-white text-[24px] font-bold leading-normal hide-scrollbar scroll-smooth"
+		>
+			{#if state.isFetchingLyrics}
+				<div class="flex justify-center py-20">
+					<Loader2 class="animate-spin text-white/50" size={32} />
+				</div>
+			{:else if state.isSynced && state.parsedLyrics.length > 0}
+				<div class="space-y-6 py-32">
+					{#each state.parsedLyrics as line, i (i)}
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+						<p
+							data-time={line.time}
+							class="transition-all duration-300 ease-out cursor-pointer {i ===
+							state.activeLyricIndex
+								? 'text-white opacity-100 active-lyric'
+								: 'text-white opacity-40 blur-[0.5px]'}"
+							onclick={seekToLyric}
+						>
+							{line.text || '♪'}
+						</p>
+					{/each}
+				</div>
+			{:else}
+				<div
+					class="whitespace-pre-wrap py-[10vh] text-[20px] font-semibold text-white/60 text-center leading-relaxed"
+				>
+					<span class="text-xs font-normal text-white/30 uppercase tracking-widest mb-6 block"
+						>Synced lyrics unavailable</span
+					>
+					{state.lyricsText}
+				</div>
+			{/if}
+		</div>
+	{:else}
+		<div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center mb-4 shrink">
+			<img
+				src={state.current?.art}
+				alt={state.current?.name}
+				class="h-full max-h-87.5 aspect-square w-auto max-w-full rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] object-cover"
+			/>
+		</div>
+	{/if}
+
+	<div class="w-full flex flex-col shrink-0">
+		<div class="w-full flex justify-between items-center mb-5">
+			<div class="flex-1 min-w-0 pr-4">
+				<div class="font-bold text-white text-[22px] truncate">
+					{state.current?.name}
+				</div>
+				<div class="text-white/70 text-[18px] truncate mt-0.5">
+					{state.current?.artist}
+				</div>
+			</div>
+			<button
+				class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white shrink-0 border-none cursor-pointer"
+				aria-label="More options"
+			>
+				<MoreHorizontal size={18} />
+			</button>
+		</div>
+
+		<!-- Progress -->
+		<div class="w-full mb-6">
+			<!-- Progress bar -->
+			<button
+				type="button"
+				class="w-full h-1.5 bg-white/20 rounded-full relative cursor-pointer border-none p-0"
+				onclick={handleSeek}
+				onkeydown={handleSeekKeydown}
+				role="slider"
+				aria-label="Seek"
+				aria-valuenow={state.progress}
+				aria-valuemin={0}
+				aria-valuemax={100}
+				tabindex="0"
+			>
+				<div
+					class="absolute top-0 left-0 h-full bg-white rounded-full transition-[width] duration-200"
+					style:width="{state.progress}%"
+				></div>
+				<div
+					class="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-md scale-[1.5] pointer-events-none"
+					style:left="calc({state.progress}% - 4px)"
+				></div>
+			</button>
+			<div
+				class="flex justify-between mt-2.5 text-[11px] text-white/60 font-medium pointer-events-none"
+			>
+				<span
+					>{formatTime(
+						(state.progress / 100) *
+							(typeof state.player?.getDuration === 'function' ? state.player.getDuration() : 0)
+					)}</span
+				>
+				<span
+					>{formatTime(
+						(typeof state.player?.getDuration === 'function' ? state.player.getDuration() : 0) -
+							(state.progress / 100) *
+								(typeof state.player?.getDuration === 'function' ? state.player.getDuration() : 0),
+						true
+					)}</span
+				>
+			</div>
+		</div>
+
+		<!-- Controls -->
+		<div class="flex items-center justify-between px-6 mb-6">
+			<button
+				class="bg-transparent border-none cursor-pointer text-white hover:scale-110 transition-transform active:scale-95"
+				onclick={handlePlayNextPrev}
+			>
+				<SkipBack size={44} fill="white" />
+			</button>
+			<button
+				class="bg-transparent border-none cursor-pointer flex items-center justify-center text-white hover:scale-110 transition-transform active:scale-95"
+				onclick={handleTogglePlay}
+			>
+				{#if state.isPlaying}
+					<Pause size={56} fill="white" />
+				{:else}
+					<Play size={56} fill="white" />
+				{/if}
+			</button>
+			<button
+				class="bg-transparent border-none cursor-pointer text-white hover:scale-110 transition-transform active:scale-95"
+				onclick={handlePlayNextForward}
+			>
+				<SkipForward size={44} fill="white" />
+			</button>
+		</div>
+
+		<!-- Volume -->
+		<div class="flex items-center gap-3 text-white/50 mb-4">
+			<Volume1 size={14} />
+			<!-- Volume slider -->
+			<button
+				type="button"
+				class="flex-1 h-1.5 bg-white/20 rounded-full relative cursor-pointer border-none p-0"
+				onclick={handleVolume}
+				onkeydown={handleVolumeKeydown}
+				role="slider"
+				aria-label="Volume"
+				aria-valuenow={state.volume}
+				aria-valuemin={0}
+				aria-valuemax={100}
+				tabindex="0"
+			>
+				<div
+					class="absolute top-0 left-0 h-full bg-white rounded-full pointer-events-none"
+					style:width="{state.volume}%"
+				></div>
+				<div
+					class="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-md scale-[1.5] pointer-events-none"
+					style:left="calc({state.volume}% - 4px)"
+				></div>
+			</button>
+			<Volume2 size={20} />
+		</div>
+
+		<!-- Bottom Actions -->
+		<div class="flex items-center justify-evenly text-white/70 px-4 mt-2 mb-2">
+			<div class="flex items-center gap-2">
+				{#if state.showLyrics && state.isSynced}
+					<button
+						class="text-[10px] font-bold border border-white/20 px-2 py-1 rounded bg-black/20 hover:bg-white/10 text-white/70 transition-colors"
+						onclick={adjustLyricsNegative}
+						title="Mundurkan lirik 0.5 detik">-0.5s</button
+					>
+				{/if}
+				<button
+					class="bg-transparent border-none cursor-pointer {state.showLyrics
+						? 'text-ios-pink'
+						: 'text-current hover:text-white'}"
+					onclick={handleFetchLyrics}
+				>
+					<MessageSquareQuote size={20} />
+				</button>
+				{#if state.showLyrics && state.isSynced}
+					<button
+						class="text-[10px] font-bold border border-white/20 px-2 py-1 rounded bg-black/20 hover:bg-white/10 text-white/70 transition-colors"
+						onclick={adjustLyricsPositive}
+						title="Majukan lirik 0.5 detik">+0.5s</button
+					>
+				{/if}
+			</div>
+			<button class="bg-transparent border-none text-current cursor-pointer hover:text-white"
+				><Airplay size={20} /></button
+			>
+			<button
+				class="bg-transparent border-none text-current cursor-pointer hover:text-white active:text-ios-pink"
+				onclick={handleFetchUpNext}><ListMusic size={22} /></button
+			>
+		</div>
+	</div>
+</div>

@@ -52,5 +52,5 @@ export const {
 	unrewriteCss,
 	unrewriteHtml,
 	unrewriteUrl,
-	versionInfo,
+	versionInfo
 } = __external;

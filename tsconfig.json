@@ -11,6 +11,9 @@
 		"strict": true,
 		"noEmit": true,
 		"moduleResolution": "bundler",
-		"types": ["node"]
+		"types": ["node"],
+
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
 	}
 }

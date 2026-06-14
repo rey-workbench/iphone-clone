@@ -1,13 +1,13 @@
 import { json } from '@sveltejs/kit';
-import { NetflixService } from '$lib/server/services/NetflixService';
+import { NetflixService } from '$lib/backend/services/NetflixService';
 
 const netflixService = new NetflixService();
 
 export async function GET() {
-    try {
-        const data = await netflixService.getLatest();
-        return json(data);
-    } catch (error: any) {
-        return json({ error: error.message }, { status: 500 });
-    }
+	try {
+		const data = await netflixService.getLatest();
+		return json(data);
+	} catch (error: any) {
+		return json({ error: error.message }, { status: 500 });
+	}
 }

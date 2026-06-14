@@ -1,9 +1,27 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const controllerPath = path.join(process.cwd(), 'node_modules', '@mercuryworkshop', 'scramjet-controller', 'dist');
-const scramjetPath = path.join(process.cwd(), 'node_modules', '@mercuryworkshop', 'scramjet', 'dist');
-const libcurlPath = path.join(process.cwd(), 'node_modules', '@mercuryworkshop', 'libcurl-transport', 'dist');
+const controllerPath = path.join(
+	process.cwd(),
+	'node_modules',
+	'@mercuryworkshop',
+	'scramjet-controller',
+	'dist'
+);
+const scramjetPath = path.join(
+	process.cwd(),
+	'node_modules',
+	'@mercuryworkshop',
+	'scramjet',
+	'dist'
+);
+const libcurlPath = path.join(
+	process.cwd(),
+	'node_modules',
+	'@mercuryworkshop',
+	'libcurl-transport',
+	'dist'
+);
 
 const destScram = path.join(process.cwd(), 'static', 'scram');
 const destLibcurl = path.join(process.cwd(), 'static', 'libcurl');
@@ -16,17 +34,17 @@ fs.mkdirSync(destLibcurl, { recursive: true });
  * @param {string} destination
  */
 function copyDir(src, destination) {
-    if (!fs.existsSync(src)) return;
-    const files = fs.readdirSync(src);
-    for (const file of files) {
-        const srcFile = path.join(src, file);
-        const destFile = path.join(destination, file);
-        if (fs.statSync(srcFile).isFile()) {
-            let content = fs.readFileSync(srcFile);
-            
-            // Inject Mobile User-Agent and Viewport into the proxy's injected script
-            if (file === 'controller.inject.js') {
-                const mobileOverride = `
+	if (!fs.existsSync(src)) return;
+	const files = fs.readdirSync(src);
+	for (const file of files) {
+		const srcFile = path.join(src, file);
+		const destFile = path.join(destination, file);
+		if (fs.statSync(srcFile).isFile()) {
+			let content = fs.readFileSync(srcFile);
+
+			// Inject Mobile User-Agent and Viewport into the proxy's injected script
+			if (file === 'controller.inject.js') {
+				const mobileOverride = `
 // Inject iPhone User Agent
 Object.defineProperty(navigator, 'userAgent', {
   get: function () { return 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1'; }
@@ -62,11 +80,11 @@ document.addEventListener("DOMContentLoaded", () => {
   document.head.appendChild(style);
 });
 `;
-                content = Buffer.from(mobileOverride + "\n" + content.toString('utf8'));
-            }
-            fs.writeFileSync(destFile, content);
-        }
-    }
+				content = Buffer.from(mobileOverride + '\n' + content.toString('utf8'));
+			}
+			fs.writeFileSync(destFile, content);
+		}
+	}
 }
 
 copyDir(controllerPath, destScram);
