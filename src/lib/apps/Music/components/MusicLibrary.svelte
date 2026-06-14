@@ -3,7 +3,7 @@
   import { Play, Search } from "@lucide/svelte";
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
 
-  let { state }: { state: MusicAppState } = $props();
+  const { state }: { state: MusicAppState } = $props();
 
   const handlePlay = (e: MouseEvent) => {
     const id = (e.currentTarget as HTMLElement).dataset.id;

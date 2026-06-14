@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { IChatMessage } from '$lib/types';
-  let { 
+  const { 
     msg,
     isLastInGroup,
     isFirstInGroup,

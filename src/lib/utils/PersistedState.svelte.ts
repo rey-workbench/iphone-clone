@@ -38,7 +38,7 @@ export class PersistedState<T> extends BaseGlobalState {
                 // If nothing in DB, save the default Data
                 await this.save();
             }
-        } catch (e) {
+        } catch {
             // console.error(`Failed to load PersistedState for ${this.key}`, e);
         } finally {
             this.setLoading(false);
@@ -54,7 +54,7 @@ export class PersistedState<T> extends BaseGlobalState {
         try {
             const snapshot = this.data ? $state.snapshot(this.data) : null;
             await this.db.set(this.key, snapshot as T);
-        } catch (e) {
+        } catch {
             // console.error(`Failed to save PersistedState for ${this.key}`, e);
         }
     }

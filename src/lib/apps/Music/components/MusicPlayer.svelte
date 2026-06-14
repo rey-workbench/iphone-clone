@@ -15,7 +15,7 @@
     ChevronDown,
   } from "@lucide/svelte";
 
-  let { state }: { state: MusicAppState } = $props();
+  const { state }: { state: MusicAppState } = $props();
 
   function formatTime(seconds: number, isRemaining = false) {
     if (!seconds || isNaN(seconds)) return isRemaining ? "-00:00" : "00:00";
@@ -164,7 +164,7 @@
 
     <!-- Progress -->
     <div class="w-full mb-6">
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- Progress bar -->
       <button
         type="button"
         class="w-full h-1.5 bg-white/20 rounded-full relative cursor-pointer border-none p-0"
@@ -241,7 +241,7 @@
     <!-- Volume -->
     <div class="flex items-center gap-3 text-white/50 mb-4">
       <Volume1 size={14} />
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- Volume slider -->
       <button
         type="button"
         class="flex-1 h-1.5 bg-white/20 rounded-full relative cursor-pointer border-none p-0"

@@ -32,7 +32,7 @@ class AuthGlobalState extends BaseGlobalState implements IAuthGlobalState {
                 this.setError(data.error || 'Incorrect Apple ID or password.');
                 return null;
             }
-        } catch (e: any) {
+        } catch {
             this.setError('Failed to connect to server.');
             return null;
         } finally {
@@ -45,7 +45,7 @@ class AuthGlobalState extends BaseGlobalState implements IAuthGlobalState {
         
         try {
             await AuthApiClient.logout(systemGlobalState.currentUser.id, systemGlobalState.deviceId);
-        } catch (e) {
+        } catch {
             // console.error('Failed to revoke device session on logout', e);
         }
         

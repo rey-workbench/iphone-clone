@@ -7,7 +7,7 @@
 
   $effect(() => {
     if (audioEl) {
-      audioEl.play().catch(e => { /* ignore */ });
+      audioEl.play().catch(() => { /* ignore */ });
     }
   });
 

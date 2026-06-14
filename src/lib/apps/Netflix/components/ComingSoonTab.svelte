@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Bell, CalendarClock } from "@lucide/svelte";
+  import { CalendarClock } from "@lucide/svelte";
 </script>
 
 <div

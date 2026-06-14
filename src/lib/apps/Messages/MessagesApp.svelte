@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Copy, Reply, Trash2, MoreHorizontal, Undo2 } from '@lucide/svelte';
+  import { SvelteSet } from 'svelte/reactivity';
   import { messagesState as appState } from './MessagesAppState.svelte';
   import { usersGlobalState } from '$lib/os/states';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
@@ -24,7 +25,7 @@
   } | null = $state(null);
 
   let isSelectionMode = $state(false);
-  let selectedMessages: Set<string> = $state(new Set());
+  let selectedMessages: SvelteSet<string> = new SvelteSet();
   let keyboardPadding = $state(0);
 
   $effect(() => {
@@ -71,15 +72,6 @@
     } else {
       selectedMessages.add(id);
     }
-    // trigger reactivity
-    selectedMessages = new Set(selectedMessages);
-  }
-
-  function deleteSelected() {
-    if (selectedMessages.size === 0) return;
-    selectedMessages.forEach(id => appState.deleteMessage(id));
-    selectedMessages = new Set();
-    isSelectionMode = false;
   }
 
   function handleDeleteSelected() {
@@ -151,9 +143,7 @@
     appState.closeChat();
   }
 
-  const tailRightClasses = "relative before:content-[''] before:absolute before:bottom-0 before:-right-2 before:h-5 before:w-5 before:bg-[#0a84ff] before:rounded-bl-[16px] before:-z-10 after:content-[''] after:absolute after:bottom-0 after:-right-[10px] after:w-[10px] after:h-5 after:bg-black after:rounded-bl-[10px] after:z-10";
-  
-  const tailLeftClasses = "relative before:content-[''] before:absolute before:bottom-0 before:-left-2 before:h-5 before:w-5 before:bg-[#26252A] before:rounded-br-[16px] before:-z-10 after:content-[''] after:absolute after:bottom-0 after:-left-[10px] after:w-[10px] after:h-5 after:bg-black after:rounded-br-[10px] after:z-10";
+
 </script>
 
 <div class="h-full pt-[54px] bg-black flex flex-col transition-all duration-100 ease-out" style:padding-bottom="{keyboardPadding}px">

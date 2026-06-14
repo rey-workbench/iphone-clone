@@ -12,7 +12,7 @@
     handleSend: () => void;
   }
 
-  let {
+  const {
     appState,
     adjustTextareaHeight,
     handleInputKeydown,

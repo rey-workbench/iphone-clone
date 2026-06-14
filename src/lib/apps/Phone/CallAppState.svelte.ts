@@ -92,8 +92,7 @@ class CallAppState extends BaseGlobalState {
                         const answer = await webrtcGlobalState.setRemoteOffer(payload.offer);
                         await webrtcGlobalState.sendSignal(this.remoteContact!.id, 'call_answer', { answer }, this.remoteDeviceId || undefined);
                     }
-                } catch (e) {
-                }
+                } catch { /* renegotiation failed, ignore */ }
                 return;
             }
 
@@ -168,16 +167,14 @@ class CallAppState extends BaseGlobalState {
             }
             this.status = 'active';
             this.startTimer();
-        } catch (e) {
-        }
+        } catch { /* answer handling failed, ignore */ }
     }
 
     private async handleIceCandidate(payload: ISignalingPayload) {
         if (!payload.candidate) return;
         try {
             await webrtcGlobalState.addIceCandidate(payload.candidate);
-        } catch (e) {
-        }
+        } catch { /* ICE candidate failed, ignore */ }
     }
 
     private handleRemoteEnd() {

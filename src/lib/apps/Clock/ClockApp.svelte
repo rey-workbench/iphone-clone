@@ -20,7 +20,7 @@
   ];
 
   const emptyAlarms: { id: string; time: string; label: string; enabled: boolean; days: string }[] = [];
-  let alarms = $derived(clockAppState.data?.alarms || emptyAlarms);
+  const alarms = $derived(clockAppState.data?.alarms || emptyAlarms);
 
   function getTime(offset: number) {
     const d = new Date(), utc = d.getTime() + d.getTimezoneOffset() * 60000;

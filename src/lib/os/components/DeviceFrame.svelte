@@ -4,7 +4,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
 
-  let { state, children }: {
+  const { state, children }: {
     state: ShellState,
     children: Snippet
   } = $props();
@@ -21,7 +21,7 @@
     if (state.isControlCenterDragging) state.handleControlCenterSwipeMove(e);
   };
 
-  const handlePointerUp = (e: PointerEvent) => {
+  const handlePointerUp = () => {
     if (state.isAppSwiping) state.handleAppSwipeEnd(() => handleGoHome());
     if (state.isControlCenterDragging) state.handleControlCenterSwipeEnd();
   };

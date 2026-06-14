@@ -2,7 +2,7 @@
   import { page } from "$app/stores";
   import type { ShellState } from "../../../routes/ShellState.svelte";
 
-  let {
+  const {
     appId,
     appName,
     appColor,

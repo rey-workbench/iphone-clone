@@ -1,7 +1,7 @@
 <script lang="ts">
   import ContextMenu, { type ContextMenuItem } from "$lib/os/components/ui/ContextMenu.svelte";
 
-  let {
+  const {
     activeContextMenu,
     closeContextMenu,
     handleOverlayKeydown,
@@ -20,8 +20,6 @@
     getMenuItems: () => ContextMenuItem[];
   } = $props();
 
-  const stopPropagation = (e: MouseEvent) => e.stopPropagation();
-  const stopPropagationKeydown = (e: KeyboardEvent) => e.stopPropagation();
 </script>
 
 <div class="fixed inset-0 z-100 flex items-center justify-center backdrop-blur-xl bg-black/40">

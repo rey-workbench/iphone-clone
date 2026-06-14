@@ -65,7 +65,7 @@ export class LocalDBAdapter<T = any> {
         return;
       }
       await db.put(this.storeName, value, key);
-    } catch (err) {
+    } catch {
       // console.error(`[LocalDB] Failed to set ${this.storeName}/${key}:`, err);
     }
   }
@@ -77,7 +77,7 @@ export class LocalDBAdapter<T = any> {
     try {
       const value = await db.get(this.storeName, key);
       return value !== undefined ? value : defaultValue;
-    } catch (err) {
+    } catch {
       // console.error(`[LocalDB] Failed to get ${this.storeName}/${key}:`, err);
       return defaultValue;
     }
@@ -89,7 +89,7 @@ export class LocalDBAdapter<T = any> {
 
     try {
       return await db.getAll(this.storeName);
-    } catch (err) {
+    } catch {
       // console.error(`[LocalDB] Failed to getAll from ${this.storeName}:`, err);
       return [];
     }
@@ -101,7 +101,7 @@ export class LocalDBAdapter<T = any> {
 
     try {
       await db.delete(this.storeName, key);
-    } catch (err) {
+    } catch {
       // console.error(`[LocalDB] Failed to delete ${this.storeName}/${key}:`, err);
     }
   }
@@ -113,7 +113,7 @@ export class LocalDBAdapter<T = any> {
     try {
       const value = await db.get(this.storeName, key);
       return value !== undefined;
-    } catch (err) {
+    } catch {
       // console.error(`[LocalDB] Failed to check ${this.storeName}/${key}:`, err);
       return false;
     }
@@ -125,7 +125,7 @@ export class LocalDBAdapter<T = any> {
 
     try {
       return await db.getAllKeys(this.storeName) as string[];
-    } catch (err) {
+    } catch {
       // console.error(`[LocalDB] Failed to get keys from ${this.storeName}:`, err);
       return [];
     }
@@ -137,7 +137,7 @@ export class LocalDBAdapter<T = any> {
 
     try {
       await db.clear(this.storeName);
-    } catch (err) {
+    } catch {
       // console.error(`[LocalDB] Failed to clear ${this.storeName}:`, err);
     }
   }
@@ -148,7 +148,7 @@ export class LocalDBAdapter<T = any> {
 
     try {
       return await db.count(this.storeName);
-    } catch (err) {
+    } catch {
       // console.error(`[LocalDB] Failed to count ${this.storeName}:`, err);
       return 0;
     }

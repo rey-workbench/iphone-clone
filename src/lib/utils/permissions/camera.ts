@@ -1,4 +1,4 @@
-import { dialogGlobalState, systemGlobalState } from '$lib/os/states';
+import { dialogGlobalState } from '$lib/os/states';
 
 /**
  * Request camera permission (for future FaceTime or Camera app)
@@ -10,7 +10,7 @@ export async function requestCamera(): Promise<boolean> {
             if (status && status.state === 'granted') {
                 return true;
             }
-        } catch (e) {
+        } catch {
             // Ignore query errors
         }
     }
@@ -31,7 +31,7 @@ export async function requestCamera(): Promise<boolean> {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             stream.getTracks().forEach(track => track.stop());
             return true;
-        } catch (err) {
+        } catch {
             // console.error("Camera access denied by browser system:", err);
             return false;
         }

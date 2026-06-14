@@ -2,7 +2,7 @@
   import { ChevronRight } from '@lucide/svelte';
   import type { Component } from 'svelte';
 
-  let {
+  const {
     item,
     onClick,
   } = $props<{

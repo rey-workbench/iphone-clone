@@ -4,7 +4,7 @@
   import { messagesState } from '$lib/apps/Messages/MessagesAppState.svelte';
   import { goto } from '$app/navigation';
 
-  let { app }: { app: IAppConfig } = $props();
+  const { app }: { app: IAppConfig } = $props();
 
   function openApp() {
     if (implementedApps.has(app.id)) {

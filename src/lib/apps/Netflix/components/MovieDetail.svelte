@@ -3,16 +3,15 @@
   import { netflixState } from "../NetflixAppState.svelte";
   import { NetflixApiClient } from "$lib/client/services/NetflixApiClient";
   import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
-  import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
-  import MovieEpisodes from "./MovieEpisodes.svelte";
+
   import MovieHero from "./MovieHero.svelte";
   import MovieInfo from "./MovieInfo.svelte";
 
-  let media = $derived(netflixState.selectedMedia);
-  let isTvShow = $derived(
+  const media = $derived(netflixState.selectedMedia);
+  const isTvShow = $derived(
     media?.media_type === "tv" || media?.title === undefined,
   );
-  let title = $derived(media?.title || media?.name || "Unknown Title");
+  const title = $derived(media?.title || media?.name || "Unknown Title");
 
   let isPlaying = $state(false);
 
@@ -36,7 +35,7 @@
 
 
 
-  let iframeSrc = $derived(
+  const iframeSrc = $derived(
     isTvShow
       ? NetflixApiClient.getTvStreamUrl(
           media?.id || "",
@@ -47,14 +46,7 @@
       : NetflixApiClient.getMovieStreamUrl(media?.id || "", currentServer),
   );
 
-  function openFullscreen() {
-    isFullscreen = true;
-  }
   function closeFullscreen() {
-    isFullscreen = false;
-  }
-  function closePlayer() {
-    isPlaying = false;
     isFullscreen = false;
   }
 

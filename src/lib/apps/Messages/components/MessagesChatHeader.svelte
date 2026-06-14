@@ -16,7 +16,7 @@
     handleBack?: () => void;
   }
 
-  let {
+  const {
     appState,
     usersGlobalState,
     closeChat,

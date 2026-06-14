@@ -37,7 +37,7 @@
 
         if (accepted && deferredPrompt) {
           deferredPrompt.prompt();
-          const { outcome } = await deferredPrompt.userChoice;
+          await deferredPrompt.userChoice;
           deferredPrompt = null;
         }
       }, 1000);

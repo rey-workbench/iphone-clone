@@ -53,7 +53,7 @@
       <button class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer" onclick={retake}>Use Photo</button>
     </div>
   {:else}
-    <!-- svelte-ignore element_invalid_self_closing_tag -->
+    <!-- Camera viewfinder -->
     <div class="flex-1 relative bg-black">
       <video bind:this={videoEl} autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover"></video>
     </div>

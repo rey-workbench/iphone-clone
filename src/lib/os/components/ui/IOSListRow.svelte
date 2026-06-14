@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import { ChevronRight } from '@lucide/svelte';
 
-  let { 
+  const { 
     iconSlot,
     title,
     detail,

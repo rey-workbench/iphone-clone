@@ -1,5 +1,5 @@
 import { Bot } from '@lucide/svelte';
-import { authGlobalState } from "$lib/os/states/authGlobalState.svelte";
+
 import { notificationGlobalState } from "$lib/os/states/notificationGlobalState.svelte";
 import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
 import { supabase } from '$lib/config/supabase';
@@ -117,7 +117,7 @@ class MessagesAppState {
                     }
                 });
             }
-        } catch (e) {
+        } catch {
             // console.error("Failed to load inbox", e);
         }
     }
@@ -165,7 +165,7 @@ class MessagesAppState {
                     this.inbox[contactIndex].timestamp = Date.now();
                 }
             }
-        } catch (e) {
+        } catch {
             // console.error("Failed to load chat", e);
         }
     }

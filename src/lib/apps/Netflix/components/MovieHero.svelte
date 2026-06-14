@@ -3,7 +3,7 @@
   import { netflixState } from "../NetflixAppState.svelte";
   import type { INetflixMedia } from "$lib/types";
 
-  let {
+  const {
     media,
     isTvShow,
     selectedSeason,

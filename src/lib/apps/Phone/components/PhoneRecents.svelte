@@ -3,7 +3,7 @@
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
   import type { PhoneAppState } from '../PhoneAppState.svelte';
 
-  let { state } = $props<{ state: PhoneAppState }>();
+  const { state } = $props<{ state: PhoneAppState }>();
 </script>
 
 <div class="px-4">

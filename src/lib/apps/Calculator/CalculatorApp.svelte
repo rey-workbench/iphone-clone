@@ -3,8 +3,8 @@
 
   const state = new CalculatorAppState();
 
-  let displayText = $derived(state.getDisplayText());
-  let fontSize = $derived(state.getFontSize(displayText));
+  const displayText = $derived(state.getDisplayText());
+  const fontSize = $derived(state.getFontSize(displayText));
 
   const handlePress = (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;

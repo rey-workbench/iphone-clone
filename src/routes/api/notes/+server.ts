@@ -1,4 +1,4 @@
-import { json } from '@sveltejs/kit';
+
 import { apiHandler } from '$lib/server/api';
 import { NotesService } from '$lib/server/services/NotesService';
 

@@ -16,7 +16,6 @@
   import AppSwitcher from "$lib/os/components/AppSwitcher.svelte";
   import ControlCenter from "$lib/os/components/ControlCenter.svelte";
   import { ShellState } from "./ShellState.svelte";
-  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { musicGlobalState } from "$lib/apps/Music/MusicAppState.svelte";
   import DeviceFrame from "$lib/os/components/DeviceFrame.svelte";

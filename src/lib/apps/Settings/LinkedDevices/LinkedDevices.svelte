@@ -5,7 +5,7 @@
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import { LinkedDevicesAppState } from "./LinkedDevicesAppState.svelte";
 
-  let { onBack } = $props<{ onBack: () => void }>();
+  const { onBack } = $props<{ onBack: () => void }>();
 
   const state = new LinkedDevicesAppState();
 

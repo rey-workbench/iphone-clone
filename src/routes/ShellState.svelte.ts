@@ -1,4 +1,3 @@
-import { systemGlobalState } from '$lib/os/states';
 
 export class ShellState {
   showLockScreen = $state(true);
@@ -87,11 +86,11 @@ export class ShellState {
   enterFullscreen() {
     try {
       if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch((err) => {
+        document.documentElement.requestFullscreen().catch((_err) => {
           // ignore
         });
       }
-    } catch (e) {
+    } catch {
       // Ignore
     }
   }

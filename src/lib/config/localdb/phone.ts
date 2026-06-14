@@ -20,10 +20,10 @@ export async function getCallHistory(): Promise<CallHistoryEntry[]> {
   return entries.sort((a, b) => b.timestamp - a.timestamp);
 }
 
-async function deleteCallHistory(id: string) {
+export async function deleteCallHistory(id: string) {
   await phoneDb.delete(id);
 }
 
-async function clearCallHistory() {
+export async function clearCallHistory() {
   await phoneDb.clear();
 }

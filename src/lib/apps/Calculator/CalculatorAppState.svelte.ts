@@ -1,4 +1,4 @@
-import type { IBtn, TBtnType } from '$lib/types';
+import type { IBtn } from '$lib/types';
 
 export class CalculatorAppState {
     buttons: IBtn[][] = [

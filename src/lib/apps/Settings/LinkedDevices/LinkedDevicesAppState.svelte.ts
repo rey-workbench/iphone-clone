@@ -40,12 +40,12 @@ export class LinkedDevicesAppState extends BaseGlobalState {
       await SettingsApiClient.revokeDevice(systemGlobalState.currentUser.id, deviceId);
 
       webrtcGlobalState.sendSignal(
-        systemGlobalState.currentUser?.id!,
+        systemGlobalState.currentUser!.id,
         "force_logout",
         {},
         deviceId,
       );
-    } catch (e) {
+    } catch {
       // Revert if failed
       await this.fetchDevices();
     }

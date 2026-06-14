@@ -1,4 +1,4 @@
-import { dialogGlobalState, systemGlobalState } from '$lib/os/states';
+import { dialogGlobalState } from '$lib/os/states';
 
 /**
  * Request microphone permission from the user
@@ -12,7 +12,7 @@ export async function requestMicrophone(): Promise<boolean> {
             if (status && status.state === 'granted') {
                 return true;
             }
-        } catch (e) {
+        } catch {
             // Ignore query errors
         }
     }
@@ -37,7 +37,7 @@ export async function requestMicrophone(): Promise<boolean> {
             // Matikan langsung karena kita cuma mau minta izin saja
             stream.getTracks().forEach(track => track.stop());
             return true;
-        } catch (err) {
+        } catch {
             // console.error("Microphone access denied by browser system:", err);
             // Jika user mengizinkan di UI tapi menolak di prompt browser
             return false;

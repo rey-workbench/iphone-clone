@@ -10,7 +10,7 @@
 </script>
 
 <script lang="ts">
-  let { items, menuTop, menuLeft, menuRight, onClose }: {
+  const { items, menuTop, menuLeft, menuRight, onClose }: {
     items: ContextMenuItem[];
     menuTop?: number;
     menuLeft?: number;
@@ -32,8 +32,6 @@
   };
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div 
   class="absolute w-[250px] bg-[#252525] rounded-2xl overflow-hidden flex flex-col divide-y divide-[#3C3C3E] shadow-[0_10px_30px_rgba(0,0,0,0.8)] z-110"
   style:top={menuTop !== undefined ? `${menuTop}px` : undefined}

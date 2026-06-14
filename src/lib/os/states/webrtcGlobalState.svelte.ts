@@ -21,7 +21,6 @@ class WebrtcGlobalState extends BaseGlobalState implements IWebrtcGlobalState {
 
     // ─── Signaling (Supabase) ─────────────────────────────────────────────────
     private channel: any = null;
-    private callbacks: ISignalCallback | null = null;
     private isSubscribed = false;
 
     // ============================================================================
@@ -29,7 +28,6 @@ class WebrtcGlobalState extends BaseGlobalState implements IWebrtcGlobalState {
     // ============================================================================
 
     setupSignaling(callbacks: ISignalCallback) {
-        this.callbacks = callbacks;
         const user = systemGlobalState.currentUser;
         if (!user) {
             const unsub = $effect.root(() => {
@@ -282,7 +280,7 @@ class WebrtcGlobalState extends BaseGlobalState implements IWebrtcGlobalState {
             }, toDeviceId);
             
             return true;
-        } catch (e) {
+        } catch {
             // console.error("Failed to toggle video", e);
             return false;
         }

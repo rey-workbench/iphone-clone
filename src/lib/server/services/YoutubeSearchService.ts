@@ -34,7 +34,7 @@ export class YoutubeSearchService {
                 if (duration) {
                     try {
                         match = await lrcClient.findLyrics({ track_name: title, artist_name: artist, duration: parseInt(duration) });
-                    } catch(e) {}
+                    } catch { /* duration match failed, try general search */ }
                 }
                 
                 if (!match) {
@@ -46,7 +46,7 @@ export class YoutubeSearchService {
 
                 if (match && match.syncedLyrics) synced = match.syncedLyrics;
                 else if (match && match.plainLyrics) synced = match.plainLyrics;
-            } catch(e) {}
+            } catch { /* lrclib not available, fallback to ytmusic */ }
         }
 
         if (synced) {
@@ -73,7 +73,7 @@ export class YoutubeSearchService {
 
     async getPlaylistTracks(query: string, type: string | null) {
         await this.ensureInitialized();
-        let plist: any[] = [];
+        let plist: any[];
         
         if (type === 'ALBUM') {
             const album = await this.ytmusic.getAlbum(query);

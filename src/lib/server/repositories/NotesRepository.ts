@@ -6,7 +6,7 @@ export class NotesRepository {
     try {
       await setupDatabase();
       await db.execute("ALTER TABLE notes ADD COLUMN user_id TEXT DEFAULT ''");
-    } catch(e) {
+    } catch {
       // ignore
     }
   }

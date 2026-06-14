@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import { osMediator } from '$lib/os/mediator.svelte';
 
-  let { 
+  const { 
     children, 
     appName,
     bgClass = "bg-black", 

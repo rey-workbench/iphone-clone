@@ -7,11 +7,11 @@
   import DownloadsTab from "./components/DownloadsTab.svelte";
   import ComingSoonTab from "./components/ComingSoonTab.svelte";
   import MoreTab from "./components/MoreTab.svelte";
-  import { getContext } from "svelte";
-  import { systemGlobalState } from "$lib/os/states";
+
+
   import { Home, Search, PlaySquare, Download, Menu } from "@lucide/svelte";
 
-  const isPreview = getContext("isPreview");
+
 
   let headerOpacity = $state(0);
   let activeTab = $state("home"); // 'home', 'search', 'coming_soon', 'downloads', 'more'
@@ -34,15 +34,7 @@
       : netflixState.localSearchResults,
   );
 
-  const handleSelectSearchItem = (e: MouseEvent) => {
-    const id = (e.currentTarget as HTMLElement).dataset.id;
-    if (id) {
-      const item =
-        netflixState.movies.find((m) => String(m.id) === id) ||
-        netflixState.tvShows.find((m) => String(m.id) === id);
-      if (item) netflixState.selectMedia(item);
-    }
-  };
+
 
   $effect(() => {
     const handlePopState = (e: PopStateEvent) => {
@@ -124,13 +116,13 @@
       >
         <Home
           size={22}
-          class={activeTab === "home" ? "text-white" : "text-[#8E8E93]"}
+          class={activeTab === "home" ? "text-white" : "text-ios-gray"}
           strokeWidth={activeTab === "home" ? 2.5 : 2}
         />
         <span
           class="text-[10px] {activeTab === 'home'
             ? 'text-white font-medium'
-            : 'text-[#8E8E93]'}">Home</span
+            : 'text-ios-gray'}">Home</span
         >
       </button>
 
@@ -140,13 +132,13 @@
       >
         <Search
           size={22}
-          class={activeTab === "search" ? "text-white" : "text-[#8E8E93]"}
+          class={activeTab === "search" ? "text-white" : "text-ios-gray"}
           strokeWidth={activeTab === "search" ? 2.5 : 2}
         />
         <span
           class="text-[10px] {activeTab === 'search'
             ? 'text-white font-medium'
-            : 'text-[#8E8E93]'}">Search</span
+            : 'text-ios-gray'}">Search</span
         >
       </button>
 
@@ -156,13 +148,13 @@
       >
         <PlaySquare
           size={22}
-          class={activeTab === "coming_soon" ? "text-white" : "text-[#8E8E93]"}
+          class={activeTab === "coming_soon" ? "text-white" : "text-ios-gray"}
           strokeWidth={activeTab === "coming_soon" ? 2.5 : 2}
         />
         <span
           class="text-[10px] {activeTab === 'coming_soon'
             ? 'text-white font-medium'
-            : 'text-[#8E8E93]'}">Coming Soon</span
+            : 'text-ios-gray'}">Coming Soon</span
         >
       </button>
 
@@ -172,7 +164,7 @@
       >
         <Download
           size={22}
-          class={activeTab === "downloads" ? "text-white" : "text-[#8E8E93]"}
+          class={activeTab === "downloads" ? "text-white" : "text-ios-gray"}
           strokeWidth={activeTab === "downloads" ? 2.5 : 2}
         />
         <span

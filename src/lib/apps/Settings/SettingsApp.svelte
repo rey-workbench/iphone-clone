@@ -12,7 +12,7 @@
   import IOSList from '$lib/os/components/ui/IOSList.svelte';
 
   const appState = new SettingsAppState();
-  let toggleItems = $derived(appState.getToggleItems(settingsGlobalState));
+  const toggleItems = $derived(appState.getToggleItems(settingsGlobalState));
   
   let activeView = $state('main');
   const handleBackToMain = () => activeView = 'main';

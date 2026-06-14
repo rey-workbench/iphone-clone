@@ -28,7 +28,7 @@ export class WeatherApiClient {
                 if (lat !== undefined && lon !== undefined && !isNaN(lat) && !isNaN(lon)) {
                     return { latitude: lat, longitude: lon, city: city || 'Unknown' };
                 }
-            } catch (e) {
+            } catch {
                 // Failed to fetch IP from this provider
             }
         }

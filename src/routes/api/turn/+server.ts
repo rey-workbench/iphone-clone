@@ -26,7 +26,7 @@ export async function GET() {
 
         const data = await response.json();
         return json({ iceServers: Array.isArray(data.iceServers) ? data.iceServers : [data.iceServers] });
-    } catch (error) {
+    } catch {
         return json({ error: "Failed to fetch ICE servers from Cloudflare" }, { status: 500 });
     }
 }

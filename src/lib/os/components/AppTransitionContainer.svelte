@@ -2,7 +2,7 @@
   import type { ShellState } from "../../../routes/ShellState.svelte";
   import type { Snippet } from "svelte";
 
-  let { state, pathname, children }: { state: ShellState, pathname: string, children: Snippet } = $props();
+  const { state, pathname, children }: { state: ShellState, pathname: string, children: Snippet } = $props();
 </script>
 
 <!-- Current App or Home Screen via SvelteKit Routing -->

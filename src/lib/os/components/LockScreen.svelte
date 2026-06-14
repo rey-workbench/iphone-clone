@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { ShellState } from "../../../routes/ShellState.svelte";
-  import type { ISystemGlobalState } from "$lib/types";
 
-  let { state, systemGlobalState }: { state: ShellState, systemGlobalState: any } = $props();
+
+  const { state, systemGlobalState }: { state: ShellState, systemGlobalState: any } = $props();
 
   const handleLockTouchStart = (e: Event) => state.handleLockTouchStart(e as TouchEvent);
   const handleLockTouchMove = (e: Event) => state.handleLockTouchMove(e as TouchEvent);

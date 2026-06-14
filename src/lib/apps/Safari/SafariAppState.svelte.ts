@@ -1,7 +1,7 @@
 import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
 import { SafariApiClient } from '$lib/client/services/SafariApiClient';
 import type { IAppLifecycle } from '$lib/types';
-import { osMediator } from '$lib/os/mediator.svelte';
+
 import type { ISafariSearchResult, IScramjetController, IWindowWithScramjet, IScramjetFrame } from '$lib/types';
 
 let engineInitPromise: Promise<void> | null = null;

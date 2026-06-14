@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
-  let { 
+  const { 
     children, 
     class: extraClass = "mb-5",
     bgClass = "bg-ios-bg2"

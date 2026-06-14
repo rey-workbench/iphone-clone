@@ -1,6 +1,6 @@
 <script lang="ts">
   ;
-  import { ChevronLeft, Loader2 } from '@lucide/svelte';
+  import { ChevronLeft } from '@lucide/svelte';
   import { MailAppState } from './MailAppState.svelte';
   import Skeleton from '$lib/os/components/ui/Skeleton.svelte';
 

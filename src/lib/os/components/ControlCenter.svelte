@@ -7,7 +7,7 @@
     Flashlight, Calculator, Camera, Battery, AlarmClock
   } from "@lucide/svelte";
 
-  let { shellState }: { shellState: ShellState } = $props();
+  const { shellState }: { shellState: ShellState } = $props();
 
   // Drag handlers to close the control center
   function handleTouchStart(e: TouchEvent | PointerEvent) {
@@ -16,7 +16,7 @@
   function handleTouchMove(e: TouchEvent | PointerEvent) {
     shellState.handleControlCenterSwipeMove(e);
   }
-  function handleTouchEnd(e: TouchEvent | PointerEvent) {
+  function handleTouchEnd() {
     shellState.handleControlCenterSwipeEnd();
   }
 </script>

@@ -11,7 +11,7 @@ export class WebRTCApiClient {
 
             const data = await response.json();
             return { iceServers: data.iceServers };
-        } catch (error) {
+        } catch {
             // Fallback ICE server if the backend is down or not configured
             return {
                 iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]

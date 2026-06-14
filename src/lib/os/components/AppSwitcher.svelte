@@ -4,10 +4,14 @@
   import type { ShellState } from "../../../routes/ShellState.svelte";
   import { setContext } from "svelte";
   import AppSwitcherCard from "./AppSwitcherCard.svelte";
+  import { goto } from "$app/navigation";
 
-  let { shellState, appComponents }: { shellState: ShellState, appComponents: Record<string, any> } = $props();
+  const {
+    shellState,
+    appComponents,
+  }: { shellState: ShellState; appComponents: Record<string, any> } = $props();
 
-  setContext('isPreview', true);
+  setContext("isPreview", true);
 
   function getAppName(appId: string) {
     for (const page of homeScreenApps) {
@@ -48,7 +52,7 @@
     return colors[appId] || "bg-gray-500";
   }
 
-  let swipedUpApps = $state<Record<string, boolean>>({});
+  const swipedUpApps = $state<Record<string, boolean>>({});
 
   function handleKillApp(appId: string) {
     swipedUpApps[appId] = true;
@@ -62,7 +66,7 @@
   }
 
   let cardStartY = $state(0);
-  let cardSwipeY = $state<Record<string, number>>({});
+  const cardSwipeY = $state<Record<string, number>>({});
   let activeSwipeId = $state<string | null>(null);
 
   function onPointerDown(e: PointerEvent, appId: string) {
@@ -92,18 +96,16 @@
     }
   }
 
-  import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
-
   function onCardClick(appId: string) {
     if (cardSwipeY[appId] > 10) return; // ignore click if swiping
-    goto('/' + appId);
+    goto("/" + appId);
     shellState.closeAppSwitcher();
   }
 </script>
 
 <div
-  class="absolute inset-0 z-40 bg-black/60 backdrop-blur-xl flex flex-col items-center justify-center transition-all duration-300 {(shellState.showAppSwitcher || (shellState.isAppSwiping && shellState.appSwipeY > 20))
+  class="absolute inset-0 z-40 bg-black/60 backdrop-blur-xl flex flex-col items-center justify-center transition-all duration-300 {shellState.showAppSwitcher ||
+  (shellState.isAppSwiping && shellState.appSwipeY > 20)
     ? 'opacity-100 pointer-events-auto'
     : 'opacity-0 pointer-events-none'}"
 >

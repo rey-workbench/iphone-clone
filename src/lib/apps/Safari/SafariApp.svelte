@@ -14,7 +14,7 @@
   const state = new SafariAppState();
 
   $effect(() => {
-    const listener = (e: BeforeUnloadEvent) => {
+    const listener = () => {
       // console.trace("[Scramjet Debug] Page is reloading or unloading. Trace:");
     };
     window.addEventListener("beforeunload", listener);

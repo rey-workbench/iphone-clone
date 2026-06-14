@@ -64,7 +64,7 @@
         { id: 'foryou', icon: Heart, label: 'For You' },
         { id: 'albums', icon: Folder, label: 'Albums' },
         { id: 'search', icon: Search, label: 'Search' }
-      ] as { id, icon: IconComponent, label }}
+      ] as { id, icon: IconComponent, label } (id)}
         <button data-tab={id} class="flex-1 flex flex-col items-center gap-0.5 border-none bg-transparent cursor-pointer py-1 {state.tab === id ? 'text-ios-blue' : 'text-ios-label2'}" onclick={handleSetTab}>
           <IconComponent size={22} color={state.tab === id ? '#007AFF' : '#8E8E93'} />
           <span class="text-[10px] font-medium">{label}</span>

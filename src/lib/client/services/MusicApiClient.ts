@@ -1,4 +1,4 @@
-import type { IMusicTrack, IMusicSearchOptions } from '$lib/types';
+import type { IMusicSearchOptions } from '$lib/types';
 import { ApiConfig } from '$lib/config/api';
 import { fetchWithCache } from '$lib/utils/fetchWithCache';
 

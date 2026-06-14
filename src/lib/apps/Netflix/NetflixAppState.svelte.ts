@@ -64,7 +64,7 @@ class NetflixAppState {
         this.movies = this.getMockMovies();
         this.tvShows = this.getMockTv();
       }
-    } catch(e) {
+    } catch {
       this.movies = this.getMockMovies();
       this.tvShows = this.getMockTv();
     }

@@ -1,8 +1,8 @@
 import { Sun, CloudSun, Cloud, CloudRain, Moon } from '@lucide/svelte';
 
-import type { IWeatherData, IWeatherRange, IWeatherHourly, IWeatherDaily, IWeatherTile, IWeatherLocation } from '$lib/types';
+import type { IWeatherData, IWeatherRange, IWeatherHourly, IWeatherDaily, IWeatherLocation } from '$lib/types';
 import type { IAppLifecycle } from '$lib/types';
-import { ApiEndpoints } from '$lib/config/api/endpoints';
+
 import { SyncState } from '$lib/utils/SyncState.svelte';
 import { settingsDb } from '$lib/config/localdb';
 import { WeatherApiClient } from '$lib/client/services/WeatherApiClient';
@@ -43,7 +43,7 @@ export class WeatherAppState extends SyncState<WeatherCache> implements IAppLife
                             let cityName = 'Current Location';
                             try {
                                 cityName = await WeatherApiClient.getCityFromCoords(latitude, longitude);
-                            } catch (e) { /* ignore */ }
+                            } catch { /* ignore */ }
                             resolve({ lat: latitude, lon: longitude, city: cityName });
                         },
                         (err) => reject(err),
@@ -54,7 +54,7 @@ export class WeatherAppState extends SyncState<WeatherCache> implements IAppLife
                 lat = geoData.lat;
                 lon = geoData.lon;
                 city = geoData.city;
-            } catch (nativeError) { 
+            } catch { 
                 try {
                     const ipData = await WeatherApiClient.getIpLocation();
                     if (ipData && ipData.latitude !== undefined && ipData.longitude !== undefined) {
@@ -62,7 +62,7 @@ export class WeatherAppState extends SyncState<WeatherCache> implements IAppLife
                         lon = ipData.longitude;
                         city = ipData.city || city;
                     }
-                } catch (ipError) { }
+                } catch { /* IP location fallback failed */ }
             }
 
             const data = await WeatherApiClient.getForecast(lat, lon);
@@ -70,14 +70,14 @@ export class WeatherAppState extends SyncState<WeatherCache> implements IAppLife
                 throw new Error("Invalid weather data");
             }
                 
-            let hourly: IWeatherHourly[] = [];
+            const hourly: IWeatherHourly[] = [];
             for (let i = 0; i < 8; i++) {
                 const timeStr = i === 0 ? 'Now' : new Date(data.hourly.time[i]).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }).replace(' ', '');
                 const isNight = new Date(data.hourly.time[i]).getHours() < 6 || new Date(data.hourly.time[i]).getHours() > 18;
                 hourly.push({ time: timeStr, temp: Math.round(data.hourly.temperature_2m[i]), icon: WeatherAppState.getIconStatic(data.hourly.weather_code[i], isNight) });
             }
 
-            let daily: IWeatherDaily[] = [];
+            const daily: IWeatherDaily[] = [];
             for (let i = 0; i < 7; i++) {
                 const dateObj = new Date(data.daily.time[i]);
                 const dayStr = i === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });

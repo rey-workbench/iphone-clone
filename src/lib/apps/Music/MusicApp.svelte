@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack, getContext } from 'svelte';
-  import { MusicAppState, musicGlobalState } from "./MusicAppState.svelte";
+  import { musicGlobalState } from "./MusicAppState.svelte";
   import MusicPlayer from "./components/MusicPlayer.svelte";
   import MusicLibrary from "./components/MusicLibrary.svelte";
   import MusicBottomNav from "./components/MusicBottomNav.svelte";
@@ -15,9 +15,9 @@
 
     const win = window as unknown as import('$lib/types').IWindowWithYouTube;
     if (!win.YT) {
-      let tag = document.createElement('script');
+      const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
-      let firstScriptTag = document.getElementsByTagName('script')[0];
+      const firstScriptTag = document.getElementsByTagName('script')[0];
       firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
 
       win.onYouTubeIframeAPIReady = () => {
@@ -50,7 +50,7 @@
   });
 
   $effect(() => {
-    const q = state.searchQuery;
+    void state.searchQuery;
     untrack(() => {
       if (isPreview) return;
       state.handleSearchInput();

@@ -78,7 +78,7 @@ export class MusicAppState implements IAppLifecycle {
     destroyPlayer() {
         clearInterval(this.progressInterval);
         if (this.player && typeof this.player.destroy === "function") {
-            try { this.player.destroy(); } catch(e) {}
+            try { this.player.destroy(); } catch { /* player already destroyed */ }
         }
         this.player = null;
         this.isPlaying = false;
@@ -171,7 +171,7 @@ export class MusicAppState implements IAppLifecycle {
                 try {
                     const r = await MusicApiClient.search({ action: EMusicAction.SUGGESTIONS, q: this.searchQuery });
                     if (r && r.results) this.searchSuggestions = r.results;
-                } catch {}
+                } catch { /* ignore suggestion fetch errors */ }
             }, 300);
         } else {
             this.searchSuggestions = [];

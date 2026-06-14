@@ -11,7 +11,7 @@ export class MessagesRepository {
         return { data, error };
     }
 
-    async getChatMessages(userId: string, currentChatId: string): Promise<{ data: IMessage[] | null, error: unknown }> {
+    async getChatMessages(userId: string, _currentChatId: string): Promise<{ data: IMessage[] | null, error: unknown }> {
         const { data, error } = await supabase
             .from('messages')
             .select('*')

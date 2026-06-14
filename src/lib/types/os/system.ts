@@ -1,4 +1,4 @@
-import type { IUser } from '../os/users';
+
 
 export interface ISystemCurrentUser {
   id: string;

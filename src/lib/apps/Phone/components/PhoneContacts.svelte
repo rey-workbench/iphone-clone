@@ -5,7 +5,7 @@
   import { callState } from '../CallAppState.svelte';
   import type { IUser } from '$lib/types';
 
-  let { state } = $props<{ state: PhoneAppState }>();
+  const { state } = $props<{ state: PhoneAppState }>();
 
   const handleContactCall = (e: MouseEvent) => {
     const id = (e.currentTarget as HTMLElement).dataset.id;

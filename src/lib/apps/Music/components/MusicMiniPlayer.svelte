@@ -2,7 +2,7 @@
   import type { MusicAppState } from "../MusicAppState.svelte";
   import { Play, Pause, SkipForward } from "@lucide/svelte";
 
-  let { state }: { state: MusicAppState } = $props();
+  const { state }: { state: MusicAppState } = $props();
 
   const handleShowPlayer = () => state.showPlayer = true;
   const handleKeydown = (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') handleShowPlayer(); };

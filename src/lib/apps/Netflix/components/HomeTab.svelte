@@ -3,11 +3,11 @@
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import { Plus, Info } from "@lucide/svelte";
 
-  let { handleScroll } = $props<{ handleScroll: (e: Event) => void }>();
+  const { handleScroll } = $props<{ handleScroll: (e: Event) => void }>();
 
-  let previews = $derived(netflixState.tvShows.slice(0, 6));
-  let popular = $derived(netflixState.movies.slice(0, 10));
-  let trending = $derived(netflixState.tvShows.slice(0, 10));
+  const previews = $derived(netflixState.tvShows.slice(0, 6));
+  const popular = $derived(netflixState.movies.slice(0, 10));
+  const trending = $derived(netflixState.tvShows.slice(0, 10));
 
   const handleSelectMovie = (e: MouseEvent) => {
     const id = (e.currentTarget as HTMLElement).dataset.id;
