@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { IAppConfig } from '$lib/types';
+	import type { IAppConfig } from '$lib/framework/types';
 	import { implementedApps } from '$lib/config/apps';
-	import { messagesState } from '$lib/apps/Messages/MessagesAppState.svelte';
+	import { messagesState } from '$lib/apps/system/Messages/MessagesAppState.svelte';
 
 	const { app }: { app: IAppConfig } = $props();
 
-	import { os } from '$lib/core/OS';
+	import { os } from '$lib/os/kernel/OS';
 
 	function openApp() {
 		if (implementedApps.has(app.id)) {

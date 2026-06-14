@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { systemGlobalState } from '$lib/core/states';
-	import { settingsGlobalState } from '$lib/apps/Settings/SettingsGlobalState.svelte';
+	import { systemGlobalState } from '$lib/os/state';
+	import { settingsGlobalState } from '$lib/apps/system/Settings/SettingsGlobalState.svelte';
 	import { Signal, Wifi } from '@lucide/svelte';
 
 	function formatTime(date: Date): string {

@@ -5,18 +5,18 @@
 	import PwaInstallPrompt from '$lib/sysui/device/PwaInstallPrompt.svelte';
 
 	import StatusBar from '$lib/sysui/status/StatusBar.svelte';
-	import { systemGlobalState } from '$lib/core/states';
+	import { systemGlobalState } from '$lib/os/state';
 	import LoginScreen from '$lib/sysui/lockscreen/LoginScreen.svelte';
 	import NotificationBanner from '$lib/sysui/notifications/NotificationBanner.svelte';
 
-	import { callState } from '$lib/apps/Phone/CallAppState.svelte';
-	import IncomingCallScreen from '$lib/apps/Phone/components/IncomingCallScreen.svelte';
-	import ActiveCallScreen from '$lib/apps/Phone/components/ActiveCallScreen.svelte';
+	import { callState } from '$lib/apps/system/Phone/CallAppState.svelte';
+	import IncomingCallScreen from '$lib/apps/system/Phone/components/IncomingCallScreen.svelte';
+	import ActiveCallScreen from '$lib/apps/system/Phone/components/ActiveCallScreen.svelte';
 	import DialogModal from '$lib/sysui/notifications/DialogModal.svelte';
 	import AppSwitcher from '$lib/sysui/appswitcher/AppSwitcher.svelte';
 	import ControlCenter from '$lib/sysui/controlcenter/ControlCenter.svelte';
-	import { ShellState } from '$lib/core/states/ShellState.svelte';
-	import { musicGlobalState } from '$lib/apps/Music/MusicAppState.svelte';
+	import { ShellState } from '$lib/os/state/ShellState.svelte';
+	import { musicGlobalState } from '$lib/apps/user/Music/MusicAppState.svelte';
 	import DeviceFrame from '$lib/sysui/device/DeviceFrame.svelte';
 	import LockScreen from '$lib/sysui/lockscreen/LockScreen.svelte';
 
@@ -27,8 +27,8 @@
 	const state = new ShellState();
 
 	import { setContext } from 'svelte';
-	import { os } from '$lib/core/OS';
-	import AppRenderer from '$lib/core/AppRenderer.svelte';
+	import { os } from '$lib/os/kernel/OS';
+	import AppRenderer from '$lib/sysui/components/AppRenderer.svelte';
 
 	setContext('os', os);
 

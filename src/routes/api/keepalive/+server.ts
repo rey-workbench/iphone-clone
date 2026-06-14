@@ -1,5 +1,5 @@
-import { apiHandler, ApiError } from '$lib/server/api';
-import { KeepaliveService } from '$lib/server/services/KeepaliveService';
+import { apiHandler, ApiError } from '$lib/backend/api';
+import { KeepaliveService } from '$lib/backend/services/KeepaliveService';
 
 const keepaliveService = new KeepaliveService();
 

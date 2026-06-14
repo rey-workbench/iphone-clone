@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { systemGlobalState } from '$lib/core/states';
+	import { systemGlobalState } from '$lib/os/state';
 	import { homeScreenApps } from '$lib/config/apps';
-	import type { ShellState } from '$lib/core/states/ShellState.svelte';
+	import type { ShellState } from '$lib/os/state/ShellState.svelte';
 	import { setContext } from 'svelte';
 	import AppSwitcherCard from '$lib/sysui/appswitcher/AppSwitcherCard.svelte';
 
@@ -95,7 +95,7 @@
 		}
 	}
 
-	import { os } from '$lib/core/OS';
+	import { os } from '$lib/os/kernel/OS';
 
 	function onCardClick(appId: string) {
 		if (cardSwipeY[appId] > 10) return; // ignore click if swiping

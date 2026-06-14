@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ShellState } from '$lib/core/states/ShellState.svelte';
+	import type { ShellState } from '$lib/os/state/ShellState.svelte';
 
 	const { state, systemGlobalState }: { state: ShellState; systemGlobalState: any } = $props();
 

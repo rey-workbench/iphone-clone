@@ -34,9 +34,9 @@ export default defineConfig({
 			},
 			disable: process.env.VERCEL === '1',
 			manifest: {
-				name: 'MyPhone',
-				short_name: 'MyPhone',
-				description: 'MyPhone Simulator built with SvelteKit',
+				name: 'ReyOS',
+				short_name: 'ReyOS',
+				description: 'ReyOS by Reysilvaa',
 				theme_color: '#000000',
 				background_color: '#000000',
 				display: 'standalone',

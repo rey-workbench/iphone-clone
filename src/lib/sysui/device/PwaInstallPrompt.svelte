@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dialogGlobalState } from '$lib/core/states/dialogGlobalState.svelte';
+	import { dialogGlobalState } from '$lib/os/state/dialogGlobalState.svelte';
 
 	let deferredPrompt: any = $state(null);
 
@@ -18,7 +18,7 @@
 		if (isIos && isSafari && !isStandalone) {
 			setTimeout(async () => {
 				await dialogGlobalState.show({
-					title: 'Install MyPhone',
+					title: 'Install ReyOS',
 					message: 'Tap the Share button below, then select "Add to Home Screen".',
 					confirmText: 'OK'
 				});
@@ -32,8 +32,8 @@
 			// Delay slightly so it doesn't clash with immediate page load
 			setTimeout(async () => {
 				const accepted = await dialogGlobalState.show({
-					title: 'Install MyPhone',
-					message: 'Add MyPhone to your Home Screen for the best experience.',
+					title: 'Install ReyOS',
+					message: 'Add ReyOS to your Home Screen for the best experience.',
 					confirmText: 'Install',
 					cancelText: 'Not Now'
 				});

@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { ProxyService } from '$lib/server/services/ProxyService';
+import { ProxyService } from '$lib/backend/services/ProxyService';
 
 const proxyService = new ProxyService();
 

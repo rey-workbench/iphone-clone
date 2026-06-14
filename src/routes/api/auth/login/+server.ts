@@ -1,5 +1,5 @@
-import { apiHandler } from '$lib/server/api';
-import { AuthService } from '$lib/server/services/AuthService';
+import { apiHandler } from '$lib/backend/api';
+import { AuthService } from '$lib/backend/services/AuthService';
 
 const authService = new AuthService();
 

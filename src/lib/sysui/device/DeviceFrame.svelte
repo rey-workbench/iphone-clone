@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ShellState } from '$lib/core/states/ShellState.svelte';
+	import type { ShellState } from '$lib/os/state/ShellState.svelte';
 	import type { Snippet } from 'svelte';
 
 	const {
@@ -10,7 +10,7 @@
 		children: Snippet;
 	} = $props();
 
-	import { os } from '$lib/core/OS';
+	import { os } from '$lib/os/kernel/OS';
 
 	function handleGoHome() {
 		if (os.process.activeAppId) {

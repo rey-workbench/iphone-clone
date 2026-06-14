@@ -1,5 +1,5 @@
-import { apiHandler, ApiError } from '$lib/server/api';
-import { DevicesService } from '$lib/server/services/DevicesService';
+import { apiHandler, ApiError } from '$lib/backend/api';
+import { DevicesService } from '$lib/backend/services/DevicesService';
 
 const devicesService = new DevicesService();
 

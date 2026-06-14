@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { SafariSearchService } from '$lib/server/services/SafariSearchService';
+import { SafariSearchService } from '$lib/backend/services/SafariSearchService';
 
 const safariSearchService = new SafariSearchService();
 

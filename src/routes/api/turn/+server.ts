@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { ApiConfig } from '$lib/config/api';
+import { ApiConfig } from '$lib/framework/api/api';
 
 export async function GET() {
 	try {

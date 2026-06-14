@@ -3,7 +3,7 @@
 	import Dock from '$lib/sysui/springboard/Dock.svelte';
 	import { homeScreenApps } from '$lib/config/apps';
 
-	import { ShellState } from '$lib/core/states/ShellState.svelte';
+	import { ShellState } from '$lib/os/state/ShellState.svelte';
 
 	// Note: we might need a simpler state for just the home screen,
 	// but for now we can instantiate or import a local state instance.

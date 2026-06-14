@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { NetflixService } from '$lib/server/services/NetflixService';
+import { NetflixService } from '$lib/backend/services/NetflixService';
 
 const netflixService = new NetflixService();
 

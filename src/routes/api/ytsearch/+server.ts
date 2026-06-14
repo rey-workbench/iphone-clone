@@ -1,5 +1,5 @@
-import { apiHandler, ApiError } from '$lib/server/api';
-import { YoutubeSearchService } from '$lib/server/services/YoutubeSearchService';
+import { apiHandler, ApiError } from '$lib/backend/api';
+import { YoutubeSearchService } from '$lib/backend/services/YoutubeSearchService';
 import { json } from '@sveltejs/kit';
 
 const ytSearchService = new YoutubeSearchService();

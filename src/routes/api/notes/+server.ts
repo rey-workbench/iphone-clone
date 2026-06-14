@@ -1,5 +1,5 @@
-import { apiHandler } from '$lib/server/api';
-import { NotesService } from '$lib/server/services/NotesService';
+import { apiHandler } from '$lib/backend/api';
+import { NotesService } from '$lib/backend/services/NotesService';
 
 const notesService = new NotesService();
 

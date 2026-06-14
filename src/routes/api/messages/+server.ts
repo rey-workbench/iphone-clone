@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { MessagesService } from '$lib/server/services/MessagesService';
+import { MessagesService } from '$lib/backend/services/MessagesService';
 
 const messagesService = new MessagesService();
 

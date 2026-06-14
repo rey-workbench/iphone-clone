@@ -1,4 +1,4 @@
-import type { IAppConfig } from '$lib/types';
+import type { IAppConfig } from '$lib/framework/types';
 
 // Map app IDs to real icon filenames
 const I = (f: string) => `/assets/icons/${f}`;

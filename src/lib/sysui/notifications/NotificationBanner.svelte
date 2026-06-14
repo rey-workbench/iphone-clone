@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { notificationGlobalState } from '$lib/core/states/notificationGlobalState.svelte';
+	import { notificationGlobalState } from '$lib/os/state/notificationGlobalState.svelte';
 
 	const handleNotificationClick = (e: MouseEvent) => {
 		const id = (e.currentTarget as HTMLElement).dataset.id;

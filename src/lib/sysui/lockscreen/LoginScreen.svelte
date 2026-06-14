@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { systemGlobalState, authGlobalState } from '$lib/core/states';
+	import { systemGlobalState, authGlobalState } from '$lib/os/state';
 	import { LoaderCircle, ChevronLeft, Handshake } from '@lucide/svelte';
 
 	async function handleLogin() {

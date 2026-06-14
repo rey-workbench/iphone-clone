@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import type { ShellState } from '$lib/core/states/ShellState.svelte';
+	import type { ShellState } from '$lib/os/state/ShellState.svelte';
 
 	const {
 		appId,

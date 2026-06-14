@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dialogGlobalState } from '$lib/core/states/dialogGlobalState.svelte';
+	import { dialogGlobalState } from '$lib/os/state/dialogGlobalState.svelte';
 
 	const handleCancel = () => dialogGlobalState.cancel();
 	const handleConfirm = () => dialogGlobalState.confirm();
