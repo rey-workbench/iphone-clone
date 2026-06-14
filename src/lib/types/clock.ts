@@ -1,4 +1,4 @@
-export interface Alarm {
+export interface IAlarm {
   id: string;
   time: string;
   label: string;

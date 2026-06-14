@@ -1,5 +1,5 @@
 import { db } from '$lib/config/turso';
-import type { User } from '../models/User';
+import type { User } from '$lib/models/User';
 
 export class UsersRepository {
   async findAll(): Promise<User[]> {

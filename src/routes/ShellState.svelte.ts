@@ -1,4 +1,4 @@
-import { systemState } from '$lib/states';
+import { systemGlobalState } from '$lib/os/states';
 
 export class ShellState {
   showLockScreen = $state(true);

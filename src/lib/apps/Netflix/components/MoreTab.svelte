@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Settings, User, HelpCircle } from "@lucide/svelte";
-  import { systemState } from "$lib/states";
+  import { systemGlobalState } from "$lib/os/states";
 </script>
 
 <div class="w-full h-full pt-16 px-4">
@@ -13,7 +13,7 @@
       />
     </div>
     <div class="flex flex-col justify-center">
-      <h2 class="text-xl font-bold">{systemState.currentUser?.name || systemState.currentUser?.username || "My Profile"}</h2>
+      <h2 class="text-xl font-bold">{systemGlobalState.currentUser?.name || systemGlobalState.currentUser?.username || "My Profile"}</h2>
       <button
         class="text-xs text-gray-400 bg-transparent border-none text-left p-0 mt-1 cursor-pointer font-medium"
         >Manage Profiles</button

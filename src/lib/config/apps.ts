@@ -1,9 +1,9 @@
-import type { AppConfig } from '$lib/types';
+import type { IAppConfig } from '$lib/types';
 
 // Map app IDs to real icon filenames
 const I = (f: string) => `/assets/icons/${f}`;
 
-export const homeScreenApps: AppConfig[][] = [
+export const homeScreenApps: IAppConfig[][] = [
   [
     { id: 'weather', name: 'Weather', icon: I('com.apple.weather-large.png'), color: '#48A5F1', gradient: 'linear-gradient(180deg,#48A5F1,#1B6FC2)' },
     { id: 'clock', name: 'Clock', icon: I('com.apple.mobiletimer-large.png'), color: '#000', gradient: 'linear-gradient(180deg,#1C1C1E,#000)' },
@@ -31,7 +31,7 @@ export const homeScreenApps: AppConfig[][] = [
   ]
 ];
 
-export const dockApps: AppConfig[] = [
+export const dockApps: IAppConfig[] = [
   { id: 'phone', name: 'Phone', icon: I('com.apple.mobilephone-large.png'), color: '#34C759', gradient: 'linear-gradient(180deg,#65D36E,#248A3D)' },
   { id: 'safari', name: 'Safari', icon: I('com.apple.mobilesafari-large.png'), color: '#007AFF', gradient: 'linear-gradient(180deg,#409CFF,#0051D5)' },
   { id: 'messages', name: 'Messages', icon: I('com.apple.MobileSMS-large.png'), color: '#34C759', gradient: 'linear-gradient(180deg,#65D36E,#248A3D)' },

@@ -1,6 +1,6 @@
 <script lang="ts">
   ;
-  import { dialogState } from '$lib/states/dialogState.svelte';
+  import { dialogGlobalState } from '$lib/os/states/dialogGlobalState.svelte';
   
   let deferredPrompt: any = $state(null);
 
@@ -14,7 +14,7 @@
     // For iOS Safari, show instructions since it doesn't support beforeinstallprompt
     if (isIos && isSafari && !isStandalone) {
       setTimeout(async () => {
-        await dialogState.show({
+        await dialogGlobalState.show({
           title: 'Install MyPhone',
           message: 'Tap the Share button below, then select "Add to Home Screen".',
           confirmText: 'OK',
@@ -28,7 +28,7 @@
       
       // Delay slightly so it doesn't clash with immediate page load
       setTimeout(async () => {
-        const accepted = await dialogState.show({
+        const accepted = await dialogGlobalState.show({
           title: 'Install MyPhone',
           message: 'Add MyPhone to your Home Screen for the best experience.',
           confirmText: 'Install',

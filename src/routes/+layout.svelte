@@ -1,15 +1,17 @@
 <script lang="ts">
   import "../app.css";
   import { pwaInfo } from 'virtual:pwa-info';
-  ;
+  import { initGlobalContexts } from "$lib/os/states";
+  initGlobalContexts();
+
   import PwaInstallPrompt from '$lib/os/components/PwaInstallPrompt.svelte';
   
   import StatusBar from "$lib/os/components/StatusBar.svelte";
-  import { systemState } from "$lib/states";
+  import { systemGlobalState } from "$lib/os/states";
   import LoginScreen from "$lib/os/components/LoginScreen.svelte";
   import NotificationBanner from "$lib/os/components/NotificationBanner.svelte";
 
-  import { callState } from "$lib/apps/Phone/CallState.svelte";
+  import { callState } from "$lib/apps/Phone/CallAppState.svelte";
   import IncomingCallScreen from "$lib/apps/Phone/components/IncomingCallScreen.svelte";
   import ActiveCallScreen from "$lib/apps/Phone/components/ActiveCallScreen.svelte";
   import DialogModal from "$lib/os/components/DialogModal.svelte";
@@ -19,40 +21,9 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
 
-  // App Components for the App Switcher to render previews
-  import CalculatorApp from "$lib/apps/Calculator/CalculatorApp.svelte";
-  import WeatherApp from "$lib/apps/Weather/WeatherApp.svelte";
-  import SettingsApp from "$lib/apps/Settings/SettingsApp.svelte";
-  import ClockApp from "$lib/apps/Clock/ClockApp.svelte";
-  import NotesApp from "$lib/apps/Notes/NotesApp.svelte";
-  import PhoneApp from "$lib/apps/Phone/PhoneApp.svelte";
-  import MessagesApp from "$lib/apps/Messages/MessagesApp.svelte";
-  import MusicApp from "$lib/apps/Music/MusicApp.svelte";
-  import CalendarApp from "$lib/apps/Calendar/CalendarApp.svelte";
-  import PhotosApp from "$lib/apps/Photos/PhotosApp.svelte";
-  import SafariApp from "$lib/apps/Safari/SafariApp.svelte";
-  import CameraApp from "$lib/apps/Camera/CameraApp.svelte";
-  import MailApp from "$lib/apps/Mail/MailApp.svelte";
-  import AppStoreApp from "$lib/apps/AppStore/AppStoreApp.svelte";
-  import NetflixApp from "$lib/apps/Netflix/NetflixApp.svelte";
-
-  const appComponents: Record<string, any> = {
-    calculator: CalculatorApp,
-    weather: WeatherApp,
-    settings: SettingsApp,
-    clock: ClockApp,
-    notes: NotesApp,
-    phone: PhoneApp,
-    messages: MessagesApp,
-    music: MusicApp,
-    calendar: CalendarApp,
-    photos: PhotosApp,
-    safari: SafariApp,
-    camera: CameraApp,
-    mail: MailApp,
-    appstore: AppStoreApp,
-    netflix: NetflixApp,
-  };
+  // App Registry for the App Switcher to render previews
+  import { appsRegistry } from "$lib/apps/registry";
+  const appComponents = appsRegistry;
 
   const state = new ShellState();
 
@@ -79,7 +50,7 @@
 
 
   $effect(() => {
-    if (systemState.currentUser) {
+    if (systemGlobalState.currentUser) {
       callState.init();
     }
   });
@@ -89,7 +60,7 @@
     if (to && to.route.id && to.route.id !== '/') {
       const appId = to.route.id.replace('/', '');
       if (appId && appId.length > 0) {
-        systemState.addRecentApp(appId);
+        systemGlobalState.addRecentApp(appId);
       }
     }
   });
@@ -161,7 +132,7 @@
     ></div>
 
     <!-- MAIN OS CONTENT AREA -->
-    {#if !systemState.isInitializing}
+    {#if !systemGlobalState.isInitializing}
       
       <!-- Music App Background Process -->
       <div
@@ -194,7 +165,7 @@
     {/if}
 
     <!-- Lock Screen Overlay -->
-    {#if !systemState.isInitializing && systemState.currentUser && state.showLockScreen}
+    {#if !systemGlobalState.isInitializing && systemGlobalState.currentUser && state.showLockScreen}
       <div
         class="absolute inset-0 z-150 cursor-pointer transition-opacity duration-300"
         style:transform="translateY(-{state.lockScreenY}px)" style:opacity={1 - state.lockScreenY / 400}
@@ -210,10 +181,10 @@
         <div class="relative z-10 h-full flex flex-col items-center">
           <div class="text-center" style:margin-top="110px">
             <div class="text-lg font-medium text-white/85 tracking-wide">
-              {state.formatDate(systemState.currentTime)}
+              {state.formatDate(systemGlobalState.currentTime)}
             </div>
             <div class="text-[82px] font-bold text-white leading-none mt-1 tracking-[-2px]">
-              {state.formatLockTime(systemState.currentTime)}
+              {state.formatLockTime(systemGlobalState.currentTime)}
             </div>
           </div>
           <div class="absolute bottom-10 animate-[bounceUp_2s_ease-in-out_infinite]">
@@ -224,18 +195,18 @@
     {/if}
 
     <!-- Login Screen Overlay -->
-    {#if !systemState.isInitializing && !systemState.currentUser}
+    {#if !systemGlobalState.isInitializing && !systemGlobalState.currentUser}
       <div class="absolute inset-0 z-200">
         <LoginScreen />
       </div>
     {/if}
 
     <!-- Initialization Screen Overlay (Topmost) -->
-    {#if systemState.isInitializing}
+    {#if systemGlobalState.isInitializing}
       <div class="absolute inset-0 bg-[#0a0a0a] z-1000"></div>
     {/if}
 
-    {#if !systemState.isInitializing && systemState.currentUser}
+    {#if !systemGlobalState.isInitializing && systemGlobalState.currentUser}
       <!-- Global Status Bar -->
       <StatusBar />
 

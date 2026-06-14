@@ -2,7 +2,7 @@
   import AppIcon from "$lib/os/components/AppIcon.svelte";
   import Dock from "$lib/os/components/Dock.svelte";
   import { homeScreenApps } from "$lib/config/apps";
-  import { systemState } from "$lib/states";
+  import { systemGlobalState } from "$lib/os/states";
   import { ShellState } from "./ShellState.svelte";
 
   // Note: we might need a simpler state for just the home screen, 

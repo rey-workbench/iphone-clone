@@ -1,8 +1,8 @@
 <script lang="ts">
   ;
-  import { netflixState } from "../NetflixState.svelte";
-  import { ApiConfig } from "$lib/config/api";
-  import { dialogState } from "$lib/states/dialogState.svelte";
+  import { netflixState } from "../NetflixAppState.svelte";
+  import { NetflixApiClient } from "$lib/client/services/NetflixApiClient";
+  import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import MovieEpisodes from "./MovieEpisodes.svelte";
   import MovieHero from "./MovieHero.svelte";
@@ -38,13 +38,13 @@
 
   let iframeSrc = $derived(
     isTvShow
-      ? ApiConfig.getNetflixTvStream(
+      ? NetflixApiClient.getTvStreamUrl(
           media?.id || "",
           selectedSeason,
           selectedEpisode,
           currentServer,
         )
-      : ApiConfig.getNetflixMovieStream(media?.id || "", currentServer),
+      : NetflixApiClient.getMovieStreamUrl(media?.id || "", currentServer),
   );
 
   function openFullscreen() {
@@ -78,7 +78,7 @@
     
     const handleVisibilityChange = () => {
       if (document.hidden && isPlaying) {
-        dialogState.show({
+        dialogGlobalState.show({
           title: "Iklan Terdeteksi",
           message: "Server video baru saja membuka tab iklan. Silakan tutup tab tersebut secara manual jika masih terbuka.\n\nUntuk pengalaman menonton terbaik tanpa gangguan popup dan iklan, kami menyarankan Anda menggunakan Brave Browser.",
           confirmText: "Mengerti"

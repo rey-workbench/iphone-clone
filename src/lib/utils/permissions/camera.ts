@@ -1,4 +1,4 @@
-import { dialogState, systemState } from '$lib/states';
+import { dialogGlobalState, systemGlobalState } from '$lib/os/states';
 
 /**
  * Request camera permission (for future FaceTime or Camera app)
@@ -19,7 +19,7 @@ export async function requestCamera(): Promise<boolean> {
     const activeAppId = path || 'App';
     const appName = activeAppId.charAt(0).toUpperCase() + activeAppId.slice(1);
 
-    const allowed = await dialogState.show({
+    const allowed = await dialogGlobalState.show({
         title: `"${appName}" Would Like to Access the Camera`,
         message: 'This allows you to take photos and record videos.',
         confirmText: 'OK',

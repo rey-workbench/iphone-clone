@@ -1,34 +1,34 @@
-export interface WeatherHourly {
+export interface IWeatherHourly {
   time: string;
   temp: number;
   icon: any; // Svelte component type (Lucide icon)
 }
 
-export interface WeatherDaily {
+export interface IWeatherDaily {
   day: string;
   high: number;
   low: number;
   icon: any; // Svelte component type (Lucide icon)
 }
 
-export interface WeatherTile {
+export interface IWeatherTile {
   title: string;
   value: string;
   desc: string;
 }
 
-export interface WeatherData {
+export interface IWeatherData {
   city: string;
   temp: number;
   condition: string;
   high: number;
   low: number;
-  hourly: WeatherHourly[];
-  daily: WeatherDaily[];
-  tiles: WeatherTile[];
+  hourly: IWeatherHourly[];
+  daily: IWeatherDaily[];
+  tiles: IWeatherTile[];
 }
 
-export interface WeatherRange {
+export interface IWeatherRange {
   min: number;
   range: number;
 }

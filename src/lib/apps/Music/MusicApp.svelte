@@ -1,13 +1,13 @@
 <script lang="ts">
   import { untrack, getContext } from 'svelte';
-  import { MusicState } from "./MusicState.svelte";
+  import { MusicAppState } from "./MusicAppState.svelte";
   import MusicPlayer from "./components/MusicPlayer.svelte";
   import MusicLibrary from "./components/MusicLibrary.svelte";
   import MusicBottomNav from "./components/MusicBottomNav.svelte";
   import MusicMiniPlayer from "./components/MusicMiniPlayer.svelte";
 
   const isPreview = getContext('isPreview');
-  const state = new MusicState();
+  const state = new MusicAppState();
 
   $effect(() => {
     if (isPreview) return;

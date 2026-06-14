@@ -1,11 +1,11 @@
 <script lang="ts">
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
-  import { CalendarState } from './CalendarState.svelte';
+  import { CalendarAppState } from './CalendarAppState.svelte';
   import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
   import AppHeader from '$lib/os/components/ui/AppHeader.svelte';
   import IOSList from '$lib/os/components/ui/IOSList.svelte';
 
-  const state = new CalendarState();
+  const state = new CalendarAppState();
 
   const prevMonth = () => state.prevMonth();
   const nextMonth = () => state.nextMonth();

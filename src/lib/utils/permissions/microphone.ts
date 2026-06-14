@@ -1,4 +1,4 @@
-import { dialogState, systemState } from '$lib/states';
+import { dialogGlobalState, systemGlobalState } from '$lib/os/states';
 
 /**
  * Request microphone permission from the user
@@ -23,7 +23,7 @@ export async function requestMicrophone(): Promise<boolean> {
     const appName = activeAppId.charAt(0).toUpperCase() + activeAppId.slice(1);
 
     // Tampilkan modal izin khas iOS
-    const allowed = await dialogState.show({
+    const allowed = await dialogGlobalState.show({
         title: `"${appName}" Would Like to Access the Microphone`,
         message: 'This allows you to make audio calls with your contacts.',
         confirmText: 'OK',

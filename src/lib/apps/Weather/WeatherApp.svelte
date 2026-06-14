@@ -1,13 +1,17 @@
 <script lang="ts">
-  ;
-  import { WeatherState } from "./WeatherState.svelte";
+  import { onDestroy } from 'svelte';
+  import { WeatherAppState } from "./WeatherAppState.svelte";
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import WeatherDailyForecast from "./components/WeatherDailyForecast.svelte";
 
-  const state = new WeatherState();
+  const state = new WeatherAppState();
 
   $effect(() => {
-    state.init();
+    state.onLaunch();
+  });
+  
+  onDestroy(() => {
+    state.onDestroy();
   });
 </script>
 

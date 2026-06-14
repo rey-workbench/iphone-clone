@@ -1,4 +1,4 @@
-export interface Email {
+export interface IEmail {
   id: string;
   from: string;
   subject: string;
