@@ -36,6 +36,7 @@ export class WeatherApiClient {
     }
 
     static async getForecast(lat: number, lon: number) {
-        return await fetchWithCache(ApiConfig.getWeatherForecast(lat, lon));
+        const url = `${ApiConfig.WEATHER_FORECAST}?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,relative_humidity_2m,surface_pressure,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto`;
+        return await fetchWithCache(url);
     }
 }

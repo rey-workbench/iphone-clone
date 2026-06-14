@@ -10,7 +10,8 @@ export async function GET() {
             return json({ error: "Missing Cloudflare TURN environment variables" }, { status: 500 });
         }
         
-        const response = await fetch(ApiConfig.getTurnCredentials(keyId), {
+        const url = `${ApiConfig.TURN_CREDENTIALS}/${keyId}/credentials/generate`;
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiToken}`,
