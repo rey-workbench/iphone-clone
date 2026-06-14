@@ -12,7 +12,7 @@ graph TD
         A[Apps Layer<br/>src/lib/apps]
         O[OS Global Layer<br/>src/lib/os]
     end
-    
+
     subgraph Backend (Node.js Server)
         S[Services Layer<br/>src/lib/server]
         DB[(Database)]
@@ -25,6 +25,7 @@ graph TD
 ```
 
 ### 1. The Apps Layer (`src/lib/apps`)
+
 - **Domain:** Frontend (Client-side)
 - **Scope:** Local to a specific application.
 - **Naming Convention:** `[App]AppState` (e.g., `CameraAppState`, `NotesAppState`)
@@ -35,6 +36,7 @@ graph TD
   - Discarded when the app is fully closed or unmounted.
 
 ### 2. The OS Global Layer (`src/lib/os`)
+
 - **Domain:** Frontend (Client-side)
 - **Scope:** Global across the entire Operating System.
 - **Naming Convention:** `[Domain]GlobalState` (e.g., `systemGlobalState`, `authGlobalState`)
@@ -45,6 +47,7 @@ graph TD
   - Cannot be tightly coupled to just one app.
 
 ### 3. The Services Layer (`src/lib/server/services`)
+
 - **Domain:** Backend (Server-side)
 - **Scope:** Full control over the Database and external APIs.
 - **Naming Convention:** `[Domain]Service` (e.g., `NotesService`, `AuthService`)

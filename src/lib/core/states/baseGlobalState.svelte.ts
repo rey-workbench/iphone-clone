@@ -2,82 +2,82 @@ import { intentManager } from '$lib/core/IntentManager';
 import type { IAppLifecycle } from '$lib/types';
 
 export abstract class BaseGlobalState implements IAppLifecycle {
-    abstract appName: string;
-    
-    // --- Global Reactive Properties ---
-    isForeground = $state(false);
-    isLoading = $state(false);
-    isInitializing = $state(true);
-    errorMsg = $state('');
+	abstract appName: string;
 
-    private unsubs: (() => void)[] = [];
-    private _isDestroyed = false;
+	// --- Global Reactive Properties ---
+	isForeground = $state(false);
+	isLoading = $state(false);
+	isInitializing = $state(true);
+	errorMsg = $state('');
 
-    constructor() {
-        // Register OS lifecycle listeners when state is instantiated.
-        // We use setTimeout so abstract properties like appName are initialized
-        setTimeout(() => {
-            if (this._isDestroyed) return;
-            
-            this.unsubs.push(
-                intentManager.subscribe(`OS_APP_LAUNCHED_${this.appName}`, async () => {
-                    this.isForeground = true;
-                    await this.onLaunch();
-                })
-            );
-            this.unsubs.push(
-                intentManager.subscribe(`OS_APP_SUSPENDED_${this.appName}`, async () => {
-                    this.isForeground = false;
-                    await this.onSuspend();
-                })
-            );
-            this.unsubs.push(
-                intentManager.subscribe(`OS_APP_KILLED_${this.appName}`, async () => {
-                    this.isForeground = false;
-                    await this.onDestroy();
-                })
-            );
-        }, 0);
-    }
+	private unsubs: (() => void)[] = [];
+	private _isDestroyed = false;
 
-    // --- Intent Utilities ---
-    sendIntent(action: string, payload?: any): Promise<any> {
-        return intentManager.send(action, payload);
-    }
+	constructor() {
+		// Register OS lifecycle listeners when state is instantiated.
+		// We use setTimeout so abstract properties like appName are initialized
+		setTimeout(() => {
+			if (this._isDestroyed) return;
 
-    subscribeIntent(action: string, handler: (payload: any) => void) {
-        const unsub = intentManager.subscribe(action, handler);
-        this.unsubs.push(unsub);
-        return unsub;
-    }
+			this.unsubs.push(
+				intentManager.subscribe(`OS_APP_LAUNCHED_${this.appName}`, async () => {
+					this.isForeground = true;
+					await this.onLaunch();
+				})
+			);
+			this.unsubs.push(
+				intentManager.subscribe(`OS_APP_SUSPENDED_${this.appName}`, async () => {
+					this.isForeground = false;
+					await this.onSuspend();
+				})
+			);
+			this.unsubs.push(
+				intentManager.subscribe(`OS_APP_KILLED_${this.appName}`, async () => {
+					this.isForeground = false;
+					await this.onDestroy();
+				})
+			);
+		}, 0);
+	}
 
-    // --- Global Methods ---
-    setLoading(status: boolean) {
-        this.isLoading = status;
-    }
+	// --- Intent Utilities ---
+	sendIntent(action: string, payload?: any): Promise<any> {
+		return intentManager.send(action, payload);
+	}
 
-    setError(msg: string) {
-        this.errorMsg = msg;
-    }
+	subscribeIntent(action: string, handler: (payload: any) => void) {
+		const unsub = intentManager.subscribe(action, handler);
+		this.unsubs.push(unsub);
+		return unsub;
+	}
 
-    clearError() {
-        this.errorMsg = '';
-    }
+	// --- Global Methods ---
+	setLoading(status: boolean) {
+		this.isLoading = status;
+	}
 
-    // A hook for subclasses to override (legacy)
-    async init(): Promise<void> {
-        // default does nothing
-    }
+	setError(msg: string) {
+		this.errorMsg = msg;
+	}
 
-    // --- Default IAppLifecycle ---
-    async onLaunch(): Promise<void> {}
-    async onSuspend(): Promise<void> {}
-    async onResume(): Promise<void> {}
-    async onDestroy(): Promise<void> {
-        this._isDestroyed = true;
-        for (const unsub of this.unsubs) {
-            unsub();
-        }
-        this.unsubs = [];
-    }
+	clearError() {
+		this.errorMsg = '';
+	}
+
+	// A hook for subclasses to override (legacy)
+	async init(): Promise<void> {
+		// default does nothing
+	}
+
+	// --- Default IAppLifecycle ---
+	async onLaunch(): Promise<void> {}
+	async onSuspend(): Promise<void> {}
+	async onResume(): Promise<void> {}
+	async onDestroy(): Promise<void> {
+		this._isDestroyed = true;
+		for (const unsub of this.unsubs) {
+			unsub();
+		}
+		this.unsubs = [];
+	}
 }

@@ -1,7 +1,8 @@
 ---
 name: smithery-ai-cli
 description: Find, connect, and use MCP tools and skills via the Smithery CLI. Use when the user searches for new tools or skills, wants to discover integrations, connect to an MCP, install a skill, or wants to interact with an external service (email, Slack, Discord, GitHub, Jira, Notion, databases, cloud APIs, monitoring, etc.).
-metadata: { "openclaw": { "requires": { "bins": ["smithery"] }, "homepage": "https://smithery.ai" } }
+metadata:
+  { 'openclaw': { 'requires': { 'bins': ['smithery'] }, 'homepage': 'https://smithery.ai' } }
 ---
 
 # Smithery
@@ -58,6 +59,7 @@ For namespace-specific flags and overrides, run `smithery namespace --help` and 
 A connection is a managed, long-lived MCP session.
 Smithery Connect handles OAuth flow, credential storage, token refresh, and session lifecycle.
 Connection status model:
+
 - `connected`: ready to list/call tools
 - `auth_required`: human must open authorization URL
 - `error`: inspect details and retry/fix config
@@ -80,6 +82,7 @@ If CLI shows `auth_required`, tell your human to open the URL and then retry.
 Service tokens are restricted credentials for browser/mobile/agent usage.
 Never pass a full API key to untrusted code.
 Policy mental model:
+
 - A token policy is one or more constraints
 - In the CLI, pass one JSON object per `--policy` flag
 - Fields inside one constraint are AND-ed (more fields = narrower)
@@ -101,6 +104,7 @@ smithery auth token --policy '{
 
 Use `rpcReqMatch` to restrict specific MCP JSON-RPC requests (regex by request path).
 Important: connection IDs are not in the JSON-RPC body, so combine:
+
 - `metadata` for connection-level restriction
 - `rpcReqMatch` for method/tool restriction
 

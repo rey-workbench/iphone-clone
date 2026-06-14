@@ -91,7 +91,7 @@ export default [
 				}
 			],
 			'@typescript-eslint/no-explicit-any': 'off',
-			'eqeqeq': ['error', 'always']
+			eqeqeq: ['error', 'always']
 		}
 	},
 

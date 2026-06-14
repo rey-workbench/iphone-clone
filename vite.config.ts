@@ -18,7 +18,6 @@ function wispServerPlugin() {
 	};
 }
 
-
 export default defineConfig({
 	plugins: [
 		wispServerPlugin(),
@@ -27,7 +26,7 @@ export default defineConfig({
 		SvelteKitPWA({
 			registerType: 'autoUpdate',
 			workbox: {
-				maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+				maximumFileSizeToCacheInBytes: 10 * 1024 * 1024
 			},
 			devOptions: {
 				enabled: true,

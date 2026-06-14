@@ -1,90 +1,112 @@
-
 import { usersGlobalState } from '$lib/core/states';
 import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
 
 import type { TPhoneTabId, ICallHistoryEntry, IContact } from '$lib/types';
 
 export class PhoneAppState extends BaseGlobalState {
-    appName = 'Phone';
-    tab = $state<TPhoneTabId>('keypad');
-    dialNumber = $state('');
+	appName = 'Phone';
+	tab = $state<TPhoneTabId>('keypad');
+	dialNumber = $state('');
 
-    recents: ICallHistoryEntry[] = $state([]);
-    loadingRecents = $state(true);
+	recents: ICallHistoryEntry[] = $state([]);
+	loadingRecents = $state(true);
 
-    contacts: IContact[] = $state([]);
-    loadingContacts = $state(true);
+	contacts: IContact[] = $state([]);
+	loadingContacts = $state(true);
 
-    keys = [
-        [{ n: '1', s: '' }, { n: '2', s: 'ABC' }, { n: '3', s: 'DEF' }],
-        [{ n: '4', s: 'GHI' }, { n: '5', s: 'JKL' }, { n: '6', s: 'MNO' }],
-        [{ n: '7', s: 'PQRS' }, { n: '8', s: 'TUV' }, { n: '9', s: 'WXYZ' }],
-        [{ n: '*', s: '' }, { n: '0', s: '+' }, { n: '#', s: '' }],
-    ];
+	keys = [
+		[
+			{ n: '1', s: '' },
+			{ n: '2', s: 'ABC' },
+			{ n: '3', s: 'DEF' }
+		],
+		[
+			{ n: '4', s: 'GHI' },
+			{ n: '5', s: 'JKL' },
+			{ n: '6', s: 'MNO' }
+		],
+		[
+			{ n: '7', s: 'PQRS' },
+			{ n: '8', s: 'TUV' },
+			{ n: '9', s: 'WXYZ' }
+		],
+		[
+			{ n: '*', s: '' },
+			{ n: '0', s: '+' },
+			{ n: '#', s: '' }
+		]
+	];
 
-    constructor() {
-        super();
-        usersGlobalState.fetchUsers((users) => this.updateContacts(users));
-        this.loadRecents();
-        if (typeof window !== 'undefined') {
-            window.addEventListener('reynisa:call_ended', () => this.loadRecents());
-        }
-    }
+	constructor() {
+		super();
+		usersGlobalState.fetchUsers((users) => this.updateContacts(users));
+		this.loadRecents();
+		if (typeof window !== 'undefined') {
+			window.addEventListener('reynisa:call_ended', () => this.loadRecents());
+		}
+	}
 
-    async loadRecents() {
-        this.loadingRecents = true;
-        const { getCallHistory } = await import('$lib/config/localdb');
-        const history = await getCallHistory();
-        
-        const now = new Date();
-        const isToday = (d: Date) => d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        const isYesterday = (d: Date) => {
-            const y = new Date(now);
-            y.setDate(y.getDate() - 1);
-            return d.getDate() === y.getDate() && d.getMonth() === y.getMonth() && d.getFullYear() === y.getFullYear();
-        };
+	async loadRecents() {
+		this.loadingRecents = true;
+		const { getCallHistory } = await import('$lib/config/localdb');
+		const history = await getCallHistory();
 
-        this.recents = history.map(entry => {
-            const d = new Date(entry.timestamp);
-            let timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            if (isToday(d)) {
-                // timeStr = timeStr;
-            } else if (isYesterday(d)) {
-                timeStr = 'Yesterday';
-            } else {
-                timeStr = d.toLocaleDateString();
-            }
+		const now = new Date();
+		const isToday = (d: Date) =>
+			d.getDate() === now.getDate() &&
+			d.getMonth() === now.getMonth() &&
+			d.getFullYear() === now.getFullYear();
+		const isYesterday = (d: Date) => {
+			const y = new Date(now);
+			y.setDate(y.getDate() - 1);
+			return (
+				d.getDate() === y.getDate() &&
+				d.getMonth() === y.getMonth() &&
+				d.getFullYear() === y.getFullYear()
+			);
+		};
 
-            return {
-                id: entry.id,
-                name: entry.contact_name,
-                time: timeStr,
-                type: entry.type,
-                isVideo: entry.is_video,
-                missed: entry.type === 'missed'
-            };
-        });
-        this.loadingRecents = false;
-    }
+		this.recents = history.map((entry) => {
+			const d = new Date(entry.timestamp);
+			let timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+			if (isToday(d)) {
+				// timeStr = timeStr;
+			} else if (isYesterday(d)) {
+				timeStr = 'Yesterday';
+			} else {
+				timeStr = d.toLocaleDateString();
+			}
 
-    updateContacts(users: import('$lib/types').IUser[]) {
-        this.contacts = users.map((u) => {
-            const displayName = u.name || u.username || 'Unknown';
-            return {
-                id: u.id,
-                name: displayName,
-                username: u.username || displayName,
-                initials: displayName.substring(0, 2).toUpperCase(),
-            };
-        });
-        this.loadingContacts = false;
-    }
+			return {
+				id: entry.id,
+				name: entry.contact_name,
+				time: timeStr,
+				type: entry.type,
+				isVideo: entry.is_video,
+				missed: entry.type === 'missed'
+			};
+		});
+		this.loadingRecents = false;
+	}
 
-    appendNumber(n: string) {
-        this.dialNumber += n;
-    }
+	updateContacts(users: import('$lib/types').IUser[]) {
+		this.contacts = users.map((u) => {
+			const displayName = u.name || u.username || 'Unknown';
+			return {
+				id: u.id,
+				name: displayName,
+				username: u.username || displayName,
+				initials: displayName.substring(0, 2).toUpperCase()
+			};
+		});
+		this.loadingContacts = false;
+	}
 
-    backspace() {
-        this.dialNumber = this.dialNumber.slice(0, -1);
-    }
+	appendNumber(n: string) {
+		this.dialNumber += n;
+	}
+
+	backspace() {
+		this.dialNumber = this.dialNumber.slice(0, -1);
+	}
 }

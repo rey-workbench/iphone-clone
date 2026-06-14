@@ -1,280 +1,344 @@
 import { systemGlobalState, webrtcGlobalState, type CallStatus } from '$lib/core/states';
-import { dialogGlobalState } from "$lib/core/states/dialogGlobalState.svelte";
+import { dialogGlobalState } from '$lib/core/states/dialogGlobalState.svelte';
 import { BaseGlobalState } from '$lib/core/states/baseGlobalState.svelte';
 import type { IContact, ISignalingPayload } from '$lib/types';
 
 class CallAppState extends BaseGlobalState {
-    appName = 'Call';
-    status = $state<CallStatus>('idle');
-    remoteContact = $state<IContact | null>(null);
-    duration = $state(0);
-    isMuted = $state(false);
-    isSpeaker = $state(false);
-    isLocalVideo = $state(false);
-    isRemoteVideo = $state(false);
-    
-    isVideo = $derived(this.isLocalVideo || this.isRemoteVideo);
-    
-    direction = $state<'incoming' | 'outgoing' | null>(null);
+	appName = 'Call';
+	status = $state<CallStatus>('idle');
+	remoteContact = $state<IContact | null>(null);
+	duration = $state(0);
+	isMuted = $state(false);
+	isSpeaker = $state(false);
+	isLocalVideo = $state(false);
+	isRemoteVideo = $state(false);
 
-    private timer: ReturnType<typeof setInterval> | null = null;
-    private pendingOffer: RTCSessionDescriptionInit | null = null;
-    private remoteDeviceId: string | null = null;
-    private initialized = false;
+	isVideo = $derived(this.isLocalVideo || this.isRemoteVideo);
 
-    constructor() {
-        super();
-    }
+	direction = $state<'incoming' | 'outgoing' | null>(null);
 
-    async init() {
-        if (typeof window !== 'undefined' && !this.initialized) {
-            this.initialized = true;
-            webrtcGlobalState.setupSignaling({
-                onOffer: (payload) => this.handleOffer(payload),
-                onAnswer: (payload) => this.handleAnswer(payload),
-                onIceCandidate: (payload: ISignalingPayload) => this.handleIceCandidate(payload),
-                onEnd: () => this.handleRemoteEnd(),
-                onAnsweredElsewhere: () => this.handleAnsweredElsewhere()
-            });
+	private timer: ReturnType<typeof setInterval> | null = null;
+	private pendingOffer: RTCSessionDescriptionInit | null = null;
+	private remoteDeviceId: string | null = null;
+	private initialized = false;
 
-            window.addEventListener('reynisa:remote_video', () => {
-                this.isRemoteVideo = true;
-                // Force reactivity update for the video tag
-                const stream = webrtcGlobalState.remoteStream;
-                webrtcGlobalState.remoteStream = null;
-                setTimeout(() => webrtcGlobalState.remoteStream = stream, 10);
-            });
-        }
-    }
+	constructor() {
+		super();
+	}
 
-    // ─── Call Flow ────────────────────────────────────────────────────────────
+	async init() {
+		if (typeof window !== 'undefined' && !this.initialized) {
+			this.initialized = true;
+			webrtcGlobalState.setupSignaling({
+				onOffer: (payload) => this.handleOffer(payload),
+				onAnswer: (payload) => this.handleAnswer(payload),
+				onIceCandidate: (payload: ISignalingPayload) => this.handleIceCandidate(payload),
+				onEnd: () => this.handleRemoteEnd(),
+				onAnsweredElsewhere: () => this.handleAnsweredElsewhere()
+			});
 
-    async initiateCall(contact: IContact) {
-        const user = systemGlobalState.currentUser;
-        if (!user || this.status !== 'idle') return;
+			window.addEventListener('reynisa:remote_video', () => {
+				this.isRemoteVideo = true;
+				// Force reactivity update for the video tag
+				const stream = webrtcGlobalState.remoteStream;
+				webrtcGlobalState.remoteStream = null;
+				setTimeout(() => (webrtcGlobalState.remoteStream = stream), 10);
+			});
+		}
+	}
 
-        this.remoteContact = contact;
-        this.status = 'calling';
-        this.direction = 'outgoing';
+	// ─── Call Flow ────────────────────────────────────────────────────────────
 
-        try {
-            await webrtcGlobalState.getLocalStream();
-            await webrtcGlobalState.createPeerConnection(() => this.cleanup());
-            
-            webrtcGlobalState.setIceCandidateCallback(async (candidate) => {
-                if (this.remoteContact) {
-                    await webrtcGlobalState.sendSignal(this.remoteContact.id, 'ice_candidate', { candidate }, this.remoteDeviceId || undefined);
-                }
-            });
+	async initiateCall(contact: IContact) {
+		const user = systemGlobalState.currentUser;
+		if (!user || this.status !== 'idle') return;
 
-            webrtcGlobalState.addLocalTracksToPc();
+		this.remoteContact = contact;
+		this.status = 'calling';
+		this.direction = 'outgoing';
 
-            const offer = await webrtcGlobalState.createOffer();
+		try {
+			await webrtcGlobalState.getLocalStream();
+			await webrtcGlobalState.createPeerConnection(() => this.cleanup());
 
-            await webrtcGlobalState.sendSignal(contact.id, 'call_offer', {
-                offer,
-                from: { id: user.id, name: user.name }
-            });
-        } catch (e: unknown) {
-            dialogGlobalState.show({ title: 'Call Error', message: (e as Error).message || 'Failed to initiate call', confirmText: 'OK' });
-            this.cleanup();
-        }
-    }
+			webrtcGlobalState.setIceCandidateCallback(async (candidate) => {
+				if (this.remoteContact) {
+					await webrtcGlobalState.sendSignal(
+						this.remoteContact.id,
+						'ice_candidate',
+						{ candidate },
+						this.remoteDeviceId || undefined
+					);
+				}
+			});
 
-    private async handleOffer(payload: ISignalingPayload) {
-        if (this.status !== 'idle') {
-            const isSameContact = this.remoteContact && payload.from && 
-                (this.remoteContact.id === payload.from.id || this.remoteContact.username === payload.from.username);
-                
-            if (isSameContact) {
-                // Renegotiation for video
-                try {
-                    if (payload.offer) {
-                        const answer = await webrtcGlobalState.setRemoteOffer(payload.offer);
-                        await webrtcGlobalState.sendSignal(this.remoteContact!.id, 'call_answer', { answer }, this.remoteDeviceId || undefined);
-                    }
-                } catch { /* renegotiation failed, ignore */ }
-                return;
-            }
+			webrtcGlobalState.addLocalTracksToPc();
 
-            // If it's a different contact trying to call while we are busy, tell them we are busy
-            if (payload.from && payload.from.id) {
-                await webrtcGlobalState.sendSignal(payload.from.id, 'call_end');
-            }
-            return;
-        }
+			const offer = await webrtcGlobalState.createOffer();
 
-        this.remoteContact = payload.from as IContact;
-        this.remoteDeviceId = payload.fromDeviceId || null;
-        this.pendingOffer = payload.offer || null;
-        this.status = 'incoming';
-        this.direction = 'incoming';
-    }
+			await webrtcGlobalState.sendSignal(contact.id, 'call_offer', {
+				offer,
+				from: { id: user.id, name: user.name }
+			});
+		} catch (e: unknown) {
+			dialogGlobalState.show({
+				title: 'Call Error',
+				message: (e as Error).message || 'Failed to initiate call',
+				confirmText: 'OK'
+			});
+			this.cleanup();
+		}
+	}
 
-    async acceptCall() {
-        if (this.status !== 'incoming' || !this.pendingOffer || !this.remoteContact) return;
-        this.status = 'active';
-        this.startTimer();
+	private async handleOffer(payload: ISignalingPayload) {
+		if (this.status !== 'idle') {
+			const isSameContact =
+				this.remoteContact &&
+				payload.from &&
+				(this.remoteContact.id === payload.from.id ||
+					this.remoteContact.username === payload.from.username);
 
-        try {
-            await webrtcGlobalState.getLocalStream();
-            await webrtcGlobalState.createPeerConnection(() => this.cleanup());
+			if (isSameContact) {
+				// Renegotiation for video
+				try {
+					if (payload.offer) {
+						const answer = await webrtcGlobalState.setRemoteOffer(payload.offer);
+						await webrtcGlobalState.sendSignal(
+							this.remoteContact!.id,
+							'call_answer',
+							{ answer },
+							this.remoteDeviceId || undefined
+						);
+					}
+				} catch {
+					/* renegotiation failed, ignore */
+				}
+				return;
+			}
 
-            webrtcGlobalState.setIceCandidateCallback(async (candidate) => {
-                if (this.remoteContact) {
-                    await webrtcGlobalState.sendSignal(this.remoteContact.id, 'ice_candidate', { candidate }, this.remoteDeviceId || undefined);
-                }
-            });
+			// If it's a different contact trying to call while we are busy, tell them we are busy
+			if (payload.from && payload.from.id) {
+				await webrtcGlobalState.sendSignal(payload.from.id, 'call_end');
+			}
+			return;
+		}
 
-            webrtcGlobalState.addLocalTracksToPc();
+		this.remoteContact = payload.from as IContact;
+		this.remoteDeviceId = payload.fromDeviceId || null;
+		this.pendingOffer = payload.offer || null;
+		this.status = 'incoming';
+		this.direction = 'incoming';
+	}
 
-            const answer = await webrtcGlobalState.setRemoteOffer(this.pendingOffer);
+	async acceptCall() {
+		if (this.status !== 'incoming' || !this.pendingOffer || !this.remoteContact) return;
+		this.status = 'active';
+		this.startTimer();
 
-            await webrtcGlobalState.sendSignal(this.remoteContact.id, 'call_answer', { answer }, this.remoteDeviceId || undefined);
-            
-            // Tell other tabs on our account to stop ringing
-            if (systemGlobalState.currentUser) {
-                await webrtcGlobalState.sendSignal(systemGlobalState.currentUser.id, 'call_answered_elsewhere');
-            }
+		try {
+			await webrtcGlobalState.getLocalStream();
+			await webrtcGlobalState.createPeerConnection(() => this.cleanup());
 
-            this.pendingOffer = null;
-        } catch (e: unknown) {
-            dialogGlobalState.show({ title: 'Call Error', message: (e as Error).message || 'Failed to accept call', confirmText: 'OK' });
-            this.cleanup();
-        }
-    }
+			webrtcGlobalState.setIceCandidateCallback(async (candidate) => {
+				if (this.remoteContact) {
+					await webrtcGlobalState.sendSignal(
+						this.remoteContact.id,
+						'ice_candidate',
+						{ candidate },
+						this.remoteDeviceId || undefined
+					);
+				}
+			});
 
-    async declineCall() {
-        if (!this.remoteContact) return;
-        await webrtcGlobalState.sendSignal(this.remoteContact.id, 'call_end', {}, this.remoteDeviceId || undefined);
-        
-        if (systemGlobalState.currentUser) {
-            await webrtcGlobalState.sendSignal(systemGlobalState.currentUser.id, 'call_answered_elsewhere');
-        }
-        this.cleanup();
-    }
+			webrtcGlobalState.addLocalTracksToPc();
 
-    async hangUp() {
-        if (!this.remoteContact) return;
-        await webrtcGlobalState.sendSignal(this.remoteContact.id, 'call_end', {}, this.remoteDeviceId || undefined);
-        this.cleanup();
-    }
+			const answer = await webrtcGlobalState.setRemoteOffer(this.pendingOffer);
 
-    private async handleAnswer(payload: ISignalingPayload) {
-        try {
-            this.remoteDeviceId = payload.fromDeviceId || null;
-            if (payload.answer) {
-                await webrtcGlobalState.setRemoteAnswer(payload.answer);
-            }
-            this.status = 'active';
-            this.startTimer();
-        } catch { /* answer handling failed, ignore */ }
-    }
+			await webrtcGlobalState.sendSignal(
+				this.remoteContact.id,
+				'call_answer',
+				{ answer },
+				this.remoteDeviceId || undefined
+			);
 
-    private async handleIceCandidate(payload: ISignalingPayload) {
-        if (!payload.candidate) return;
-        try {
-            await webrtcGlobalState.addIceCandidate(payload.candidate);
-        } catch { /* ICE candidate failed, ignore */ }
-    }
+			// Tell other tabs on our account to stop ringing
+			if (systemGlobalState.currentUser) {
+				await webrtcGlobalState.sendSignal(
+					systemGlobalState.currentUser.id,
+					'call_answered_elsewhere'
+				);
+			}
 
-    private handleRemoteEnd() {
-        this.cleanup();
-    }
+			this.pendingOffer = null;
+		} catch (e: unknown) {
+			dialogGlobalState.show({
+				title: 'Call Error',
+				message: (e as Error).message || 'Failed to accept call',
+				confirmText: 'OK'
+			});
+			this.cleanup();
+		}
+	}
 
-    private handleAnsweredElsewhere() {
-        if (this.status === 'incoming') {
-            this.cleanup();
-        }
-    }
+	async declineCall() {
+		if (!this.remoteContact) return;
+		await webrtcGlobalState.sendSignal(
+			this.remoteContact.id,
+			'call_end',
+			{},
+			this.remoteDeviceId || undefined
+		);
 
-    // ─── Controls ─────────────────────────────────────────────────────────────
+		if (systemGlobalState.currentUser) {
+			await webrtcGlobalState.sendSignal(
+				systemGlobalState.currentUser.id,
+				'call_answered_elsewhere'
+			);
+		}
+		this.cleanup();
+	}
 
-    toggleMute() {
-        this.isMuted = !this.isMuted;
-        webrtcGlobalState.setMuted(this.isMuted);
-    }
+	async hangUp() {
+		if (!this.remoteContact) return;
+		await webrtcGlobalState.sendSignal(
+			this.remoteContact.id,
+			'call_end',
+			{},
+			this.remoteDeviceId || undefined
+		);
+		this.cleanup();
+	}
 
-    toggleSpeaker() {
-        this.isSpeaker = !this.isSpeaker;
-        webrtcGlobalState.setSpeakerVolume(this.isSpeaker);
-    }
+	private async handleAnswer(payload: ISignalingPayload) {
+		try {
+			this.remoteDeviceId = payload.fromDeviceId || null;
+			if (payload.answer) {
+				await webrtcGlobalState.setRemoteAnswer(payload.answer);
+			}
+			this.status = 'active';
+			this.startTimer();
+		} catch {
+			/* answer handling failed, ignore */
+		}
+	}
 
-    async toggleVideo() {
-        if (!this.remoteContact) return;
-        const willEnable = !this.isLocalVideo;
-        const success = await webrtcGlobalState.toggleVideo(willEnable, this.remoteContact.id, this.remoteDeviceId || undefined);
-        if (success) {
-            this.isLocalVideo = willEnable;
-        }
-    }
+	private async handleIceCandidate(payload: ISignalingPayload) {
+		if (!payload.candidate) return;
+		try {
+			await webrtcGlobalState.addIceCandidate(payload.candidate);
+		} catch {
+			/* ICE candidate failed, ignore */
+		}
+	}
 
-    get localStream() {
-        return webrtcGlobalState.localStream;
-    }
+	private handleRemoteEnd() {
+		this.cleanup();
+	}
 
-    get remoteStream() {
-        return webrtcGlobalState.remoteStream;
-    }
+	private handleAnsweredElsewhere() {
+		if (this.status === 'incoming') {
+			this.cleanup();
+		}
+	}
 
-    // ─── Timer ────────────────────────────────────────────────────────────────
+	// ─── Controls ─────────────────────────────────────────────────────────────
 
-    private startTimer() {
-        this.duration = 0;
-        if (this.timer) clearInterval(this.timer);
-        this.timer = setInterval(() => { this.duration++; }, 1000);
-    }
+	toggleMute() {
+		this.isMuted = !this.isMuted;
+		webrtcGlobalState.setMuted(this.isMuted);
+	}
 
-    get durationFormatted(): string {
-        const m = Math.floor(this.duration / 60).toString().padStart(2, '0');
-        const s = (this.duration % 60).toString().padStart(2, '0');
-        return `${m}:${s}`;
-    }
+	toggleSpeaker() {
+		this.isSpeaker = !this.isSpeaker;
+		webrtcGlobalState.setSpeakerVolume(this.isSpeaker);
+	}
 
-    // ─── Cleanup ──────────────────────────────────────────────────────────────
+	async toggleVideo() {
+		if (!this.remoteContact) return;
+		const willEnable = !this.isLocalVideo;
+		const success = await webrtcGlobalState.toggleVideo(
+			willEnable,
+			this.remoteContact.id,
+			this.remoteDeviceId || undefined
+		);
+		if (success) {
+			this.isLocalVideo = willEnable;
+		}
+	}
 
-    private async cleanup() {
-        // Save to history before clearing
-        if (this.remoteContact && this.direction) {
-            let type: 'incoming' | 'outgoing' | 'missed';
-            if (this.status === 'incoming' && this.duration === 0) {
-                type = 'missed';
-            } else if (this.status === 'calling' && this.duration === 0) {
-                type = 'outgoing'; // or missed outgoing, but let's stick to outgoing
-            } else {
-                type = this.direction;
-            }
+	get localStream() {
+		return webrtcGlobalState.localStream;
+	}
 
-            const { saveCallHistory } = await import('$lib/config/localdb');
-            await saveCallHistory({
-                id: crypto.randomUUID(),
-                contact_id: this.remoteContact.id,
-                contact_name: this.remoteContact.name,
-                type,
-                timestamp: Date.now(),
-                duration: this.duration,
-                is_video: this.isVideo
-            });
-            
-            // Reload recents if phone app is open
-            // Since PhoneAppState is instanced, we can emit an event or just let it reload when opened
-            if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('reynisa:call_ended'));
-            }
-        }
+	get remoteStream() {
+		return webrtcGlobalState.remoteStream;
+	}
 
-        if (this.timer) { clearInterval(this.timer); this.timer = null; }
-        webrtcGlobalState.cleanup();
-        this.status = 'idle';
-        this.remoteContact = null;
-        this.remoteDeviceId = null;
-        this.pendingOffer = null;
-        this.duration = 0;
-        this.isMuted = false;
-        this.isLocalVideo = false;
-        this.isRemoteVideo = false;
-        this.direction = null;
-    }
+	// ─── Timer ────────────────────────────────────────────────────────────────
+
+	private startTimer() {
+		this.duration = 0;
+		if (this.timer) clearInterval(this.timer);
+		this.timer = setInterval(() => {
+			this.duration++;
+		}, 1000);
+	}
+
+	get durationFormatted(): string {
+		const m = Math.floor(this.duration / 60)
+			.toString()
+			.padStart(2, '0');
+		const s = (this.duration % 60).toString().padStart(2, '0');
+		return `${m}:${s}`;
+	}
+
+	// ─── Cleanup ──────────────────────────────────────────────────────────────
+
+	private async cleanup() {
+		// Save to history before clearing
+		if (this.remoteContact && this.direction) {
+			let type: 'incoming' | 'outgoing' | 'missed';
+			if (this.status === 'incoming' && this.duration === 0) {
+				type = 'missed';
+			} else if (this.status === 'calling' && this.duration === 0) {
+				type = 'outgoing'; // or missed outgoing, but let's stick to outgoing
+			} else {
+				type = this.direction;
+			}
+
+			const { saveCallHistory } = await import('$lib/config/localdb');
+			await saveCallHistory({
+				id: crypto.randomUUID(),
+				contact_id: this.remoteContact.id,
+				contact_name: this.remoteContact.name,
+				type,
+				timestamp: Date.now(),
+				duration: this.duration,
+				is_video: this.isVideo
+			});
+
+			// Reload recents if phone app is open
+			// Since PhoneAppState is instanced, we can emit an event or just let it reload when opened
+			if (typeof window !== 'undefined') {
+				window.dispatchEvent(new CustomEvent('reynisa:call_ended'));
+			}
+		}
+
+		if (this.timer) {
+			clearInterval(this.timer);
+			this.timer = null;
+		}
+		webrtcGlobalState.cleanup();
+		this.status = 'idle';
+		this.remoteContact = null;
+		this.remoteDeviceId = null;
+		this.pendingOffer = null;
+		this.duration = 0;
+		this.isMuted = false;
+		this.isLocalVideo = false;
+		this.isRemoteVideo = false;
+		this.direction = null;
+	}
 }
 
 export const callState = new CallAppState();

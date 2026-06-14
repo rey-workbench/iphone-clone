@@ -5,34 +5,34 @@ import { SyncState } from '$lib/utils/SyncState.svelte';
 import type { IPhotoItem } from '$lib/types';
 
 export class PhotosAppState extends SyncState<IPhotoItem[]> {
-    appName = 'Photos';
-  selectedPhoto: IPhotoItem | null = $state(null);
-  tab: 'library' | 'foryou' | 'albums' | 'search' = $state('library');
+	appName = 'Photos';
+	selectedPhoto: IPhotoItem | null = $state(null);
+	tab: 'library' | 'foryou' | 'albums' | 'search' = $state('library');
 
-  constructor() {
-    super(photosDb, PhotosDBKey.PHOTOS, [], async () => {
-      const data = await PhotosApiClient.getList();
-      return data ? data.photos : [];
-    });
-  }
+	constructor() {
+		super(photosDb, PhotosDBKey.PHOTOS, [], async () => {
+			const data = await PhotosApiClient.getList();
+			return data ? data.photos : [];
+		});
+	}
 
-  async fetchPhotos() {
-    await this.load();
-  }
+	async fetchPhotos() {
+		await this.load();
+	}
 
-  get photos() {
-    return this.data || [];
-  }
+	get photos() {
+		return this.data || [];
+	}
 
-  selectPhoto(photo: IPhotoItem) {
-    this.selectedPhoto = photo;
-  }
+	selectPhoto(photo: IPhotoItem) {
+		this.selectedPhoto = photo;
+	}
 
-  closePhoto() {
-    this.selectedPhoto = null;
-  }
+	closePhoto() {
+		this.selectedPhoto = null;
+	}
 
-  setTab(t: 'library' | 'foryou' | 'albums' | 'search') {
-    this.tab = t;
-  }
+	setTab(t: 'library' | 'foryou' | 'albums' | 'search') {
+		this.tab = t;
+	}
 }

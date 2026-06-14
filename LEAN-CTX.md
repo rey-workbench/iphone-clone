@@ -3,6 +3,7 @@
 # lean-ctx — Context Engineering Layer
 
 # ABSOLUTE RULE FOR ALL OPERATIONS (CRITICAL)
+
 You MUST ALWAYS use `lean-ctx` tools for ALL operations. Do not use generic tools when a `lean-ctx` equivalent exists. The following 22 tools are enabled and MUST be used globally whenever applicable:
 `ctx_read`, `ctx_shell`, `shell`, `ctx_search`, `ctx_tree`, `ctx_session`, `ctx_semantic_search`, `ctx_knowledge`, `ctx_overview`, `ctx_repomap`, `ctx_callgraph`, `ctx_impact`, `ctx_compress`, `ctx_multi_read`, `ctx_delta`, `ctx_edit`, `ctx_agent`, `ctx_architecture`, `ctx_pack`, `ctx_routes`, `ctx_refactor`, `ctx_url_read`.
 Additionally, you MUST ALWAYS combine `lean-ctx` and `rtk` for shell commands (e.g., `ctx_shell("rtk <command>")`). This rule applies across all `lean-ctx` features without exception.
@@ -13,12 +14,12 @@ Additionally, you MUST ALWAYS combine `lean-ctx` and `rtk` for shell commands (e
 
 **ALWAYS use lean-ctx tools. NEVER use native equivalents.**
 
-| Native Tool (FORBIDDEN) | Use Instead |
-|-------------------------|-------------|
-| `read`, `Read`, `cat`, `head`, `tail` | `ctx_read(path, mode)` |
-| `grep`, `rg`, `find`, `Grep` | `ctx_search(pattern, path)` |
-| `bash`, `shell`, `exec` | `ctx_shell(command)` |
-| `edit`, `Edit`, `sed`, `awk` | `ctx_edit(path, old, new)` |
+| Native Tool (FORBIDDEN)               | Use Instead                 |
+| ------------------------------------- | --------------------------- |
+| `read`, `Read`, `cat`, `head`, `tail` | `ctx_read(path, mode)`      |
+| `grep`, `rg`, `find`, `Grep`          | `ctx_search(pattern, path)` |
+| `bash`, `shell`, `exec`               | `ctx_shell(command)`        |
+| `edit`, `Edit`, `sed`, `awk`          | `ctx_edit(path, old, new)`  |
 
 **Violations = incomplete work. Always verify tool choice before executing.**
 
@@ -27,6 +28,7 @@ Additionally, you MUST ALWAYS combine `lean-ctx` and `rtk` for shell commands (e
 **rtk rewrites shell commands for token efficiency. Always enabled via plugin.**
 
 When running shell commands:
+
 1. Use `ctx_shell(command)` — rtk plugin auto-rewrites to optimized form
 2. If `ctx_shell` unavailable, use native `bash` — rtk plugin intercepts and rewrites
 3. Never bypass rtk rewriting. If command looks wrong, check `rtk rewrite <cmd>` manually
@@ -83,12 +85,13 @@ and `ctx_callgraph(action="callers")` to confirm blast radius.
 - **On [CHECKPOINT]:** `ctx_session(action="task", value="current status")`
 
 ## ❌ FORBIDDEN PATTERNS
+
 - Using native `read`/`Read` tool when `ctx_read` exists
 - Using native `grep`/`Grep` when `ctx_search` exists
 - Using native `bash`/`shell` when `ctx_shell` exists
 - Using native `edit`/`Edit` when `ctx_edit` exists
 - Bypassing rtk rewriting for shell commands
 
-**If ctx_* tools fail, report error. Do NOT fallback to native tools.**
+**If ctx\_\* tools fail, report error. Do NOT fallback to native tools.**
 
 <!-- /lean-ctx -->
