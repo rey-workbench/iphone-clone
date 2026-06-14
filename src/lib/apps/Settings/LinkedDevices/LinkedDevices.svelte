@@ -82,7 +82,7 @@
       {:else}
         {#each state.devices as device, i (i)}
           {@const isCurrent = device.device_id === systemGlobalState.deviceId}
-          {@const Icon = getDeviceIcon(device.device_name)}
+          {@const Icon = getDeviceIcon(device.device_name || device.user_agent || '')}
           <div class="flex items-center gap-3 py-3 px-4 w-full text-left">
             <div
               class="w-10 h-10 rounded-md bg-[#39393D] flex items-center justify-center shrink-0 text-white"

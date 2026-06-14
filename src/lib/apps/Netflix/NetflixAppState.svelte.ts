@@ -1,10 +1,11 @@
 import { systemGlobalState } from "$lib/os/states/systemGlobalState.svelte";
 import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
 import { NetflixApiClient } from '$lib/client/services/NetflixApiClient';
+import type { INetflixMedia, INetflixSeason, INetflixDetails } from '$lib/types';
 
 class NetflixAppState {
   view = $state<'home' | 'detail' | 'player'>('home');
-  selectedMedia = $state<any | null>(null);
+  selectedMedia = $state<INetflixMedia | null>(null);
 
   // We can fetch TMDB data directly from client using a public proxy or user key if provided.
   // For the sake of this mock app, if TMDB key is absent, we can provide a few mock trending items,
@@ -12,34 +13,34 @@ class NetflixAppState {
   
   // To keep it functional without a key immediately, we'll try to fetch from TMDB 
   // using a proxy if possible, or fallback.
-  movies = $state<any[]>([]);
-  tvShows = $state<any[]>([]);
+  movies = $state<INetflixMedia[]>([]);
+  tvShows = $state<INetflixMedia[]>([]);
   isLoading = $state(false);
 
   searchQuery = $state("");
-  serverSearchResults = $state<any[]>([]);
+  serverSearchResults = $state<INetflixMedia[]>([]);
 
   // Local client-side filter — only runs when movies/tvShows/searchQuery change
   localSearchResults = $derived.by(() => {
     const q = this.searchQuery.toLowerCase();
     return [
-      ...this.movies.filter((m: any) => (m.title || m.name || '').toLowerCase().includes(q)),
-      ...this.tvShows.filter((m: any) => (m.title || m.name || '').toLowerCase().includes(q))
+      ...this.movies.filter((m: INetflixMedia) => (m.title || m.name || '').toLowerCase().includes(q)),
+      ...this.tvShows.filter((m: INetflixMedia) => (m.title || m.name || '').toLowerCase().includes(q))
     ];
   });
 
 
-  details = $state({
+  details = $state<INetflixDetails>({
     cast: "Loading...",
     creator: "Loading...",
     trailerId: null as string | null,
     showTrailer: false,
-    seasons: [] as any[],
+    seasons: [] as INetflixSeason[],
     isLoading: true
   });
 
-  private searchTimeout: any;
-  private idleTimer: any;
+  private searchTimeout: ReturnType<typeof setTimeout> | undefined;
+  private idleTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     this.fetchTrending();
@@ -79,15 +80,15 @@ class NetflixAppState {
         try {
           const { res, result: data } = await NetflixApiClient.search(query);
           if (res.ok && data) {
-            const mapMedia = (m: any) => ({
+            const mapMedia = (m: INetflixMedia) => ({
               ...m,
               poster_path: m.poster_path?.startsWith('/') ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : m.poster_path,
               backdrop_path: m.backdrop_path?.startsWith('/') ? `https://image.tmdb.org/t/p/w500${m.backdrop_path}` : m.backdrop_path
             });
             this.serverSearchResults = (data.results || []).map(mapMedia);
           }
-        } catch (e: any) {
-          dialogGlobalState.show({ title: 'Search Error', message: e.message || 'Failed to search Netflix', confirmText: 'OK' });
+        } catch (e: unknown) {
+          dialogGlobalState.show({ title: 'Search Error', message: (e as Error).message || 'Failed to search Netflix', confirmText: 'OK' });
         }
       }, 500);
     } else {
@@ -95,7 +96,7 @@ class NetflixAppState {
     }
   }
 
-  async fetchDetails(media: any, isTvShow: boolean) {
+  async fetchDetails(media: INetflixMedia, isTvShow: boolean) {
     if (!media?.id) return;
     this.details.isLoading = true;
     this.details.cast = "Loading...";
@@ -104,15 +105,15 @@ class NetflixAppState {
     this.details.showTrailer = false;
     try {
       const type = isTvShow ? "tv" : "movie";
-      const { result: data } = await NetflixApiClient.getDetails(media.id, type);
+      const { result: data } = await NetflixApiClient.getDetails(Number(media.id), type);
       if (!data.error) {
         this.details.cast = data.cast || "Unknown";
         this.details.creator = data.creator || "Unknown";
         this.details.trailerId = data.trailerId;
         this.details.seasons = data.seasons || [];
       }
-    } catch (e: any) {
-      dialogGlobalState.show({ title: 'Details Error', message: e.message || 'Failed to fetch movie details', confirmText: 'OK' });
+    } catch (e: unknown) {
+      dialogGlobalState.show({ title: 'Details Error', message: (e as Error).message || 'Failed to fetch movie details', confirmText: 'OK' });
     } finally {
       this.details.isLoading = false;
     }
@@ -132,7 +133,7 @@ class NetflixAppState {
     clearTimeout(this.idleTimer);
   }
 
-  selectMedia(item: any) {
+  selectMedia(item: INetflixMedia) {
     this.selectedMedia = item;
     this.view = 'detail';
     if (typeof window !== 'undefined') window.history.pushState({ netflixModal: 'detail' }, '');

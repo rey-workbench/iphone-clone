@@ -1,15 +1,15 @@
 import { SystemApiClient } from '$lib/client/services/SystemApiClient';
 import { sessionDb, SessionDBKey } from '$lib/config/localdb';
 import type { ISystemGlobalState, ISystemCurrentUser } from '$lib/types/os';
+import { BaseGlobalState } from './baseGlobalState.svelte';
 
-class SystemGlobalState implements ISystemGlobalState {
+class SystemGlobalState extends BaseGlobalState implements ISystemGlobalState {
   // --- State ---
   recentApps = $state<string[]>([]);
   currentUser = $state<ISystemCurrentUser | null>(null);
   currentTime = $state<Date>(new Date());
   deviceId = $state<string>('');
   deviceName = $state<string>('Unknown Device');
-  isInitializing = $state(true);
 
   // --- Methods ---
   removeRecentApp(appId: string) {
@@ -33,6 +33,7 @@ class SystemGlobalState implements ISystemGlobalState {
   }
 
   constructor() {
+    super();
     if (typeof window !== 'undefined') {
       this.init();
 

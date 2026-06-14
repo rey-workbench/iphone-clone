@@ -1,4 +1,5 @@
 import type { LocalDBAdapter } from '$lib/config/localdb/core';
+import { BaseGlobalState } from '../os/states/baseGlobalState.svelte';
 
 /**
  * Base class Svelte 5 untuk manajemen state reaktif.
@@ -8,10 +9,8 @@ import type { LocalDBAdapter } from '$lib/config/localdb/core';
  * 2. Optimistic UI: Menerapkan mutasi ke layar dan cache langsung, 
  *    lalu otomatis me-revert jika API mengembalikan error.
  */
-export class SyncState<T> {
+export class SyncState<T> extends BaseGlobalState {
     data = $state<T | null>(null);
-    loading = $state(true);
-    error = $state<string | null>(null);
 
     protected db: LocalDBAdapter<T>;
     protected key: string;
@@ -19,6 +18,7 @@ export class SyncState<T> {
     protected isLoaded = false;
 
     constructor(db: LocalDBAdapter<T>, key: string, defaultData: T, fetcher: () => Promise<T>) {
+        super();
         this.db = db;
         this.key = key;
         this.data = defaultData;
@@ -31,14 +31,14 @@ export class SyncState<T> {
     async load() {
         if (typeof window === 'undefined' || this.isLoaded) return;
         this.isLoaded = true;
-        this.loading = true;
-        this.error = null;
+        this.setLoading(true);
+        this.clearError();
 
         // 1. STALE: Load dari LocalDB (0ms)
         const cached = await this.db.get(this.key, null as unknown as T);
         if (cached !== null) {
             this.data = this.parseCache(cached);
-            this.loading = false;
+            this.setLoading(false);
         }
 
         // 2. REVALIDATE: Ambil dari Server
@@ -50,9 +50,9 @@ export class SyncState<T> {
         } catch (e: unknown) {
             const message = e instanceof Error ? e.message : String(e);
             // console.error(`[SyncState] Failed to fetch data for ${this.key}:`, e);
-            this.error = message;
+            this.setError(message);
         } finally {
-            this.loading = false;
+            this.setLoading(false);
         }
     }
 
@@ -79,7 +79,7 @@ export class SyncState<T> {
         } catch (e: unknown) {
             const message = e instanceof Error ? e.message : String(e);
             // console.error(`[SyncState] Optimistic Mutation failed for ${this.key}, reverting...`, e);
-            this.error = message;
+            this.setError(message);
             
             // 3. Revert
             this.data = original ? this.parseCache(original) : null;

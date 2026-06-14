@@ -2,6 +2,7 @@ import { supabase } from '$lib/config/supabase';
 import { systemGlobalState } from '$lib/os/states';
 import { requestMicrophone, requestCamera } from '$lib/utils/permissions';
 import { WebRTCApiClient } from '$lib/client/services/WebRTCApiClient';
+import { BaseGlobalState } from './baseGlobalState.svelte';
 
 export type { CallStatus } from '$lib/types/os';
 import type { IWebrtcGlobalState, ISignalCallback } from '$lib/types/os';
@@ -10,7 +11,7 @@ import type { IWebrtcGlobalState, ISignalCallback } from '$lib/types/os';
  * WebrtcGlobalState — Pure WebRTC & Supabase signaling layer.
  * Focuses only on connection logic, devoid of UI states.
  */
-class WebrtcGlobalState implements IWebrtcGlobalState {
+class WebrtcGlobalState extends BaseGlobalState implements IWebrtcGlobalState {
     // ─── Core WebRTC ──────────────────────────────────────────────────────────
     private pc: RTCPeerConnection | null = null;
     localStream = $state<MediaStream | null>(null);

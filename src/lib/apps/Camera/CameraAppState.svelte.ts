@@ -1,22 +1,24 @@
 import { requestCamera } from "$lib/utils/permissions";
 import type { IAppLifecycle } from "$lib/types/app";
+import type { TCameraMode } from "$lib/types";
 import { WebCameraAdapter, MockCameraAdapter, type ICameraHardware } from "$lib/utils/cameraAdapter";
+import { BaseGlobalState } from "$lib/os/states/baseGlobalState.svelte";
 
-export class CameraAppState implements IAppLifecycle {
+export class CameraAppState extends BaseGlobalState implements IAppLifecycle {
   appName = 'Camera';
   isForeground = $state(false);
 
   photoTaken = $state(false);
   photoUrl = $state('');
   stream: MediaStream | null = $state(null);
-  mode: 'video' | 'photo' | 'portrait' = $state('photo');
+  mode: TCameraMode = $state('photo');
   facingMode: 'user' | 'environment' = $state('environment');
-  modes: ('video' | 'photo' | 'portrait')[] = ['video', 'photo', 'portrait'];
-  error: string | null = $state(null);
+  modes: TCameraMode[] = ['video', 'photo', 'portrait', 'pano'];
 
   private hardware: ICameraHardware;
 
   constructor(isPreview = false) {
+    super();
     this.hardware = isPreview ? new MockCameraAdapter() : new WebCameraAdapter();
   }
 

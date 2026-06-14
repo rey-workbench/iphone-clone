@@ -1,6 +1,6 @@
 import { Sun, CloudSun, Cloud, CloudRain, Moon } from '@lucide/svelte';
 
-import type { IWeatherData, IWeatherRange, IWeatherHourly, IWeatherDaily, IWeatherTile } from '$lib/types';
+import type { IWeatherData, IWeatherRange, IWeatherHourly, IWeatherDaily, IWeatherTile, IWeatherLocation } from '$lib/types';
 import type { IAppLifecycle } from '$lib/types/app';
 import { ApiEndpoints } from '$lib/config/api/endpoints';
 import { SyncState } from '$lib/utils/SyncState.svelte';
@@ -20,6 +20,11 @@ const defaultData: WeatherCache = {
 export class WeatherAppState extends SyncState<WeatherCache> implements IAppLifecycle {
     appName = 'Weather';
     isForeground = $state(false);
+    cities = $state<IWeatherData[]>([]);
+    searchQuery = $state("");
+    searchResults = $state<IWeatherLocation[]>([]);
+    isSearching = $state(false);
+    isLoading = $state(false);
 
     constructor() {
         super(settingsDb, 'app_weather', defaultData, async () => {

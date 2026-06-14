@@ -1,13 +1,16 @@
 <script lang="ts">
   import { ChevronLeft, ChevronRight, Video } from "@lucide/svelte";
+  import type { IUsersGlobalState } from '$lib/types/os';
 
   let {
+    handleBack,
     appState,
     usersGlobalState,
-    closeChat,
+    closeChat
   }: {
-    appState: any;
-    usersGlobalState: any;
+    handleBack: () => void;
+    appState: { currentChatId: string; currentChatName: string; isTyping: boolean; totalUnread: number };
+    usersGlobalState: IUsersGlobalState;
     closeChat: () => void;
   } = $props();
 </script>

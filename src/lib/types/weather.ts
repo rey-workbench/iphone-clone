@@ -1,14 +1,16 @@
+import type { Component } from 'svelte';
+
 export interface IWeatherHourly {
   time: string;
   temp: number;
-  icon: any; // Svelte component type (Lucide icon)
+  icon: Component<any>; 
 }
 
 export interface IWeatherDaily {
   day: string;
   high: number;
   low: number;
-  icon: any; // Svelte component type (Lucide icon)
+  icon: Component<any>; 
 }
 
 export interface IWeatherTile {
@@ -31,4 +33,11 @@ export interface IWeatherData {
 export interface IWeatherRange {
   min: number;
   range: number;
+}
+export interface IWeatherLocation {
+  id: string;
+  name: string;
+  country: string;
+  lat: number;
+  lon: number;
 }

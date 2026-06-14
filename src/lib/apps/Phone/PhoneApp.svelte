@@ -25,7 +25,7 @@
 
   const handleCall = () => {
     if (state.dialNumber) {
-      callState.initiateCall({ id: state.dialNumber, name: state.dialNumber });
+      callState.initiateCall({ id: state.dialNumber, name: state.dialNumber, username: '', initials: '' });
     }
   };
 

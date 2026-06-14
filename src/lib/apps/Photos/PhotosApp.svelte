@@ -40,7 +40,7 @@
       <div class="px-4 pt-2 pb-3">
         <h1 class="text-[34px] font-bold text-white">Library</h1>
       </div>
-      {#if state.loading}
+      {#if state.isLoading}
         <div class="grid grid-cols-3 gap-0.5 px-0.5">
           {#each Array(21) as _, i (i)}
             <div class="aspect-square bg-ios-bg3">

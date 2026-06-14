@@ -1,5 +1,5 @@
 import { db, setupDatabase } from '$lib/config/turso';
-import type { INote } from '$lib/models/Note';
+import type { INote } from '$lib/types';
 
 export class NotesRepository {
   async ensureMigration() {
@@ -27,7 +27,7 @@ export class NotesRepository {
             VALUES (?, ?, ?, ?, ?) 
             ON CONFLICT(id) DO UPDATE SET 
             title=excluded.title, content=excluded.content, date=excluded.date`,
-      args: [note.id, note.user_id, note.title, note.content, note.date]
+      args: [note.id, note.user_id, note.title, note.content, (note.date instanceof Date ? note.date.toISOString() : note.date) || new Date().toISOString()] as string[]
     });
   }
 

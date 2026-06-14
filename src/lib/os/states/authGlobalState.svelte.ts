@@ -1,23 +1,22 @@
 import { systemGlobalState } from '$lib/os/states/systemGlobalState.svelte';
 import { AuthApiClient } from '$lib/client/services/AuthApiClient';
 import type { IAuthGlobalState } from '$lib/types/os';
+import { BaseGlobalState } from './baseGlobalState.svelte';
 
-class AuthGlobalState implements IAuthGlobalState {
+class AuthGlobalState extends BaseGlobalState implements IAuthGlobalState {
     // --- State ---
     username = $state('');
     password = $state('');
-    isLoading = $state(false);
-    errorMsg = $state('');
     
     // --- Methods ---
     async login(): Promise<any> {
         if (!this.username || !this.password) {
-            this.errorMsg = 'Please enter both username and password.';
+            this.setError('Please enter both username and password.');
             return null;
         }
 
-        this.isLoading = true;
-        this.errorMsg = '';
+        this.setLoading(true);
+        this.clearError();
 
         try {
             const data = await AuthApiClient.login(
@@ -30,14 +29,14 @@ class AuthGlobalState implements IAuthGlobalState {
             if (data.success && data.user) {
                 return data.user;
             } else {
-                this.errorMsg = data.error || 'Incorrect Apple ID or password.';
+                this.setError(data.error || 'Incorrect Apple ID or password.');
                 return null;
             }
         } catch (e: any) {
-            this.errorMsg = 'Failed to connect to server.';
+            this.setError('Failed to connect to server.');
             return null;
         } finally {
-            this.isLoading = false;
+            this.setLoading(false);
         }
     }
 

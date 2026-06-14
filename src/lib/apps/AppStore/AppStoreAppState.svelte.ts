@@ -2,12 +2,12 @@ import { Smartphone } from '@lucide/svelte';
 import { appstoreDb, AppStoreDBKey } from '$lib/config/localdb';
 import { SyncState } from '$lib/utils/SyncState.svelte';
 
-import type { TAppStoreTabId } from '$lib/types';
+import type { TAppStoreTabId, IAppStoreData, IAppStoreProduct } from '$lib/types';
 
-export class AppStoreAppState extends SyncState<any> {
+export class AppStoreAppState extends SyncState<IAppStoreData | null> {
     tab = $state<TAppStoreTabId>('today');
-    featured: any[] = $state([]);
-    topApps: any[] = $state([]);
+    featured: IAppStoreProduct[] = $state([]);
+    topApps: IAppStoreProduct[] = $state([]);
 
     constructor() {
         super(appstoreDb, AppStoreDBKey.APPSTORE_PRODUCTS, null, async () => {
@@ -22,29 +22,29 @@ export class AppStoreAppState extends SyncState<any> {
     }
 
     // Override internal parseCache or use a dedicated method to process data when loaded
-    protected parseCache(cached: any) {
+    protected parseCache(cached: IAppStoreData): IAppStoreData {
         if (cached) {
             this.applyData(cached);
         }
         return cached;
     }
 
-    private applyData(data: any) {
+    private applyData(data: IAppStoreData) {
         if (!data || !data.products) return;
         const products = data.products;
-        this.featured = products.slice(0, 3).map((p: any) => ({
+        this.featured = products.slice(0, 3).map((p) => ({
             name: p.title,
             dev: p.brand || 'Indie Dev',
             img: p.thumbnail,
             cat: p.category.replace('-', ' ').toUpperCase()
         }));
-        this.topApps = products.slice(3).map((p: any, i: number) => ({
+        this.topApps = products.slice(3).map((p, i: number) => ({
             name: p.title,
             dev: p.brand || 'Studio',
             icon: Smartphone,
             cat: p.category.replace('-', ' '),
             rank: i + 1,
-            img: p.images[0] || p.thumbnail
+            img: p.images?.[0] || p.thumbnail
         }));
     }
 }

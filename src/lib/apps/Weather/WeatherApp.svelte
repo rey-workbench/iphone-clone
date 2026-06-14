@@ -2,6 +2,7 @@
   import { WeatherAppState } from "./WeatherAppState.svelte";
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import WeatherDailyForecast from "./components/WeatherDailyForecast.svelte";
+  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
 
   const state = new WeatherAppState();
 
@@ -13,12 +14,12 @@
   });
 </script>
 
-<div class="h-full pt-[54px] pb-5 relative overflow-hidden">
+<AppContainer appName="Weather" bgClass="bg-transparent" paddingTop="pt-[54px]" paddingBottom="pb-5" class="relative overflow-hidden">
   <div
     class="absolute inset-0 bg-linear-to-b from-[#4A90D9] via-[#6BB3F0] via-60% to-[#9DD1E8]"
   ></div>
   <div class="relative z-10 h-full overflow-y-auto">
-    {#if state.loading}
+    {#if state.isLoading}
       <div class="text-center px-5 flex flex-col items-center gap-2 pt-2">
         <Skeleton width="120px" height="38px" class="mb-2" />
         <Skeleton width="60px" height="72px" />
@@ -96,4 +97,4 @@
       </div>
     {/if}
   </div>
-</div>
+</AppContainer>

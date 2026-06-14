@@ -24,7 +24,7 @@
   const handleAddNote = () => state.addNote();
 </script>
 
-<AppContainer paddingBottom="pb-0">
+<AppContainer appName="Notes" paddingBottom="pb-0">
   {#if state.selectedNote}
     <div class="flex-1 flex flex-col">
       <div class="flex justify-between items-center px-4 py-2 border-b border-ios-sep">
@@ -44,12 +44,12 @@
     <div class="flex-1 flex flex-col overflow-hidden">
       <div class="px-5 pt-2 pb-3">
         <h1 class="text-[34px] font-bold text-white">Notes</h1>
-        {#if !state.loading}
+        {#if !state.isLoading}
           <span class="text-[13px] text-ios-label2">{state.notes.length} Notes</span>
         {/if}
       </div>
       <div class="flex-1 overflow-y-auto px-4">
-        {#if state.loading}
+        {#if state.isLoading}
           <IOSList>
             {#each Array(4) as _, i (i)}
               <div class="w-full text-left p-3 px-4 flex flex-col gap-1.5 {i < 3 ? 'border-b border-ios-sep' : ''}">
@@ -67,7 +67,7 @@
               <button data-id={note.id} class="w-full text-left p-3 px-4 bg-ios-bg2 border-none text-white cursor-pointer {i < state.notes.length - 1 ? 'border-b border-ios-sep' : ''}" onclick={handleSelectNote}>
                 <div class="text-[17px] font-semibold mb-1">{note.title}</div>
                 <div class="flex gap-2 text-[13px] text-ios-label2">
-                  <span>{state.fmtDate(note.date)}</span>
+                  <span>{state.fmtDate(typeof note.date === 'string' ? new Date(note.date) : note.date)}</span>
                   <span class="truncate flex-1">{note.content.substring(0, 50)}</span>
                 </div>
               </button>

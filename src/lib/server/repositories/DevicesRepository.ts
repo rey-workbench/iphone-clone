@@ -1,18 +1,18 @@
 import { db, setupDatabase } from '$lib/config/turso';
-import type { Device } from '$lib/models/Device';
+import type { IDevice } from '$lib/types';
 
 export class DevicesRepository {
   async ensureMigration() {
     await setupDatabase();
   }
 
-  async findByUserId(userId: string): Promise<Device[]> {
+  async findByUserId(userId: string): Promise<IDevice[]> {
     await this.ensureMigration();
     const result = await db.execute({
       sql: 'SELECT id, device_id, device_name, last_active, created_at FROM user_devices WHERE user_id = ? ORDER BY last_active DESC',
       args: [userId]
     });
-    return result.rows as unknown as Device[];
+    return result.rows as unknown as IDevice[];
   }
 
   async delete(userId: string, deviceId: string): Promise<void> {

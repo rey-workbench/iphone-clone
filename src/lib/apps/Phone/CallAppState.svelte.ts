@@ -1,9 +1,11 @@
 import { systemGlobalState, webrtcGlobalState, type CallStatus } from '$lib/os/states';
 import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
+import { BaseGlobalState } from '$lib/os/states/baseGlobalState.svelte';
+import type { IContact, ISignalingPayload } from '$lib/types';
 
-class CallAppState {
+class CallAppState extends BaseGlobalState {
     status = $state<CallStatus>('idle');
-    remoteContact = $state<any>(null);
+    remoteContact = $state<IContact | null>(null);
     duration = $state(0);
     isMuted = $state(false);
     isSpeaker = $state(false);
@@ -19,15 +21,17 @@ class CallAppState {
     private remoteDeviceId: string | null = null;
     private initialized = false;
 
-    constructor() {}
+    constructor() {
+        super();
+    }
 
-    init() {
+    async init() {
         if (typeof window !== 'undefined' && !this.initialized) {
             this.initialized = true;
             webrtcGlobalState.setupSignaling({
                 onOffer: (payload) => this.handleOffer(payload),
                 onAnswer: (payload) => this.handleAnswer(payload),
-                onIceCandidate: (payload) => this.handleIceCandidate(payload),
+                onIceCandidate: (payload: any) => this.handleIceCandidate(payload),
                 onEnd: () => this.handleRemoteEnd(),
                 onAnsweredElsewhere: () => this.handleAnsweredElsewhere()
             });
@@ -44,7 +48,7 @@ class CallAppState {
 
     // ─── Call Flow ────────────────────────────────────────────────────────────
 
-    async initiateCall(contact: any) {
+    async initiateCall(contact: IContact) {
         const user = systemGlobalState.currentUser;
         if (!user || this.status !== 'idle') return;
 
@@ -76,7 +80,7 @@ class CallAppState {
         }
     }
 
-    private async handleOffer(payload: any) {
+    private async handleOffer(payload: ISignalingPayload) {
         if (this.status !== 'idle') {
             const isSameContact = this.remoteContact && payload.from && 
                 (this.remoteContact.id === payload.from.id || this.remoteContact.username === payload.from.username);
@@ -84,8 +88,10 @@ class CallAppState {
             if (isSameContact) {
                 // Renegotiation for video
                 try {
-                    const answer = await webrtcGlobalState.setRemoteOffer(payload.offer);
-                    await webrtcGlobalState.sendSignal(this.remoteContact.id, 'call_answer', { answer }, this.remoteDeviceId || undefined);
+                    if (payload.offer) {
+                        const answer = await webrtcGlobalState.setRemoteOffer(payload.offer);
+                        await webrtcGlobalState.sendSignal(this.remoteContact!.id, 'call_answer', { answer }, this.remoteDeviceId || undefined);
+                    }
                 } catch (e) {
                 }
                 return;
@@ -98,9 +104,9 @@ class CallAppState {
             return;
         }
 
-        this.remoteContact = payload.from;
-        this.remoteDeviceId = payload.fromDeviceId;
-        this.pendingOffer = payload.offer;
+        this.remoteContact = payload.from as IContact;
+        this.remoteDeviceId = payload.fromDeviceId || null;
+        this.pendingOffer = payload.offer || null;
         this.status = 'incoming';
         this.direction = 'incoming';
     }
@@ -154,17 +160,19 @@ class CallAppState {
         this.cleanup();
     }
 
-    private async handleAnswer(payload: any) {
+    private async handleAnswer(payload: ISignalingPayload) {
         try {
-            this.remoteDeviceId = payload.fromDeviceId;
-            await webrtcGlobalState.setRemoteAnswer(payload.answer);
+            this.remoteDeviceId = payload.fromDeviceId || null;
+            if (payload.answer) {
+                await webrtcGlobalState.setRemoteAnswer(payload.answer);
+            }
             this.status = 'active';
             this.startTimer();
         } catch (e) {
         }
     }
 
-    private async handleIceCandidate(payload: any) {
+    private async handleIceCandidate(payload: ISignalingPayload) {
         if (!payload.candidate) return;
         try {
             await webrtcGlobalState.addIceCandidate(payload.candidate);

@@ -1,14 +1,17 @@
-import type { TPhoneTabId } from '$lib/types';
-import { usersGlobalState } from '$lib/os/states';
 
-export class PhoneAppState {
+import { usersGlobalState } from '$lib/os/states';
+import { BaseGlobalState } from '$lib/os/states/baseGlobalState.svelte';
+
+import type { TPhoneTabId, ICallHistoryEntry, IContact } from '$lib/types';
+
+export class PhoneAppState extends BaseGlobalState {
     tab = $state<TPhoneTabId>('keypad');
     dialNumber = $state('');
 
-    recents: any[] = $state([]);
+    recents: ICallHistoryEntry[] = $state([]);
     loadingRecents = $state(true);
 
-    contacts: any[] = $state([]);
+    contacts: IContact[] = $state([]);
     loadingContacts = $state(true);
 
     keys = [
@@ -19,6 +22,7 @@ export class PhoneAppState {
     ];
 
     constructor() {
+        super();
         usersGlobalState.fetchUsers((users) => this.updateContacts(users));
         this.loadRecents();
         if (typeof window !== 'undefined') {
@@ -62,8 +66,8 @@ export class PhoneAppState {
         this.loadingRecents = false;
     }
 
-    updateContacts(users: any[]) {
-        this.contacts = users.map(u => {
+    updateContacts(users: import('$lib/types').IUser[]) {
+        this.contacts = users.map((u) => {
             const displayName = u.name || u.username || 'Unknown';
             return {
                 id: u.id,

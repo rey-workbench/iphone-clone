@@ -1,4 +1,4 @@
-export type TBtnType = 'number' | 'operator' | 'function' | 'zero';
+export type TBtnType = 'number' | 'operator' | 'action' | 'equal' | 'function' | 'zero';
 export interface IBtn { 
   label: string; 
   type: TBtnType; 

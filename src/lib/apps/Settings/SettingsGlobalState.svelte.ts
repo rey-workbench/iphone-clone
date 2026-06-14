@@ -2,6 +2,7 @@ import { Plane, Wifi, Bluetooth, Antenna, Link, Bell, Volume2, Moon, Hourglass, 
 import { systemGlobalState } from '$lib/os/states';
 import { settingsDb, SettingsDBKey } from '$lib/config/localdb';
 import { PersistedState } from '$lib/utils/PersistedState.svelte';
+import { BaseGlobalState } from '$lib/os/states/baseGlobalState.svelte';
 
 type SettingsData = {
   airplaneMode: boolean;
@@ -41,7 +42,7 @@ class SettingsGlobalState extends PersistedState<SettingsData> {
 
 export const settingsGlobalState = new SettingsGlobalState();
 
-export class SettingsAppState {
+export class SettingsAppState extends BaseGlobalState {
   searchText = $state('');
 
   get profile() {
@@ -71,7 +72,7 @@ export class SettingsAppState {
     { id: 'privacy', icon: Lock, bg: '#007AFF', label: 'Privacy & Security' },
   ];
 
-  constructor() { }
+  constructor() { super(); }
 
   toggle(id: string) {
     if (!settingsGlobalState.data) return;

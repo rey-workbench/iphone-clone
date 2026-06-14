@@ -1,12 +1,12 @@
 import { db } from '$lib/config/turso';
-import type { User } from '$lib/models/User';
+import type { IUser } from '$lib/types';
 
 export class UsersRepository {
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<IUser[]> {
     const result = await db.execute({
       sql: 'SELECT id, username, name FROM users',
       args: []
     });
-    return result.rows as unknown as User[];
+    return result.rows as unknown as IUser[];
   }
 }

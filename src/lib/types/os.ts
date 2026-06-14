@@ -13,6 +13,8 @@ export interface ISystemCurrentUser {
   name: string;
 }
 
+import type { IUser } from './users';
+
 export interface ISystemGlobalState {
   // --- State ---
   recentApps: string[];
@@ -40,7 +42,7 @@ export interface IAuthGlobalState {
   errorMsg: string;
 
   // --- Methods ---
-  login(): Promise<any>;
+  login(): Promise<unknown>;
   logout(): Promise<void>;
 }
 
@@ -93,10 +95,10 @@ export interface INotificationGlobalState {
 // ----------------------------------------------------------------------------
 export interface IUsersGlobalState {
   // --- State ---
-  users: any[];
+  users: IUser[];
 
   // --- Methods ---
-  fetchUsers(onUpdate?: (users: any[]) => void): Promise<void>;
+  fetchUsers(onUpdate?: (users: IUser[]) => void): Promise<void>;
 }
 
 // ----------------------------------------------------------------------------
@@ -104,12 +106,14 @@ export interface IUsersGlobalState {
 // ----------------------------------------------------------------------------
 export type CallStatus = 'idle' | 'calling' | 'incoming' | 'active';
 
+import type { ISignalingPayload } from './phone';
+
 export interface ISignalCallback {
-  onOffer: (payload: any) => void;
-  onAnswer: (payload: any) => void;
-  onIceCandidate: (payload: any) => void;
+  onOffer: (payload: ISignalingPayload) => void;
+  onAnswer: (payload: ISignalingPayload) => void;
+  onIceCandidate: (payload: ISignalingPayload) => void;
   onEnd: () => void;
-  onAnsweredElsewhere: (payload: any) => void;
+  onAnsweredElsewhere: (payload: unknown) => void;
 }
 
 export interface IWebrtcGlobalState {
@@ -120,7 +124,7 @@ export interface IWebrtcGlobalState {
   // --- Methods ---
   setupSignaling(callbacks: ISignalCallback): void;
   waitForSubscription(timeout?: number): Promise<boolean>;
-  sendSignal(toUserId: string, event: string, payload?: any, toDeviceId?: string): Promise<void>;
+  sendSignal(toUserId: string, event: string, payload?: unknown, toDeviceId?: string): Promise<void>;
   
   getLocalStream(withVideo?: boolean): Promise<MediaStream>;
   createPeerConnection(onDisconnect: () => void): Promise<RTCPeerConnection>;

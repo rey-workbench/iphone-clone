@@ -2,6 +2,7 @@ import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
 import { SafariApiClient } from '$lib/client/services/SafariApiClient';
 import type { IAppLifecycle } from '$lib/types/app';
 import { osMediator } from '$lib/os/mediator.svelte';
+import type { ISafariSearchResult, IScramjetController, IWindowWithScramjet, IScramjetFrame } from '$lib/types/safari';
 
 let engineInitPromise: Promise<void> | null = null;
 
@@ -12,30 +13,27 @@ export class SafariAppState implements IAppLifecycle {
   url = $state('');
   inputUrl = $state('');
   showInput = $state(false);
-  searchResults = $state<any[] | null>(null);
+  searchResults = $state<ISafariSearchResult[] | null>(null);
   isSearching = $state(false);
   searchError = $state<string | null>(null);
   isReady = $state(false);
-  scramjet: any = null;
-  frameObj: any = null;
+  scramjet: IScramjetController | null = null;
+  frameObj: (HTMLIFrameElement & IScramjetFrame) | null = null;
   errorMessage = $state('');
 
   constructor() {}
 
   async onLaunch() {
     this.isForeground = true;
-    osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
     await this.initEngine();
   }
 
   onSuspend() {
     this.isForeground = false;
-    osMediator.emit({ type: 'APP_SUSPENDED', payload: { appName: this.appName } });
   }
 
   onResume() {
     this.isForeground = true;
-    osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
   }
 
   onDestroy() {
@@ -53,11 +51,11 @@ export class SafariAppState implements IAppLifecycle {
       await engineInitPromise;
       this.isReady = true;
       this.initFrame();
-    } catch (err: any) {
+    } catch (err: unknown) {
       engineInitPromise = null;
       dialogGlobalState.show({
         title: "Safari Proxy Error",
-        message: err.message || "Scramjet initialization failed.",
+        message: (err as Error).message || "Scramjet initialization failed.",
         confirmText: "OK",
       });
     }
@@ -67,7 +65,7 @@ export class SafariAppState implements IAppLifecycle {
     if (!this.frameObj && document.getElementById("safari-container")) {
       const iframe = document.createElement("iframe");
       iframe.className = "absolute inset-0 w-full h-full border-none bg-white";
-      this.frameObj = this.scramjet.createFrame(iframe);
+      this.frameObj = this.scramjet!.createFrame(iframe) as unknown as (HTMLIFrameElement & IScramjetFrame);
       document.getElementById("safari-container")!.appendChild(iframe);
       if (this.url) {
         this.frameObj.go(this.url);
@@ -96,22 +94,23 @@ export class SafariAppState implements IAppLifecycle {
           document.head.appendChild(script);
         });
 
-      const origExports = (window as any).exports;
-      const origModule = (window as any).module;
-      const origDefine = (window as any).define;
-      (window as any).exports = undefined;
-      (window as any).module = undefined;
-      (window as any).define = undefined;
+      const win = window as IWindowWithScramjet;
+      const origExports = win.exports;
+      const origModule = win.module;
+      const origDefine = win.define;
+      win.exports = undefined;
+      win.module = undefined;
+      win.define = undefined;
 
         await loadScript("/scram/scramjet_bundled.js");
         await loadScript("/scram/controller.api.js");
         await loadScript("/libcurl/index.js");
 
-        (window as any).exports = origExports;
-        (window as any).module = origModule;
-        (window as any).define = origDefine;
+        win.exports = origExports;
+        win.module = origModule;
+        win.define = origDefine;
 
-        const LibcurlTransport = (window as any).LibcurlTransport;
+        const LibcurlTransport = win.LibcurlTransport;
         if (!LibcurlTransport?.default) {
           throw new Error(
             "Scramjet/Libcurl scripts failed to load. Missing static/scram/ or static/libcurl/ files.",
@@ -133,7 +132,7 @@ export class SafariAppState implements IAppLifecycle {
         const transport = new LibcurlClient({ wisp: wispUrl });
         await transport.init();
 
-        const scramjetController = (window as any).$scramjetController;
+        const scramjetController = win.$scramjetController;
         if (!scramjetController?.Controller) {
           throw new Error(
             "Scramjet Controller not found on window.$scramjetController",
@@ -180,7 +179,7 @@ export class SafariAppState implements IAppLifecycle {
           },
         });
 
-        await this.scramjet.wait();
+        await this.scramjet!.wait();
 
         this.isReady = true;
 
@@ -189,7 +188,7 @@ export class SafariAppState implements IAppLifecycle {
           const iframe = document.createElement("iframe");
           iframe.className =
             "absolute inset-0 w-full h-full border-none bg-white";
-          this.frameObj = this.scramjet.createFrame(iframe);
+          this.frameObj = this.scramjet!.createFrame(iframe) as unknown as (HTMLIFrameElement & IScramjetFrame);
           document.getElementById("safari-container")!.appendChild(iframe);
           if (this.url) {
             this.frameObj.go(this.url);
@@ -230,7 +229,7 @@ export class SafariAppState implements IAppLifecycle {
         if (!this.frameObj) {
           const iframe = document.createElement("iframe");
           iframe.className = "absolute inset-0 w-full h-full border-none bg-white";
-          this.frameObj = this.scramjet.createFrame(iframe);
+          this.frameObj = this.scramjet!.createFrame(iframe) as unknown as (HTMLIFrameElement & IScramjetFrame);
           const container = document.getElementById('safari-container');
           if (container) {
             container.innerHTML = '';
@@ -254,8 +253,8 @@ export class SafariAppState implements IAppLifecycle {
       const { res, result: data } = await SafariApiClient.search(query);
       if (!res.ok) throw new Error(data.error || 'Failed to search');
       this.searchResults = data.data || [];
-    } catch (e: any) {
-      dialogGlobalState.show({ title: 'Safari Error', message: e.message || 'Failed to search', confirmText: 'OK' });
+    } catch (e: unknown) {
+      dialogGlobalState.show({ title: 'Safari Error', message: (e as Error).message || 'Failed to search', confirmText: 'OK' });
     } finally {
       this.isSearching = false;
     }

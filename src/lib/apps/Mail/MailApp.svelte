@@ -39,7 +39,7 @@
     <div class="flex-1 overflow-y-auto px-4">
       <h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4">Inbox</h1>
       <div class="bg-ios-bg2 rounded-xl overflow-hidden divide-y divide-ios-sep">
-        {#if state.loading && state.emails.length === 0}
+        {#if state.isLoading && state.emails.length === 0}
           {#each Array(5) as _, i (i)}
             <div class="flex gap-3 p-3 px-4 w-full items-start" aria-hidden="true">
               <Skeleton width="10px" height="10px" borderRadius="9999px" class="shrink-0 mt-1.5" />

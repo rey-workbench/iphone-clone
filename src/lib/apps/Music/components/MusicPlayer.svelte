@@ -58,10 +58,10 @@
   const adjustLyricsPositive = () => state.adjustLyricsOffset(0.5);
   const adjustLyricsNegative = () => state.adjustLyricsOffset(-0.5);
   const handleSeekKeydown = (e: KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") handleSeek(e as any);
+    if (e.key === "Enter" || e.key === " ") handleSeek(e as unknown as MouseEvent);
   };
   const handleVolumeKeydown = (e: KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") handleVolume(e as any);
+    if (e.key === "Enter" || e.key === " ") handleVolume(e as unknown as MouseEvent);
   };
 </script>
 

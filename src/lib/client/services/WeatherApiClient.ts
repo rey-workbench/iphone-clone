@@ -15,7 +15,7 @@ export class WeatherApiClient {
         for (const url of providers) {
             try {
                 // Refresh cache every 10 seconds (10000 ms)
-                const data = await fetchWithCache(url, undefined, 10000);
+                const data = await fetchWithCache<any>(url, undefined, 10000);
                 if (!data || data.error || data.success === false || data.status === 'fail') continue;
 
                 let lat = data.latitude !== undefined ? data.latitude : data.lat;
@@ -37,6 +37,6 @@ export class WeatherApiClient {
 
     static async getForecast(lat: number, lon: number) {
         const url = `${ApiConfig.WEATHER_FORECAST}?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,relative_humidity_2m,surface_pressure,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto`;
-        return await fetchWithCache(url);
+        return await fetchWithCache<any>(url);
     }
 }

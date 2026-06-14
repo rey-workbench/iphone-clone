@@ -35,7 +35,7 @@
 {#if activeView === 'linked_devices'}
   <LinkedDevices onBack={handleBackToMain} />
 {:else}
-  <AppContainer paddingBottom="pb-5">
+  <AppContainer appName="Settings" paddingBottom="pb-5">
     <AppHeader title="Settings" />
     <div class="px-4 py-1.5 pb-2.5">
       <input type="text" placeholder="Search" bind:value={appState.searchText}

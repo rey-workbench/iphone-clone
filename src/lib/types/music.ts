@@ -23,7 +23,38 @@ export interface IMusicTrack {
     duration?: number;
     type?: EMusicItemType;
     thumbnails?: { url: string; width?: number; height?: number }[];
-    [key: string]: any;
+    art?: string;
+    album?: string;
+}
+
+export interface IYouTubePlayer {
+    loadVideoById(id: string): void;
+    playVideo(): void;
+    pauseVideo(): void;
+    seekTo(seconds: number, allowSeekAhead: boolean): void;
+    setVolume(volume: number): void;
+    getVolume(): number;
+    getCurrentTime(): number;
+    getDuration(): number;
+    getPlayerState(): number;
+    destroy(): void;
+}
+
+export interface IYouTubeEvent {
+    data: number;
+    target: IYouTubePlayer;
+}
+
+export interface IWindowWithYouTube extends Window {
+    YT?: {
+        Player: new (elementId: string, options: Record<string, unknown>) => IYouTubePlayer;
+        PlayerState: {
+            PLAYING: number;
+            ENDED: number;
+            PAUSED: number;
+        };
+    };
+    onYouTubeIframeAPIReady?: () => void;
 }
 
 export interface IMusicSearchOptions {

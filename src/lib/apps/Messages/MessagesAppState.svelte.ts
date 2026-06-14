@@ -7,9 +7,11 @@ import { systemGlobalState, usersGlobalState } from '$lib/os/states';
 import { notesDb, NotesDBKey } from '$lib/config/localdb';
 import { MessagesApiClient } from '$lib/client/services/MessagesApiClient';
 import { goto } from '$app/navigation';
+import type { IConversation, IChatMessage, IUser, IMessage } from '$lib/types';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 class MessagesAppState {
-    messages = $state<any[]>([]);
+    messages = $state<IChatMessage[]>([]);
     inputText = $state('');
     isTyping = $state(false);
     chatView = $state(false);
@@ -18,7 +20,7 @@ class MessagesAppState {
     currentChatId = $state('');
     currentChatName = $state('');
 
-    inbox: any[] = $state([
+    inbox: IConversation[] = $state([
         { id: 'ai-bot', name: 'Buddy Bard', icon: Bot, color: '#007AFF', lastMsg: "Hey! I'm your AI assistant.", time: '12:00 PM', timestamp: Date.now(), unread: 0, initials: 'BB' }
     ]);
 
@@ -53,14 +55,14 @@ class MessagesAppState {
         }
     }
 
-    updateInboxWithUsers(users: any[]) {
+    updateInboxWithUsers(users: IUser[]) {
         const currentUser = systemGlobalState.currentUser;
         
-        const newInbox: any[] = [
+        const newInbox: IConversation[] = [
             { id: 'ai-bot', name: 'Buddy Bard', icon: Bot, color: '#007AFF', lastMsg: "Hey! I'm your AI assistant.", time: '12:00 PM', timestamp: Date.now(), unread: 0, initials: 'BB' }
         ];
 
-        users.forEach((u: any) => {
+        users.forEach((u: IUser) => {
             if (currentUser && u.id === currentUser.id) return;
             const existing = this.inbox.find(c => c.id === u.id);
             
@@ -102,7 +104,7 @@ class MessagesAppState {
             
             if (result.success && result.data) {
                 const processedUsers = new Set();
-                result.data.forEach((msg: any) => {
+                result.data.forEach((msg: IMessage) => {
                     const otherPersonId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
                     if (!processedUsers.has(otherPersonId)) {
                         processedUsers.add(otherPersonId);
@@ -168,7 +170,7 @@ class MessagesAppState {
         }
     }
 
-    private realtimeChannel: any = null;
+    private realtimeChannel: RealtimeChannel | null = null;
 
     initRealtime() {
         const user = systemGlobalState.currentUser;
@@ -280,8 +282,8 @@ class MessagesAppState {
             if (!res.ok || !result.success) {
                 dialogGlobalState.show({ title: 'Message Error', message: result.error || 'Failed to send message', confirmText: 'OK' });
             }
-        } catch (e: any) {
-            dialogGlobalState.show({ title: 'Message Error', message: e.message || 'Failed to send message', confirmText: 'OK' });
+        } catch (e: unknown) {
+            dialogGlobalState.show({ title: 'Message Error', message: (e as Error).message || 'Failed to send message', confirmText: 'OK' });
         }
     }
 
@@ -318,8 +320,8 @@ class MessagesAppState {
             if (!res.ok || !result.success) {
                 dialogGlobalState.show({ title: 'Delete Error', message: 'Failed to delete message: ' + result.error, confirmText: 'OK' });
             }
-        } catch (e: any) {
-            dialogGlobalState.show({ title: 'Delete Error', message: 'Failed to delete message: ' + e.message, confirmText: 'OK' });
+        } catch (e: unknown) {
+            dialogGlobalState.show({ title: 'Delete Error', message: 'Failed to delete message: ' + (e as Error).message, confirmText: 'OK' });
         }
     }
 

@@ -19,7 +19,7 @@
     { city: 'Sydney', offset: 11, label: 'Tomorrow, +15HRS' },
   ];
 
-  const emptyAlarms: any[] = [];
+  const emptyAlarms: { id: string; time: string; label: string; enabled: boolean; days: string }[] = [];
   let alarms = $derived(clockAppState.data?.alarms || emptyAlarms);
 
   function getTime(offset: number) {
@@ -47,7 +47,7 @@
 
   $effect(() => () => () => { if (swInt) clearInterval(swInt); if (timerInt) clearInterval(timerInt); });
 
-  const tabs: { id: 'worldClock' | 'alarm' | 'stopwatch' | 'timer'; label: string; icon: any }[] = [
+  const tabs: { id: 'worldClock' | 'alarm' | 'stopwatch' | 'timer'; label: string; icon: typeof Globe }[] = [
     { id: 'worldClock', label: 'World Clock', icon: Globe },
     { id: 'alarm', label: 'Alarm', icon: AlarmClock },
     { id: 'stopwatch', label: 'Stopwatch', icon: Timer },
@@ -56,7 +56,7 @@
 
   const setTab = (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
-    tab = btn.dataset.id as any;
+    tab = btn.dataset.id as 'worldClock' | 'alarm' | 'stopwatch' | 'timer';
   };
 
   const handleToggleAlarm = (e: MouseEvent) => {

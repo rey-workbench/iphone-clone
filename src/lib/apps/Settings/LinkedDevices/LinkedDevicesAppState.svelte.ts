@@ -2,13 +2,18 @@ import { systemGlobalState } from "$lib/os/states/systemGlobalState.svelte";
 import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
 import { webrtcGlobalState } from "$lib/os/states/webrtcGlobalState.svelte";
 import { SettingsApiClient } from "$lib/client/services/SettingsApiClient";
+import { BaseGlobalState } from '$lib/os/states/baseGlobalState.svelte';
+import type { ILinkedDevice } from '$lib/types';
 
-export class LinkedDevicesAppState {
-  devices = $state<any[]>([]);
-  isLoading = $state(true);
+export class LinkedDevicesAppState extends BaseGlobalState {
+  devices = $state<ILinkedDevice[]>([]);
+
+  constructor() {
+    super();
+  }
 
   async fetchDevices() {
-    this.isLoading = true;
+    this.setLoading(true);
     try {
       if (!systemGlobalState.currentUser?.id) return;
       const data = await SettingsApiClient.getDevices(systemGlobalState.currentUser.id);
@@ -22,7 +27,7 @@ export class LinkedDevicesAppState {
         confirmText: 'OK' 
       });
     } finally {
-      this.isLoading = false;
+      this.setLoading(false);
     }
   }
 

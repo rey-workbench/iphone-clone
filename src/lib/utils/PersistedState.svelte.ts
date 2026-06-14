@@ -1,18 +1,19 @@
 import type { LocalDBAdapter } from '$lib/config/localdb/core';
+import { BaseGlobalState } from '../os/states/baseGlobalState.svelte';
 
 /**
  * Base class Svelte 5 untuk manajemen state lokal (tanpa API).
  * Menangani boilerplate `typeof window` dan `$state.snapshot` secara otomatis.
  */
-export class PersistedState<T> {
+export class PersistedState<T> extends BaseGlobalState {
     data = $state<T | null>(null);
-    isLoading = $state(true);
 
     protected db: LocalDBAdapter<T>;
     protected key: string;
     private isInitialized = false;
 
     constructor(db: LocalDBAdapter<T>, key: string, defaultData: T) {
+        super();
         this.db = db;
         this.key = key;
         this.data = defaultData;
@@ -25,7 +26,7 @@ export class PersistedState<T> {
     async init() {
         if (this.isInitialized) return;
         this.isInitialized = true;
-        this.isLoading = true;
+        this.setLoading(true);
 
         try {
             const cached = await this.db.get(this.key, null as unknown as T);
@@ -40,7 +41,7 @@ export class PersistedState<T> {
         } catch (e) {
             // console.error(`Failed to load PersistedState for ${this.key}`, e);
         } finally {
-            this.isLoading = false;
+            this.setLoading(false);
         }
     }
 

@@ -2,6 +2,8 @@
   import { getContext } from 'svelte';
   import { RefreshCw } from '@lucide/svelte';
   import { CameraAppState } from './CameraAppState.svelte';
+  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
+  import type { TCameraMode } from '$lib/types';
 
   const isPreview = getContext<boolean>('isPreview');
   const appState = new CameraAppState(!!isPreview);
@@ -37,11 +39,11 @@
   const flipCamera = () => appState.flipCamera();
   const setMode = (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
-    appState.mode = btn.dataset.mode as any;
+    appState.mode = btn.dataset.mode as TCameraMode;
   };
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-black flex flex-col relative">
+<AppContainer appName="Camera" paddingTop="pt-[54px]" paddingBottom="pb-5" class="relative">
   {#if appState.photoTaken}
     <div class="flex-1 flex items-center justify-center bg-black">
       <img src={appState.photoUrl} alt="Captured" class="max-w-full max-h-full object-contain" />
@@ -70,4 +72,4 @@
       </div>
     </div>
   {/if}
-</div>
+</AppContainer>

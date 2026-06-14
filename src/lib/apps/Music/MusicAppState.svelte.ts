@@ -1,5 +1,5 @@
 import { MusicApiClient } from '$lib/client/services/MusicApiClient';
-import { EMusicItemType, type IMusicTrack, EMusicAction } from "$lib/types/music";
+import { EMusicItemType, EMusicAction, type IMusicTrack, type IYouTubePlayer, type IYouTubeEvent, type IWindowWithYouTube } from "$lib/types/music";
 import { dialogGlobalState } from "$lib/os/states/dialogGlobalState.svelte";
 import type { IAppLifecycle } from "$lib/types/app";
 import { osMediator } from "$lib/os/mediator.svelte";
@@ -21,10 +21,10 @@ export class MusicAppState implements IAppLifecycle {
     isSynced = $state(false);
     isFetchingLyrics = $state(false);
     
-    lyricsCache = new Map<string, { rawText: string, isSynced: boolean, parsed: any[], offset?: number }>();
+    lyricsCache = new Map<string, { rawText: string, isSynced: boolean, parsed: {time: number, text: string}[], offset?: number }>();
     
     current = $state<IMusicTrack | null>(null);
-    player = $state<any>(null);
+    player = $state<IYouTubePlayer | null>(null);
     isPlaying = $state(false);
     progress = $state(0);
     isReady = $state(false);
@@ -32,24 +32,21 @@ export class MusicAppState implements IAppLifecycle {
     tracks = $state<IMusicTrack[]>([]);
     volume = $state(60);
     
-    progressInterval: any;
-    searchTimeout: any;
+    progressInterval: ReturnType<typeof setInterval> | undefined = undefined;
+    searchTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
     constructor() {}
 
     onLaunch() {
         this.isForeground = true;
-        osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
     }
 
     onSuspend() {
         this.isForeground = false;
-        osMediator.emit({ type: 'APP_SUSPENDED', payload: { appName: this.appName } });
     }
 
     onResume() {
         this.isForeground = true;
-        osMediator.emit({ type: 'APP_LAUNCHED', payload: { appName: this.appName } });
     }
 
     onDestroy() {
@@ -57,8 +54,8 @@ export class MusicAppState implements IAppLifecycle {
         this.destroyPlayer();
     }
 
-    initPlayer(windowObj: any) {
-        if (this.player) return; // Prevent multiple initializations
+    initPlayer(windowObj: IWindowWithYouTube) {
+        if (!windowObj.YT) return; // Prevent multiple initializations
 
         this.player = new windowObj.YT.Player("youtube-player", {
             height: "0",
@@ -73,7 +70,7 @@ export class MusicAppState implements IAppLifecycle {
                 origin: windowObj.location.origin,
             },
             events: {
-                onStateChange: (event: any) => this.onPlayerStateChange(event, windowObj),
+                onStateChange: (event: IYouTubeEvent) => this.onPlayerStateChange(event, windowObj),
             },
         });
     }
@@ -89,8 +86,8 @@ export class MusicAppState implements IAppLifecycle {
         this.showPlayer = false;
     }
 
-    onPlayerStateChange(event: any, windowObj: any) {
-        if (event.data === windowObj.YT.PlayerState.PLAYING) {
+    onPlayerStateChange(event: IYouTubeEvent, windowObj: IWindowWithYouTube) {
+        if (event.data === windowObj.YT!.PlayerState.PLAYING) {
             this.isPlaying = true;
             clearInterval(this.progressInterval);
             this.progressInterval = setInterval(() => this.updateProgress(), 500);
@@ -109,7 +106,7 @@ export class MusicAppState implements IAppLifecycle {
                     payload: { trackName: this.current.name, artist: this.current.artist || 'Unknown Artist', isPlaying: false }
                 });
             }
-            if (event.data === windowObj.YT.PlayerState.ENDED) {
+            if (event.data === windowObj.YT!.PlayerState.ENDED) {
                 this.progress = 0;
                 this.playNext(1);
             }
@@ -190,8 +187,9 @@ export class MusicAppState implements IAppLifecycle {
                     this.current = this.tracks[0];
                     this.playTrack(this.current);
                 }
-            } catch (e: any) {
-                dialogGlobalState.show({ title: 'Playback Error', message: e.message || 'Failed to load playlist.', confirmText: 'OK' });
+            } catch (e: unknown) {
+                const err = e as Error;
+                dialogGlobalState.show({ title: 'Playback Error', message: err.message || 'Failed to load playlist.', confirmText: 'OK' });
             }
             return;
         }
@@ -260,12 +258,13 @@ export class MusicAppState implements IAppLifecycle {
             if (r && r.results && r.results.length > 0) {
                 this.tracks = r.results;
             }
-        } catch (e: any) {
-            dialogGlobalState.show({ title: 'Up Next Error', message: e.message || 'Failed to load upcoming tracks.', confirmText: 'OK' });
+        } catch (e: unknown) {
+            const err = e as Error;
+            dialogGlobalState.show({ title: 'Up Next Error', message: err.message || 'Failed to load upcoming tracks.', confirmText: 'OK' });
         }
     }
 
-    async backgroundFetchLyrics(song: any) {
+    async backgroundFetchLyrics(song: IMusicTrack) {
         if (!song) return;
         const songId = song.id;
         if (this.lyricsCache.has(songId)) return;

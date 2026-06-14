@@ -1,7 +1,8 @@
 
 import type { IDialogGlobalState, IDialogOptions } from '$lib/types/os';
+import { BaseGlobalState } from './baseGlobalState.svelte';
 
-class DialogGlobalState implements IDialogGlobalState {
+class DialogGlobalState extends BaseGlobalState implements IDialogGlobalState {
     // --- State ---
     isOpen = $state(false);
     options = $state<IDialogOptions | null>(null);

@@ -1,5 +1,6 @@
 <script lang="ts">
-  let { convo, handleOpenChat }: { convo: any, handleOpenChat: (e: MouseEvent) => void } = $props();
+  import type { IConversation } from '$lib/types';
+  let { convo, handleOpenChat }: { convo: IConversation, handleOpenChat: (e: MouseEvent) => void } = $props();
 </script>
 
 <button class="flex gap-3 p-3 px-4 w-full border-none bg-transparent cursor-pointer text-white text-left border-b border-ios-sep last:border-b-0" data-id={convo.id} data-name={convo.name} onclick={handleOpenChat}>

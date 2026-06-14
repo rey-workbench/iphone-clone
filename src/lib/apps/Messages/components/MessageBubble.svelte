@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { IChatMessage } from '$lib/types';
   let { 
     msg,
     isLastInGroup,
@@ -8,8 +9,8 @@
     handleToggleSelection,
     handleMessageClick,
     handleMessageContextMenu
-  }: {
-    msg: any,
+  }: { 
+    msg: IChatMessage,
     isLastInGroup: boolean,
     isFirstInGroup: boolean,
     isSelectionMode: boolean,

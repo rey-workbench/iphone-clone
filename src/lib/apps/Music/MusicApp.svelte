@@ -5,6 +5,7 @@
   import MusicLibrary from "./components/MusicLibrary.svelte";
   import MusicBottomNav from "./components/MusicBottomNav.svelte";
   import MusicMiniPlayer from "./components/MusicMiniPlayer.svelte";
+  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
 
   const isPreview = getContext('isPreview');
   const state = musicGlobalState;
@@ -12,15 +13,15 @@
   $effect(() => {
     if (isPreview) return;
 
-    // Load YouTube API
-    if (!(window as any).YT) {
-      const tag = document.createElement("script");
-      tag.src = "https://www.youtube.com/iframe_api";
-      const firstScriptTag = document.getElementsByTagName("script")[0];
+    const win = window as unknown as import('$lib/types/music').IWindowWithYouTube;
+    if (!win.YT) {
+      let tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      let firstScriptTag = document.getElementsByTagName('script')[0];
       firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
 
-      (window as any).onYouTubeIframeAPIReady = () => {
-        state.initPlayer(window);
+      win.onYouTubeIframeAPIReady = () => {
+        state.initPlayer(win);
       };
     } else {
       state.initPlayer(window);
@@ -57,7 +58,7 @@
   });
 </script>
 
-<div class="h-full bg-black flex flex-col relative overflow-hidden">
+<AppContainer appName="Music" bgClass="bg-black" paddingTop="pt-0" paddingBottom="pb-0" class="relative overflow-hidden">
 
   {#if state.showPlayer && state.current}
     <MusicPlayer {state} />
@@ -72,4 +73,4 @@
   {#if !state.showPlayer}
     <MusicBottomNav {state} />
   {/if}
-</div>
+</AppContainer>

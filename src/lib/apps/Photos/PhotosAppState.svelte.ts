@@ -2,9 +2,10 @@ import { photosDb, PhotosDBKey } from '$lib/config/localdb';
 
 import { PhotosApiClient } from '$lib/client/services/PhotosApiClient';
 import { SyncState } from '$lib/utils/SyncState.svelte';
+import type { IPhotoItem } from '$lib/types';
 
-export class PhotosAppState extends SyncState<any[]> {
-  selectedPhoto: any | null = $state(null);
+export class PhotosAppState extends SyncState<IPhotoItem[]> {
+  selectedPhoto: IPhotoItem | null = $state(null);
   tab: 'library' | 'foryou' | 'albums' | 'search' = $state('library');
 
   constructor() {
@@ -22,7 +23,7 @@ export class PhotosAppState extends SyncState<any[]> {
     return this.data || [];
   }
 
-  selectPhoto(photo: any) {
+  selectPhoto(photo: IPhotoItem) {
     this.selectedPhoto = photo;
   }
 

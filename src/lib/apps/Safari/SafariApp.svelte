@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SafariAppState } from "./SafariAppState.svelte";
-  ;
+  import AppContainer from '$lib/os/components/ui/AppContainer.svelte';
   import Skeleton from "$lib/os/components/ui/Skeleton.svelte";
   import {
     ChevronLeft,
@@ -63,7 +63,7 @@
   const handleGoForward = () => state.goForward();
 </script>
 
-<div class="h-full pt-13.5 flex flex-col bg-[#f2f2f6] relative">
+<AppContainer appName="Safari" bgClass="bg-[#f2f2f6]" paddingTop="pt-13.5" paddingBottom="pb-0" class="relative">
   {#if state.showInput}
     <!-- Top Address Bar (Search Mode) -->
     <div class="flex items-center gap-2 px-4 py-3 bg-[#f2f2f6] z-20">
@@ -248,4 +248,4 @@
       </div>
     </div>
   {/if}
-</div>
+</AppContainer>

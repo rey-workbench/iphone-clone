@@ -10,7 +10,7 @@ export class MessagesService {
     async getInbox(userId: string) {
         if (!userId) throw new Error('User ID is required');
         const { data, error } = await this.repository.getMessagesForUser(userId);
-        if (error) throw new Error(error.message);
+        if (error) throw new Error((error as Error).message);
         return data;
     }
 
@@ -36,7 +36,7 @@ export class MessagesService {
     async sendMessage(senderId: string, receiverId: string, content: string) {
         if (!senderId || !receiverId || !content) throw new Error('Missing parameters');
         const { data, error } = await this.repository.insertMessage(senderId, receiverId, content);
-        if (error) throw new Error(error.message);
+        if (error) throw new Error((error as Error).message);
         return data;
     }
 

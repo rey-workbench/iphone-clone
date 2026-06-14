@@ -1,6 +1,7 @@
 import type { INotificationGlobalState, INotificationOptions, INotificationItem } from '$lib/types/os';
+import { BaseGlobalState } from './baseGlobalState.svelte';
 
-class NotificationGlobalState implements INotificationGlobalState {
+class NotificationGlobalState extends BaseGlobalState implements INotificationGlobalState {
     // --- State ---
     notifications = $state<INotificationItem[]>([]);
 

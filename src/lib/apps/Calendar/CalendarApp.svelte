@@ -15,7 +15,7 @@
   };
 </script>
 
-<AppContainer paddingTop="pt-[54px]" paddingBottom="pb-5">
+<AppContainer appName="Calendar" paddingTop="pt-[54px]" paddingBottom="pb-5">
   <div class="flex-1 overflow-y-auto px-4 pb-10">
     <AppHeader title={state.monthName} paddingClass="px-1 py-2 pb-4">
       {#snippet rightSlot()}
