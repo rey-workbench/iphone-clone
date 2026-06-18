@@ -46,6 +46,7 @@
 		"@lucide/svelte": "^1.18.0",
 		"@mercuryworkshop/bare-mux": "^2.1.9",
 		"@mercuryworkshop/libcurl-transport": "^2.0.5",
+		"@mercuryworkshop/proxy-transports": "^1.0.2",
 		"@mercuryworkshop/scramjet": "2.0.67-alpha.1",
 		"@mercuryworkshop/scramjet-controller": "^0.0.13",
 		"@mercuryworkshop/wisp-js": "^0.4.1",
