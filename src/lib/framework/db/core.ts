@@ -21,7 +21,7 @@ function getGlobalDB(): Promise<IDBPDatabase> | null {
 	if (typeof window === 'undefined') return null;
 	if (!globalDbPromise) {
 		globalDbPromise = openDB(DB_NAME, DB_VERSION, {
-			upgrade: (db) => {
+			upgrade: (db: IDBPDatabase) => {
 				for (const store of STORES) {
 					if (!db.objectStoreNames.contains(store)) {
 						db.createObjectStore(store);
@@ -29,7 +29,7 @@ function getGlobalDB(): Promise<IDBPDatabase> | null {
 				}
 			}
 		}).catch((err) => {
-			// console.error('[LocalDB] Failed to open database:', err);
+			console.error('[LocalDB] Failed to open database:', err);
 			globalDbPromise = null;
 			throw err;
 		});
@@ -67,8 +67,8 @@ export class LocalDBAdapter<T = any> {
 				return;
 			}
 			await db.put(this.storeName, value, key);
-		} catch {
-			// console.error(`[LocalDB] Failed to set ${this.storeName}/${key}:`, err);
+		} catch (err) {
+			console.error(`[LocalDB] Failed to set ${this.storeName}/${key}:`, err);
 		}
 	}
 
@@ -79,8 +79,8 @@ export class LocalDBAdapter<T = any> {
 		try {
 			const value = await db.get(this.storeName, key);
 			return value !== undefined ? value : defaultValue;
-		} catch {
-			// console.error(`[LocalDB] Failed to get ${this.storeName}/${key}:`, err);
+		} catch (err) {
+			console.error(`[LocalDB] Failed to get ${this.storeName}/${key}:`, err);
 			return defaultValue;
 		}
 	}
@@ -91,8 +91,8 @@ export class LocalDBAdapter<T = any> {
 
 		try {
 			return await db.getAll(this.storeName);
-		} catch {
-			// console.error(`[LocalDB] Failed to getAll from ${this.storeName}:`, err);
+		} catch (err) {
+			console.error(`[LocalDB] Failed to getAll from ${this.storeName}:`, err);
 			return [];
 		}
 	}
@@ -103,8 +103,8 @@ export class LocalDBAdapter<T = any> {
 
 		try {
 			await db.delete(this.storeName, key);
-		} catch {
-			// console.error(`[LocalDB] Failed to delete ${this.storeName}/${key}:`, err);
+		} catch (err) {
+			console.error(`[LocalDB] Failed to delete ${this.storeName}/${key}:`, err);
 		}
 	}
 
@@ -115,8 +115,8 @@ export class LocalDBAdapter<T = any> {
 		try {
 			const value = await db.get(this.storeName, key);
 			return value !== undefined;
-		} catch {
-			// console.error(`[LocalDB] Failed to check ${this.storeName}/${key}:`, err);
+		} catch (err) {
+			console.error(`[LocalDB] Failed to check ${this.storeName}/${key}:`, err);
 			return false;
 		}
 	}
@@ -127,8 +127,8 @@ export class LocalDBAdapter<T = any> {
 
 		try {
 			return (await db.getAllKeys(this.storeName)) as string[];
-		} catch {
-			// console.error(`[LocalDB] Failed to get keys from ${this.storeName}:`, err);
+		} catch (err) {
+			console.error(`[LocalDB] Failed to get keys from ${this.storeName}:`, err);
 			return [];
 		}
 	}
@@ -139,8 +139,8 @@ export class LocalDBAdapter<T = any> {
 
 		try {
 			await db.clear(this.storeName);
-		} catch {
-			// console.error(`[LocalDB] Failed to clear ${this.storeName}:`, err);
+		} catch (err) {
+			console.error(`[LocalDB] Failed to clear ${this.storeName}:`, err);
 		}
 	}
 
@@ -150,8 +150,8 @@ export class LocalDBAdapter<T = any> {
 
 		try {
 			return await db.count(this.storeName);
-		} catch {
-			// console.error(`[LocalDB] Failed to count ${this.storeName}:`, err);
+		} catch (err) {
+			console.error(`[LocalDB] Failed to count ${this.storeName}:`, err);
 			return 0;
 		}
 	}
