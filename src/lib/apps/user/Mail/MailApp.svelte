@@ -17,7 +17,7 @@
 	};
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-black flex flex-col">
+<div class="h-full pt-13.5 pb-5 bg-black flex flex-col">
 	{#if state.selected}
 		<div class="flex-1 flex flex-col">
 			<div class="flex items-center px-4 py-2 border-b border-ios-sep">

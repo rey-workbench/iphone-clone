@@ -36,7 +36,7 @@
 </script>
 
 <div
-	class="snap-center shrink-0 w-[200px] max-[430px]:w-[180px] h-[400px] max-[430px]:h-[360px] flex flex-col gap-3 transition-transform"
+	class="snap-center shrink-0 w-50 max-[430px]:w-45 h-100 max-[430px]:h-90 flex flex-col gap-3 transition-transform"
 	style:transform="translateY(-{cardSwipeY[appId] || 0}px)"
 	style:transition={activeSwipeId === appId ? 'none' : 'transform 0.3s'}
 	style:opacity={$page.url.pathname === '/' + appId && !shellState.showAppSwitcher ? 0 : 1}
@@ -54,7 +54,7 @@
 				class="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden"
 			>
 				<div
-					class="w-[430px] h-[932px] shrink-0"
+					class="w-107.5 h-233 shrink-0"
 					style:transform="scale(0.465)"
 					style:transform-origin="center"
 				>

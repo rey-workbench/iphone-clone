@@ -1,6 +1,6 @@
 <script lang="ts">
 	const tailLeftClasses =
-		"relative before:content-[''] before:absolute before:bottom-0 before:-left-2 before:h-5 before:w-5 before:bg-[#26252A] before:rounded-br-[16px] before:-z-10 after:content-[''] after:absolute after:bottom-0 after:-left-[10px] after:w-[10px] after:h-5 after:bg-black after:rounded-br-[10px] after:z-10";
+		"relative before:content-[''] before:absolute before:bottom-0 before:-left-2 before:h-5 before:w-5 before:bg-[#26252A] before:rounded-br-2xl before:-z-10 after:content-[''] after:absolute after:bottom-0 after:-left-2.5 after:w-2.5 after:h-5 after:bg-black after:rounded-br-[10px] after:z-10";
 </script>
 
 <div class="flex pl-2 mb-2">

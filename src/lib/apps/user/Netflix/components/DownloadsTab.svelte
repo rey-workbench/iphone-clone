@@ -72,7 +72,7 @@
 					{#each profileData.items as item (item.title)}
 						<div class="flex items-center gap-4 bg-[#1A1A1A] rounded p-2 relative">
 							<!-- Poster -->
-							<div class="w-[120px] h-[68px] rounded overflow-hidden shrink-0 relative bg-black">
+							<div class="w-30 h-17 rounded overflow-hidden shrink-0 relative bg-black">
 								<img
 									src={item.image}
 									alt={item.title}

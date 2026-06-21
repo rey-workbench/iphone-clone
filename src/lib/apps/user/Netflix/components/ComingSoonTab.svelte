@@ -9,7 +9,7 @@
 		<CalendarClock size={40} class="text-[#a6a6a6]" strokeWidth={1.5} />
 	</div>
 	<h2 class="text-[22px] font-bold mb-3 tracking-wide">Coming Soon</h2>
-	<p class="text-[15px] text-[#8c8c8c] max-w-[280px] leading-relaxed">
+	<p class="text-[15px] text-[#8c8c8c] max-w-70 leading-relaxed">
 		Keep track of the new movies and shows coming to Netflix.
 	</p>
 

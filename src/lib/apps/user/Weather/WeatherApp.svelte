@@ -34,12 +34,12 @@
 			</div>
 			<div class="px-4 pb-10 flex flex-col gap-2.5 mt-8">
 				<div
-					class="rounded-[14px] p-3 px-4 bg-white/12 backdrop-blur-[20px] border border-white/20 h-[120px]"
+					class="rounded-[14px] p-3 px-4 bg-white/12 backdrop-blur-[20px] border border-white/20 h-30"
 				>
 					<Skeleton width="100%" height="100%" />
 				</div>
 				<div
-					class="rounded-[14px] p-3 px-4 bg-white/12 backdrop-blur-[20px] border border-white/20 h-[300px]"
+					class="rounded-[14px] p-3 px-4 bg-white/12 backdrop-blur-[20px] border border-white/20 h-75"
 				>
 					<Skeleton width="100%" height="100%" />
 				</div>
@@ -64,9 +64,9 @@
 					</div>
 					<div class="flex gap-5 overflow-x-auto [&::-webkit-scrollbar]:hidden pb-1">
 						{#each state.w.hourly as h (h.time || h)}
-							<div class="flex flex-col items-center gap-1.5 min-w-[44px]">
+							<div class="flex flex-col items-center gap-1.5 min-w-11">
 								<span class="text-[13px] font-medium text-white">{h.time}</span>
-								<div class="h-[22px] flex items-center justify-center">
+								<div class="h-5.5 flex items-center justify-center">
 									{#if h.icon}
 										<h.icon size={22} color="white" />
 									{/if}
@@ -80,7 +80,7 @@
 				<div class="grid grid-cols-2 gap-2.5">
 					{#each state.w.tiles as t (t.title || t)}
 						<div
-							class="rounded-[14px] p-3.5 bg-white/12 backdrop-blur-[20px] border border-white/20 min-h-[100px] flex flex-col"
+							class="rounded-[14px] p-3.5 bg-white/12 backdrop-blur-[20px] border border-white/20 min-h-25 flex flex-col"
 						>
 							<div class="text-xs font-semibold text-white/50 tracking-wider mb-2">
 								{t.title}

@@ -16,7 +16,11 @@ export class RateLimiter {
 	 * @param maxAttempts Max attempts within the window (default: 5)
 	 * @param penaltyMs Penalty duration if max attempts exceeded (default: 5 minutes)
 	 */
-	constructor(windowMs: number = 60 * 1000, maxAttempts: number = 5, penaltyMs: number = 5 * 60 * 1000) {
+	constructor(
+		windowMs: number = 60 * 1000,
+		maxAttempts: number = 5,
+		penaltyMs: number = 5 * 60 * 1000
+	) {
 		this.windowMs = windowMs;
 		this.maxAttempts = maxAttempts;
 		this.penaltyMs = penaltyMs;

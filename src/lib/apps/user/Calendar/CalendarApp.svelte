@@ -72,7 +72,7 @@
 						>
 					</div>
 				</div>
-				{#if i < state.events.length - 1}<div class="h-px bg-ios-sep ml-[52px]"></div>{/if}
+				{#if i < state.events.length - 1}<div class="h-px bg-ios-sep ml-13"></div>{/if}
 			{/each}
 		</IOSList>
 	</div>

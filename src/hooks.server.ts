@@ -8,7 +8,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-	
+
 	// Basic Content Security Policy
 	// Note: In a complex SvelteKit app, a stricter CSP might require nonces or 'unsafe-inline' for certain styles.
 	response.headers.set(

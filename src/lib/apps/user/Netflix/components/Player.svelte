@@ -9,7 +9,7 @@
 >
 	<!-- Landscape Container -->
 	<div
-		class="w-[852px] h-[393px] rotate-90 origin-center relative bg-black flex items-center justify-center"
+		class="w-213 h-98.25 rotate-90 origin-center relative bg-black flex items-center justify-center"
 	>
 		<!-- Back Button (Floating, now oriented for landscape) -->
 		<button

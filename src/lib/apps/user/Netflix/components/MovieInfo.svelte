@@ -205,12 +205,12 @@
 	<!-- Tabs -->
 	<div class="flex items-center gap-6 border-t border-t-[#333] mt-2 pt-4 text-[13px] font-bold">
 		{#if isTvShow}
-			<div class="border-t-4 border-[#E50914] pt-2 mt-[-22px] text-white">Episodes</div>
-			<div class="text-[#B3B3B3] pt-2 mt-[-22px]">More Like This</div>
-			<div class="text-[#B3B3B3] pt-2 mt-[-22px]">Trailers & More</div>
+			<div class="border-t-4 border-[#E50914] pt-2 -mt-5.5 text-white">Episodes</div>
+			<div class="text-[#B3B3B3] pt-2 -mt-5.5">More Like This</div>
+			<div class="text-[#B3B3B3] pt-2 -mt-5.5">Trailers & More</div>
 		{:else}
-			<div class="border-t-4 border-[#E50914] pt-2 mt-[-22px] text-white">More Like This</div>
-			<div class="text-[#B3B3B3] pt-2 mt-[-22px]">Trailers & More</div>
+			<div class="border-t-4 border-[#E50914] pt-2 -mt-5.5 text-white">More Like This</div>
+			<div class="text-[#B3B3B3] pt-2 -mt-5.5">Trailers & More</div>
 		{/if}
 	</div>
 

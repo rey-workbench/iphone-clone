@@ -71,7 +71,7 @@
 			<div class="flex flex-col items-center gap-2">
 				<button
 					onclick={handleDecline}
-					class="w-[72px] h-[72px] rounded-full bg-ios-red flex items-center justify-center shadow-lg shadow-red-900/40 active:opacity-80 transition-opacity text-white"
+					class="w-18 h-18 rounded-full bg-ios-red flex items-center justify-center shadow-lg shadow-red-900/40 active:opacity-80 transition-opacity text-white"
 					aria-label="Decline"
 				>
 					<PhoneOff size={32} />
@@ -83,7 +83,7 @@
 			<div class="flex flex-col items-center gap-2">
 				<button
 					onclick={handleAccept}
-					class="w-[72px] h-[72px] rounded-full bg-ios-green flex items-center justify-center shadow-lg shadow-green-900/40 active:opacity-80 transition-opacity text-white"
+					class="w-18 h-18 rounded-full bg-ios-green flex items-center justify-center shadow-lg shadow-green-900/40 active:opacity-80 transition-opacity text-white"
 					aria-label="Accept"
 				>
 					<Phone size={32} />

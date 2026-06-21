@@ -13,7 +13,7 @@
 	onclick={handleOpenChat}
 >
 	<div
-		class="w-[45px] h-[45px] rounded-full flex items-center justify-center text-[16px] font-semibold text-white shrink-0"
+		class="w-11.25 h-11.25 rounded-full flex items-center justify-center text-[16px] font-semibold text-white shrink-0"
 		style:background={convo.color}
 	>
 		{#if convo.icon}
@@ -37,7 +37,7 @@
 			>
 			{#if convo.unread > 0}
 				<span
-					class="px-1.5 h-5 min-w-[20px] rounded-full bg-ios-blue text-white text-[12px] font-medium flex items-center justify-center shrink-0"
+					class="px-1.5 h-5 min-w-5 rounded-full bg-ios-blue text-white text-[12px] font-medium flex items-center justify-center shrink-0"
 					>{convo.unread}</span
 				>
 			{/if}

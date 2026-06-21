@@ -6,9 +6,12 @@ import { SearchQuerySchema } from '$lib/backend/validation/Validation';
 const safariSearchService = new SafariSearchService();
 const searchRateLimiter = new RateLimiter(60 * 1000, 20, 5 * 60 * 1000); // 20 requests per minute
 
-export const GET = apiWrapper(async ({ url }) => {
-	const rawQuery = url.searchParams.get('q');
-	const query = SearchQuerySchema.parse(rawQuery || '');
+export const GET = apiWrapper(
+	async ({ url }) => {
+		const rawQuery = url.searchParams.get('q');
+		const query = SearchQuerySchema.parse(rawQuery || '');
 
-	return await safariSearchService.search(query);
-}, { customRateLimiter: searchRateLimiter });
+		return await safariSearchService.search(query);
+	},
+	{ customRateLimiter: searchRateLimiter }
+);

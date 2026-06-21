@@ -39,7 +39,7 @@
 </script>
 
 <div
-	class="absolute w-[250px] bg-[#252525] rounded-2xl overflow-hidden flex flex-col divide-y divide-[#3C3C3E] shadow-[0_10px_30px_rgba(0,0,0,0.8)] z-110"
+	class="absolute w-62.5 bg-[#252525] rounded-2xl overflow-hidden flex flex-col divide-y divide-[#3C3C3E] shadow-[0_10px_30px_rgba(0,0,0,0.8)] z-110"
 	style:top={menuTop !== undefined ? `${menuTop}px` : undefined}
 	style:left={menuLeft !== undefined ? `${menuLeft}px` : undefined}
 	style:right={menuRight !== undefined ? `${menuRight}px` : undefined}

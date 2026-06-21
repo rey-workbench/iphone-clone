@@ -36,13 +36,13 @@
 	</div>
 
 	<div class="relative z-10 flex-1 flex flex-col px-4 overflow-hidden">
-		<div class="grid grid-cols-4 justify-items-center pt-[80px] gap-x-[8px] gap-y-[32px]">
+		<div class="grid grid-cols-4 justify-items-center pt-20 gap-x-2 gap-y-8">
 			{#each homeScreenApps[state.currentPage] as app (app.id || app)}
 				<AppIcon {app} />
 			{/each}
 		</div>
 
-		<div class="flex justify-center mt-auto mb-[110px] gap-[6px]">
+		<div class="flex justify-center mt-auto mb-27.5 gap-1.5">
 			{#each homeScreenApps as _, i (i)}
 				<button
 					data-page={i}

@@ -87,7 +87,7 @@
 			<div class="flex items-center justify-center gap-14">
 				<span class="w-10"></span>
 				<button
-					class="w-[72px] h-[72px] rounded-full border-[5px] border-white bg-white/20 cursor-pointer active:scale-90 transition-transform"
+					class="w-18 h-18 rounded-full border-[5px] border-white bg-white/20 cursor-pointer active:scale-90 transition-transform"
 					onclick={capture}
 					aria-label="Capture"
 				></button>

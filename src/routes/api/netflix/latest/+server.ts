@@ -5,7 +5,10 @@ import { RateLimiter } from '$lib/backend/security/RateLimiter';
 const netflixService = new NetflixService();
 const netflixRateLimiter = new RateLimiter(60 * 1000, 30, 5 * 60 * 1000); // 30 requests per minute
 
-export const GET = apiWrapper(async () => {
-	const data = await netflixService.getLatest();
-	return data;
-}, { customRateLimiter: netflixRateLimiter });
+export const GET = apiWrapper(
+	async () => {
+		const data = await netflixService.getLatest();
+		return data;
+	},
+	{ customRateLimiter: netflixRateLimiter }
+);

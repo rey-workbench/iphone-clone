@@ -11,33 +11,36 @@ function isLocalOrPrivateIP(hostname: string): boolean {
 	return privatePattern.test(hostname);
 }
 
-export const GET = apiWrapper(async ({ url }) => {
-	const targetUrlStr = url.searchParams.get('url');
+export const GET = apiWrapper(
+	async ({ url }) => {
+		const targetUrlStr = url.searchParams.get('url');
 
-	if (!targetUrlStr) {
-		throw new ApiError(400, 'Missing target URL');
-	}
+		if (!targetUrlStr) {
+			throw new ApiError(400, 'Missing target URL');
+		}
 
-	let targetUrl: URL;
-	try {
-		targetUrl = new URL(targetUrlStr);
-	} catch {
-		throw new ApiError(400, 'Invalid URL format');
-	}
+		let targetUrl: URL;
+		try {
+			targetUrl = new URL(targetUrlStr);
+		} catch {
+			throw new ApiError(400, 'Invalid URL format');
+		}
 
-	if (targetUrl.protocol !== 'http:' && targetUrl.protocol !== 'https:') {
-		throw new ApiError(400, 'Only HTTP and HTTPS protocols are allowed');
-	}
+		if (targetUrl.protocol !== 'http:' && targetUrl.protocol !== 'https:') {
+			throw new ApiError(400, 'Only HTTP and HTTPS protocols are allowed');
+		}
 
-	if (isLocalOrPrivateIP(targetUrl.hostname)) {
-		throw new ApiError(403, 'Access to local or private networks is forbidden');
-	}
+		if (isLocalOrPrivateIP(targetUrl.hostname)) {
+			throw new ApiError(403, 'Access to local or private networks is forbidden');
+		}
 
-	try {
-		const { body, status, headers } = await proxyService.fetchProxy(targetUrlStr);
-		return new Response(body, { status, headers });
-	} catch (err: any) {
-		console.error('[Proxy Error]', err.message || err);
-		throw new ApiError(500, 'Internal Proxy Error');
-	}
-}, { customRateLimiter: proxyRateLimiter });
+		try {
+			const { body, status, headers } = await proxyService.fetchProxy(targetUrlStr);
+			return new Response(body, { status, headers });
+		} catch (err: any) {
+			console.error('[Proxy Error]', err.message || err);
+			throw new ApiError(500, 'Internal Proxy Error');
+		}
+	},
+	{ customRateLimiter: proxyRateLimiter }
+);

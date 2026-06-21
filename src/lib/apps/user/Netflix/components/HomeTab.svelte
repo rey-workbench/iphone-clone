@@ -35,7 +35,7 @@
 <div class="w-full h-full overflow-y-auto pb-20 no-scrollbar relative z-10" onscroll={handleScroll}>
 	<!-- Hero Banner -->
 	{#if netflixState.movies.length > 0}
-		<div class="relative w-full h-[550px] mb-8">
+		<div class="relative w-full h-137.5 mb-8">
 			<img
 				src={netflixState.movies[0].poster_path}
 				alt={netflixState.movies[0].title}
@@ -101,7 +101,7 @@
 			</div>
 		</div>
 	{:else}
-		<div class="relative w-full h-[550px] mb-8">
+		<div class="relative w-full h-137.5 mb-8">
 			<Skeleton width="100%" height="100%" />
 			<div class="absolute bottom-0 left-0 w-full pb-6 flex flex-col items-center gap-4">
 				<Skeleton width="60%" height="48px" />
@@ -130,7 +130,7 @@
 					{#each previews as tv (tv.id)}
 						<button
 							data-id={tv.id}
-							class="relative flex-none w-[100px] h-[100px] rounded-full overflow-hidden bg-[#222] border-2 border-[#333] focus:border-white p-0 cursor-pointer transition-transform hover:scale-105"
+							class="relative flex-none w-25 h-25 rounded-full overflow-hidden bg-[#222] border-2 border-[#333] focus:border-white p-0 cursor-pointer transition-transform hover:scale-105"
 							onclick={handleSelectTv}
 							aria-label="Preview {tv.title}"
 						>
@@ -161,7 +161,7 @@
 				{#if popular.length === 0}
 					{#each Array(4) as _, i (i)}
 						<div
-							class="relative flex-none w-[105px] h-[155px] rounded-md overflow-hidden snap-start bg-[#222]"
+							class="relative flex-none w-26.25 h-38.75 rounded-md overflow-hidden snap-start bg-[#222]"
 						>
 							<Skeleton width="100%" height="100%" />
 						</div>
@@ -170,7 +170,7 @@
 					{#each popular as movie (movie.id)}
 						<button
 							data-id={movie.id}
-							class="relative flex-none w-[105px] h-[155px] rounded-md overflow-hidden bg-[#222] border-none p-0 cursor-pointer snap-start transition-transform hover:scale-105 shadow-sm"
+							class="relative flex-none w-26.25 h-38.75 rounded-md overflow-hidden bg-[#222] border-none p-0 cursor-pointer snap-start transition-transform hover:scale-105 shadow-sm"
 							onclick={handleSelectMovie}
 							aria-label="Watch {movie.title}"
 						>
@@ -200,7 +200,7 @@
 				{#if trending.length === 0}
 					{#each Array(4) as _, i (i)}
 						<div
-							class="relative flex-none w-[105px] h-[155px] rounded overflow-hidden snap-start bg-[#222]"
+							class="relative flex-none w-26.25 h-38.75 rounded overflow-hidden snap-start bg-[#222]"
 						>
 							<Skeleton width="100%" height="100%" />
 						</div>
@@ -209,7 +209,7 @@
 					{#each trending as tv (tv.id)}
 						<button
 							data-id={tv.id}
-							class="relative flex-none w-[105px] h-[155px] rounded-md overflow-hidden bg-[#222] border-none p-0 cursor-pointer snap-start transition-transform hover:scale-105 shadow-sm"
+							class="relative flex-none w-26.25 h-38.75 rounded-md overflow-hidden bg-[#222] border-none p-0 cursor-pointer snap-start transition-transform hover:scale-105 shadow-sm"
 							onclick={handleSelectTv}
 							aria-label="View {tv.title}"
 						>

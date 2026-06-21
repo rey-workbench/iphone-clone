@@ -35,7 +35,7 @@
 	}
 </script>
 
-<div class="h-full pt-[54px] pb-5 bg-black flex flex-col absolute inset-0 z-50">
+<div class="h-full pt-13.5 pb-5 bg-black flex flex-col absolute inset-0 z-50">
 	<div class="px-2 flex items-center h-11 relative">
 		<button
 			class="absolute left-2 flex items-center text-ios-blue text-[17px] bg-transparent border-none cursor-pointer"
@@ -62,7 +62,7 @@
 						</div>
 						<Skeleton width="70px" height="28px" borderRadius="9999px" />
 					</div>
-					{#if i < 2}<div class="h-px bg-ios-sep ml-[68px]"></div>{/if}
+					{#if i < 2}<div class="h-px bg-ios-sep ml-17"></div>{/if}
 				{/each}
 			{:else if state.devices.length === 0}
 				<div class="p-4 text-center text-ios-label2">No linked devices found.</div>
@@ -98,7 +98,7 @@
 						{/if}
 					</div>
 					{#if i < state.devices.length - 1}
-						<div class="h-px bg-ios-sep ml-[68px]"></div>
+						<div class="h-px bg-ios-sep ml-17"></div>
 					{/if}
 				{/each}
 			{/if}

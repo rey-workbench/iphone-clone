@@ -173,7 +173,7 @@
 	{#if callState.isVideo}
 		<!-- FaceTime Bottom Panel -->
 		<div
-			class="absolute bottom-8 left-4 right-4 bg-[#2a2a2a]/80 backdrop-blur-xl rounded-[32px] p-6 z-50 transition-opacity duration-300 {showControls
+			class="absolute bottom-8 left-4 right-4 bg-[#2a2a2a]/80 backdrop-blur-xl rounded-4xl p-6 z-50 transition-opacity duration-300 {showControls
 				? 'opacity-100'
 				: 'opacity-0 pointer-events-none'}"
 			role="presentation"
@@ -242,7 +242,7 @@
 					aria-label={c.label}
 				>
 					<div
-						class="w-[70px] h-[70px] rounded-2xl flex items-center justify-center transition-all backdrop-blur-md border border-white/10
+						class="w-17.5 h-17.5 rounded-2xl flex items-center justify-center transition-all backdrop-blur-md border border-white/10
                       {c.active() ? 'bg-white text-black' : 'bg-black/40 text-white'}
                       active:scale-95"
 					>
@@ -262,7 +262,7 @@
 		>
 			<button
 				onclick={handleHangUp}
-				class="w-[72px] h-[72px] rounded-full bg-ios-red flex items-center justify-center shadow-lg shadow-red-900/50 active:opacity-80 active:scale-95 transition-all text-white"
+				class="w-18 h-18 rounded-full bg-ios-red flex items-center justify-center shadow-lg shadow-red-900/50 active:opacity-80 active:scale-95 transition-all text-white"
 				aria-label="hang up"
 			>
 				<PhoneOff size={32} />

@@ -40,7 +40,7 @@
 		</div>
 	</div>
 	{#if i < 4}
-		<div class="h-px bg-ios-sep ml-[68px]"></div>
+		<div class="h-px bg-ios-sep ml-17"></div>
 	{/if}
 {/snippet}
 
@@ -58,11 +58,11 @@
 		<Play size={18} class="text-ios-pink" fill="currentColor" />
 	</button>
 	{#if i < (isSearch ? state.searchResults.length - 1 : state.tracks.length - 1)}
-		<div class="h-px bg-ios-sep ml-[68px]"></div>
+		<div class="h-px bg-ios-sep ml-17"></div>
 	{/if}
 {/snippet}
 
-<div class="flex-1 overflow-y-auto px-4 pt-[54px] pb-5">
+<div class="flex-1 overflow-y-auto px-4 pt-13.5 pb-5">
 	{#if state.activeTab === 'listen_now' || state.activeTab === 'browse' || state.activeTab === 'radio' || state.activeTab === 'library'}
 		<h1 class="text-[34px] font-bold text-white px-1 py-2 pb-4 capitalize">
 			{state.activeTab.replace('_', ' ')}
@@ -74,7 +74,7 @@
 				</h2>
 				<div class="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
 					{#each Array(4) as _, i (i)}
-						<div class="min-w-[150px] text-left p-0">
+						<div class="min-w-37.5 text-left p-0">
 							<Skeleton width="150px" height="150px" borderRadius="12px" />
 							<Skeleton width="120px" height="16px" class="mt-1.5" />
 							<Skeleton width="90px" height="14px" class="mt-1" />
@@ -94,14 +94,14 @@
 					{#each state.tracks.slice(0, 8) as t (t.id || t.name)}
 						<button
 							data-id={t.id || t.name}
-							class="min-w-[150px] bg-transparent border-none cursor-pointer text-left p-0"
+							class="min-w-37.5 bg-transparent border-none cursor-pointer text-left p-0"
 							onclick={handlePlay}
 						>
-							<img src={t.art} alt={t.name} class="w-[150px] h-[150px] rounded-xl object-cover" />
-							<div class="text-[13px] font-medium text-white mt-1.5 truncate w-[150px]">
+							<img src={t.art} alt={t.name} class="w-37.5 h-37.5 rounded-xl object-cover" />
+							<div class="text-[13px] font-medium text-white mt-1.5 truncate w-37.5">
 								{t.name}
 							</div>
-							<div class="text-[11px] text-ios-label2 truncate w-[150px]">{t.artist}</div>
+							<div class="text-[11px] text-ios-label2 truncate w-37.5">{t.artist}</div>
 						</button>
 					{/each}
 				</div>
@@ -121,7 +121,7 @@
 				bind:value={state.searchQuery}
 				oninput={handleSearchInput}
 				onkeydown={handleSearchKeydown}
-				class="w-full bg-[#1c1c1e] text-white placeholder-white/50 border-none rounded-xl px-4 py-3 outline-none focus:ring-1 focus:ring-ios-pink"
+				class="w-full bg-ios-bg2 text-white placeholder-white/50 border-none rounded-xl px-4 py-3 outline-none focus:ring-1 focus:ring-ios-pink"
 			/>
 		</div>
 		{#if state.searchSuggestions.length > 0 && state.searchResults.length === 0 && !state.isSearching}

@@ -16,9 +16,9 @@ export class ApiError extends Error {
 const globalRateLimiter = new RateLimiter(60 * 1000, 30, 5 * 60 * 1000);
 
 export interface ApiHandlerOptions {
-	requireAuth?: boolean;       // Default: true
-	rateLimit?: boolean;         // Default: true
-	customRateLimiter?: RateLimiter; 
+	requireAuth?: boolean; // Default: true
+	rateLimit?: boolean; // Default: true
+	customRateLimiter?: RateLimiter;
 }
 
 /**
@@ -39,7 +39,10 @@ export function apiWrapper(
 				const limit = limiter.checkLimit(ip);
 				if (!limit.allowed) {
 					const retrySeconds = Math.ceil(limit.retryAfterMs / 1000);
-					throw new ApiError(429, `Too many requests. Please try again in ${retrySeconds} seconds.`);
+					throw new ApiError(
+						429,
+						`Too many requests. Please try again in ${retrySeconds} seconds.`
+					);
 				}
 			}
 
@@ -57,7 +60,10 @@ export function apiWrapper(
 			if (result instanceof Response) return result;
 
 			// Otherwise, wrap in standard success object
-			return json({ success: true, ...(typeof result === 'object' && result !== null ? result : {}) });
+			return json({
+				success: true,
+				...(typeof result === 'object' && result !== null ? result : {})
+			});
 		} catch (e: unknown) {
 			console.error('API Error:', (e as Error).message);
 			const status = e instanceof ApiError ? e.status : (e as any).status || 500;

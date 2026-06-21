@@ -168,7 +168,7 @@
 </script>
 
 <div
-	class="h-full pt-[54px] bg-black flex flex-col transition-all duration-100 ease-out"
+	class="h-full pt-13.5 bg-black flex flex-col transition-all duration-100 ease-out"
 	style:padding-bottom="{keyboardPadding}px"
 >
 	{#if appState.chatView}
@@ -181,7 +181,7 @@
 			/>
 
 			<div
-				class="flex-1 overflow-y-auto p-3 pb-2 flex flex-col gap-[2px] min-h-0 bg-black"
+				class="flex-1 overflow-y-auto p-3 pb-2 flex flex-col gap-0.5 min-h-0 bg-black"
 				bind:this={chatEl}
 			>
 				{#each appState.messages as msg, i (msg.id || i)}
@@ -207,7 +207,7 @@
 			<!-- Input Bar / Selection Action Bar -->
 			{#if isSelectionMode}
 				<div
-					class="h-[60px] bg-ios-bg3 border-t border-[#3C3C3E] px-4 flex items-center justify-between"
+					class="h-15 bg-ios-bg3 border-t border-[#3C3C3E] px-4 flex items-center justify-between"
 				>
 					<button
 						class="bg-transparent border-none text-ios-blue text-[17px] cursor-pointer"
@@ -229,7 +229,7 @@
 			<div class="flex items-center justify-between px-1 py-2 pb-4">
 				<h1 class="text-[34px] font-bold text-white">Messages</h1>
 				<button
-					class="w-[30px] h-[30px] rounded-full bg-ios-blue border-none text-white text-[20px] font-bold cursor-pointer flex items-center justify-center"
+					class="w-7.5 h-7.5 rounded-full bg-ios-blue border-none text-white text-[20px] font-bold cursor-pointer flex items-center justify-center"
 					onclick={handleAddContact}>+</button
 				>
 			</div>

@@ -70,22 +70,22 @@
 				>
 					<div class="flex justify-between">
 						<button
-							class="w-[52px] h-[52px] rounded-full bg-[#0A84FF] flex items-center justify-center border-none shadow-sm"
+							class="w-13 h-13 rounded-full bg-[#0A84FF] flex items-center justify-center border-none shadow-sm"
 							aria-label="Toggle Airplane Mode"
 							><Plane color="white" size={24} fill="white" /></button
 						>
 						<button
-							class="w-[52px] h-[52px] rounded-full bg-ios-green flex items-center justify-center border-none shadow-sm"
+							class="w-13 h-13 rounded-full bg-ios-green flex items-center justify-center border-none shadow-sm"
 							aria-label="Toggle Cellular"><RadioTower color="white" size={24} /></button
 						>
 					</div>
 					<div class="flex justify-between">
 						<button
-							class="w-[52px] h-[52px] rounded-full bg-[#0A84FF] flex items-center justify-center border-none shadow-sm"
+							class="w-13 h-13 rounded-full bg-[#0A84FF] flex items-center justify-center border-none shadow-sm"
 							aria-label="Toggle Wi-Fi"><Wifi color="white" size={24} /></button
 						>
 						<button
-							class="w-[52px] h-[52px] rounded-full bg-[#0A84FF] flex items-center justify-center border-none shadow-sm"
+							class="w-13 h-13 rounded-full bg-[#0A84FF] flex items-center justify-center border-none shadow-sm"
 							aria-label="Toggle Bluetooth"><Bluetooth color="white" size={24} /></button
 						>
 					</div>
@@ -147,7 +147,7 @@
 
 				<!-- Brightness Slider -->
 				<div
-					class="w-[84px] bg-white/10 backdrop-blur-xl rounded-[28px] shadow-lg relative overflow-hidden flex flex-col justify-end"
+					class="w-21 bg-white/10 backdrop-blur-xl rounded-[28px] shadow-lg relative overflow-hidden flex flex-col justify-end"
 				>
 					<div class="absolute inset-x-0 bottom-0 bg-white h-[60%]"></div>
 					<div class="relative z-10 w-full pb-4 flex justify-center text-black/50">
@@ -157,7 +157,7 @@
 
 				<!-- Volume Slider -->
 				<div
-					class="w-[84px] bg-white/10 backdrop-blur-xl rounded-[28px] shadow-lg relative overflow-hidden flex flex-col justify-end"
+					class="w-21 bg-white/10 backdrop-blur-xl rounded-[28px] shadow-lg relative overflow-hidden flex flex-col justify-end"
 				>
 					<div class="absolute inset-x-0 bottom-0 bg-white h-[40%]"></div>
 					<div class="relative z-10 w-full pb-4 flex justify-center text-black/50">

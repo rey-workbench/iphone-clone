@@ -182,7 +182,7 @@
 			<!-- Floating Address Pill -->
 			<div class="px-3">
 				<button
-					class="w-full h-11 rounded-[12px] bg-white shadow-sm flex items-center justify-center gap-2 text-black text-[15px] cursor-pointer border border-gray-200"
+					class="w-full h-11 rounded-xl bg-white shadow-sm flex items-center justify-center gap-2 text-black text-[15px] cursor-pointer border border-gray-200"
 					onclick={handleToggleInput}
 				>
 					<span class="flex items-center justify-center text-gray-400">

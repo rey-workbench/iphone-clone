@@ -25,7 +25,7 @@
 		</div>
 	</div>
 
-	<div class="w-full h-[1px] bg-[#333] mb-4"></div>
+	<div class="w-full h-px bg-[#333] mb-4"></div>
 
 	<div class="flex flex-col gap-1">
 		<button

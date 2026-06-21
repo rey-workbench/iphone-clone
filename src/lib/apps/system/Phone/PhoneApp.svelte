@@ -44,22 +44,22 @@
 	};
 </script>
 
-<div class="h-full pt-[54px] pb-0 bg-black flex flex-col">
+<div class="h-full pt-13.5 pb-0 bg-black flex flex-col">
 	<div class="flex-1 overflow-y-auto">
 		{#if state.tab === 'keypad'}
 			<div class="flex flex-col items-center py-5">
 				<div
-					class="text-4xl font-light text-white h-[50px] text-center tracking-wider tabular-nums"
+					class="text-4xl font-light text-white h-12.5 text-center tracking-wider tabular-nums"
 				>
 					{state.dialNumber}
 				</div>
 				<div class="flex flex-col gap-3.5 py-5">
 					{#each state.keys as row, i (i)}
-						<div class="flex gap-[22px]">
+						<div class="flex gap-5.5">
 							{#each row as k (k.n || k.s)}
 								<button
 									data-key={k.n}
-									class="w-[78px] h-[78px] rounded-full bg-ios-fill border-none cursor-pointer flex flex-col items-center justify-center text-white active:bg-ios-fill/60 transition-colors"
+									class="w-19.5 h-19.5 rounded-full bg-ios-fill border-none cursor-pointer flex flex-col items-center justify-center text-white active:bg-ios-fill/60 transition-colors"
 									onclick={handleKeyClick}
 								>
 									<span class="text-[32px] font-light leading-none">{k.n}</span>

@@ -17,7 +17,7 @@
 	{#each notificationGlobalState.notifications as notif (notif.id)}
 		<button
 			data-id={notif.id}
-			class="pointer-events-auto w-full max-w-[350px] bg-[rgba(40,40,40,0.85)] backdrop-blur-2xl border border-white/10 p-3 rounded-[24px] shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center gap-3 animate-[slideDown_0.4s_cubic-bezier(0.175,0.885,0.32,1.275)] cursor-pointer text-left active:scale-[0.98] transition-transform"
+			class="pointer-events-auto w-full max-w-87.5 bg-[rgba(40,40,40,0.85)] backdrop-blur-2xl border border-white/10 p-3 rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex items-center gap-3 animate-[slideDown_0.4s_cubic-bezier(0.175,0.885,0.32,1.275)] cursor-pointer text-left active:scale-[0.98] transition-transform"
 			onclick={handleNotificationClick}
 		>
 			{#if notif.icon}
