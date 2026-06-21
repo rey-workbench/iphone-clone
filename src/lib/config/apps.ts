@@ -97,13 +97,6 @@ export const homeScreenApps: IAppConfig[][] = [
 			gradient: 'linear-gradient(180deg,#E50914,#831010)',
 			customIconClass: 'scale-[1.3]',
 			customContainerClass: 'bg-black border-none'
-		},
-		{
-			id: 'appletv',
-			name: 'Apple TV',
-			icon: I('com.apple.tv-large.png'),
-			color: '#000000',
-			gradient: 'linear-gradient(180deg,#1C1C1E,#000)'
 		}
 	],
 	[
@@ -212,6 +205,5 @@ export const implementedApps = new Set([
 	'camera',
 	'mail',
 	'appstore',
-	'netflix',
-	'appletv'
+	'netflix'
 ]);

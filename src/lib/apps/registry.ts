@@ -13,7 +13,6 @@ import { App as PhotosApp } from './system/Photos';
 import { App as SafariApp } from './user/Safari';
 import { App as SettingsApp } from './system/Settings';
 import { App as WeatherApp } from './user/Weather';
-import { App as AppleTVApp } from './user/AppleTV';
 
 export const appsRegistry: Record<string, any> = {
 	appstore: AppStoreApp,
@@ -25,7 +24,6 @@ export const appsRegistry: Record<string, any> = {
 	messages: MessagesApp,
 	music: MusicApp,
 	netflix: NetflixApp,
-	appletv: AppleTVApp,
 	notes: NotesApp,
 	phone: PhoneApp,
 	photos: PhotosApp,
