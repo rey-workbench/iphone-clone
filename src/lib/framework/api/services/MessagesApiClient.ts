@@ -1,9 +1,19 @@
 import type { IChatMessage, IMessage } from '$lib/framework/types';
 import { ApiConfig } from '$lib/framework/api/api';
+import { systemGlobalState } from '$lib/os/state';
+
+function getAuthHeaders() {
+	return {
+		'X-User-Id': systemGlobalState.currentUser?.id || '',
+		'X-Device-Id': systemGlobalState.deviceId || ''
+	};
+}
 
 export class MessagesApiClient {
 	static async getInbox(userId: string): Promise<{ success: boolean; data?: IMessage[] }> {
-		const res = await fetch(`${ApiConfig.MESSAGES}?userId=${userId}`);
+		const res = await fetch(`${ApiConfig.MESSAGES}?userId=${userId}`, {
+			headers: getAuthHeaders()
+		});
 		return await res.json();
 	}
 
@@ -11,14 +21,16 @@ export class MessagesApiClient {
 		userId: string,
 		chatId: string
 	): Promise<{ success: boolean; data?: IChatMessage[] }> {
-		const res = await fetch(`${ApiConfig.MESSAGES}?userId=${userId}&chatId=${chatId}`);
+		const res = await fetch(`${ApiConfig.MESSAGES}?userId=${userId}&chatId=${chatId}`, {
+			headers: getAuthHeaders()
+		});
 		return await res.json();
 	}
 
 	static async sendMessage(senderId: string, receiverId: string, content: string) {
 		const res = await fetch(ApiConfig.MESSAGES, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
 			body: JSON.stringify({ senderId, receiverId, content })
 		});
 		const result = await res.json();
@@ -27,7 +39,8 @@ export class MessagesApiClient {
 
 	static async deleteMessage(msgId: string, senderId: string) {
 		const res = await fetch(`${ApiConfig.MESSAGES}?msgId=${msgId}&senderId=${senderId}`, {
-			method: 'DELETE'
+			method: 'DELETE',
+			headers: getAuthHeaders()
 		});
 		const result = await res.json();
 		return { res, result };

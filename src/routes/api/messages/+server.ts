@@ -1,9 +1,22 @@
 import { json } from '@sveltejs/kit';
 import { MessagesService } from '$lib/backend/services/MessagesService';
+import { DevicesRepository } from '$lib/backend/repositories/DevicesRepository';
 
 const messagesService = new MessagesService();
+const devicesRepo = new DevicesRepository();
 
-export async function GET({ url }) {
+async function isAuthorized(request: Request, targetUserId: string): Promise<boolean> {
+	const authUserId = request.headers.get('x-user-id');
+	const authDeviceId = request.headers.get('x-device-id');
+
+	if (!authUserId || !authDeviceId) return false;
+	if (authUserId !== targetUserId) return false;
+
+	const devices = await devicesRepo.findByUserId(authUserId);
+	return devices.some(d => d.device_id === authDeviceId);
+}
+
+export async function GET({ url, request }) {
 	try {
 		const userId = url.searchParams.get('userId');
 		const chatId = url.searchParams.get('chatId');
@@ -12,10 +25,9 @@ export async function GET({ url }) {
 			return json({ error: 'User ID is required' }, { status: 400 });
 		}
 
-		// Security: IDOR Protection Placeholder
-		// TODO: Replace with actual session check `const authUserId = locals.user?.id;`
-		const authUserId = userId; // Mock auth for now
-		if (userId !== authUserId) {
+		// Security: Real IDOR Protection & Device Auth
+		const authorized = await isAuthorized(request, userId);
+		if (!authorized) {
 			return json({ error: 'Unauthorized access to user inbox' }, { status: 403 });
 		}
 
@@ -37,10 +49,9 @@ export async function POST({ request }) {
 		const body = await request.json();
 		const { senderId, receiverId, content } = body;
 
-		// Security: IDOR Protection Placeholder
-		// TODO: Replace with `const authUserId = locals.user?.id;`
-		const authUserId = senderId; // Mock auth for now
-		if (senderId !== authUserId) {
+		// Security: Real IDOR Protection & Device Auth
+		const authorized = await isAuthorized(request, senderId);
+		if (!authorized) {
 			return json({ error: 'Unauthorized to send as this user' }, { status: 403 });
 		}
 
@@ -52,7 +63,7 @@ export async function POST({ request }) {
 	}
 }
 
-export async function DELETE({ url }) {
+export async function DELETE({ url, request }) {
 	try {
 		const msgId = url.searchParams.get('msgId');
 		const senderId = url.searchParams.get('senderId');
@@ -61,10 +72,9 @@ export async function DELETE({ url }) {
 			return json({ error: 'Missing parameters' }, { status: 400 });
 		}
 
-		// Security: IDOR Protection Placeholder
-		// TODO: Replace with `const authUserId = locals.user?.id;`
-		const authUserId = senderId; // Mock auth for now
-		if (senderId !== authUserId) {
+		// Security: Real IDOR Protection & Device Auth
+		const authorized = await isAuthorized(request, senderId);
+		if (!authorized) {
 			return json({ error: 'Unauthorized to delete this message' }, { status: 403 });
 		}
 
