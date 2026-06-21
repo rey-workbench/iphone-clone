@@ -20,7 +20,6 @@ function wispServerPlugin() {
 
 export default defineConfig({
 	plugins: [
-		wispServerPlugin(),
 		tailwindcss(),
 		sveltekit(),
 		SvelteKitPWA({
@@ -53,6 +52,7 @@ export default defineConfig({
 					}
 				]
 			}
-		})
+		}),
+		wispServerPlugin()
 	]
 });
