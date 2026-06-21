@@ -1,15 +1,12 @@
-import { apiHandler, ApiError } from '$lib/backend/api';
+import { apiWrapper, ApiError } from '$lib/backend/api';
 import { KeepaliveService } from '$lib/backend/services/KeepaliveService';
 
 const keepaliveService = new KeepaliveService();
 
-export function GET() {
-	return apiHandler(async () => {
-		try {
-			return await keepaliveService.ping();
-		} catch (error: any) {
-			// console.error('Keepalive error:', error);
-			throw new ApiError(500, error.message);
-		}
-	});
-}
+export const GET = apiWrapper(async () => {
+	try {
+		return await keepaliveService.ping();
+	} catch (error: any) {
+		throw new ApiError(500, error.message);
+	}
+});

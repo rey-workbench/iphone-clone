@@ -1,7 +1,9 @@
-import { error } from '@sveltejs/kit';
+import { apiWrapper, ApiError } from '$lib/backend/api';
 import { ProxyService } from '$lib/backend/services/ProxyService';
+import { RateLimiter } from '$lib/backend/security/RateLimiter';
 
 const proxyService = new ProxyService();
+const proxyRateLimiter = new RateLimiter(60 * 1000, 30, 5 * 60 * 1000); // 30 requests per minute
 
 function isLocalOrPrivateIP(hostname: string): boolean {
 	const privatePattern =
@@ -9,34 +11,33 @@ function isLocalOrPrivateIP(hostname: string): boolean {
 	return privatePattern.test(hostname);
 }
 
-export async function GET({ url }) {
+export const GET = apiWrapper(async ({ url }) => {
 	const targetUrlStr = url.searchParams.get('url');
 
 	if (!targetUrlStr) {
-		throw error(400, 'Missing target URL');
+		throw new ApiError(400, 'Missing target URL');
 	}
 
 	let targetUrl: URL;
 	try {
 		targetUrl = new URL(targetUrlStr);
 	} catch {
-		throw error(400, 'Invalid URL format');
+		throw new ApiError(400, 'Invalid URL format');
 	}
 
 	if (targetUrl.protocol !== 'http:' && targetUrl.protocol !== 'https:') {
-		throw error(400, 'Only HTTP and HTTPS protocols are allowed');
+		throw new ApiError(400, 'Only HTTP and HTTPS protocols are allowed');
 	}
 
 	if (isLocalOrPrivateIP(targetUrl.hostname)) {
-		throw error(403, 'Access to local or private networks is forbidden');
+		throw new ApiError(403, 'Access to local or private networks is forbidden');
 	}
 
 	try {
 		const { body, status, headers } = await proxyService.fetchProxy(targetUrlStr);
 		return new Response(body, { status, headers });
 	} catch (err: any) {
-		// Log error internally, do not leak raw error message to client
 		console.error('[Proxy Error]', err.message || err);
-		throw error(500, 'Internal Proxy Error');
+		throw new ApiError(500, 'Internal Proxy Error');
 	}
-}
+}, { customRateLimiter: proxyRateLimiter });

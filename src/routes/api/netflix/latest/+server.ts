@@ -1,13 +1,11 @@
-import { json } from '@sveltejs/kit';
+import { apiWrapper } from '$lib/backend/api';
 import { NetflixService } from '$lib/backend/services/NetflixService';
+import { RateLimiter } from '$lib/backend/security/RateLimiter';
 
 const netflixService = new NetflixService();
+const netflixRateLimiter = new RateLimiter(60 * 1000, 30, 5 * 60 * 1000); // 30 requests per minute
 
-export async function GET() {
-	try {
-		const data = await netflixService.getLatest();
-		return json(data);
-	} catch (error: any) {
-		return json({ error: error.message }, { status: 500 });
-	}
-}
+export const GET = apiWrapper(async () => {
+	const data = await netflixService.getLatest();
+	return data;
+}, { customRateLimiter: netflixRateLimiter });

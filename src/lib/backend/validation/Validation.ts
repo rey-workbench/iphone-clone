@@ -40,3 +40,5 @@ export const LoginSchema = z.object({
     deviceId: z.string().max(100).optional(),
     deviceName: z.string().max(255).optional()
 });
+
+export const SearchQuerySchema = z.string().min(1, 'Search query cannot be empty').max(200, 'Search query is too long');

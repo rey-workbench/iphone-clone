@@ -1,17 +1,14 @@
-import { json } from '@sveltejs/kit';
+import { apiWrapper } from '$lib/backend/api';
 import { SafariSearchService } from '$lib/backend/services/SafariSearchService';
+import { RateLimiter } from '$lib/backend/security/RateLimiter';
+import { SearchQuerySchema } from '$lib/backend/validation/Validation';
 
 const safariSearchService = new SafariSearchService();
+const searchRateLimiter = new RateLimiter(60 * 1000, 20, 5 * 60 * 1000); // 20 requests per minute
 
-export async function GET({ url }) {
-	const query = url.searchParams.get('q');
+export const GET = apiWrapper(async ({ url }) => {
+	const rawQuery = url.searchParams.get('q');
+	const query = SearchQuerySchema.parse(rawQuery || '');
 
-	try {
-		const data = await safariSearchService.search(query || '');
-		return json(data);
-	} catch (error: any) {
-		// console.error('[SafariSearch API Error]', error);
-		const status = error.message.includes('required') ? 400 : 500;
-		return json({ error: error.message || 'Internal Server Error' }, { status });
-	}
-}
+	return await safariSearchService.search(query);
+}, { customRateLimiter: searchRateLimiter });
