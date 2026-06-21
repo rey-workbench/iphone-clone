@@ -80,22 +80,23 @@ class WebrtcGlobalState extends BaseGlobalState implements IWebrtcGlobalState {
 	// ============================================================================
 	// 3. PEER CONNECTION
 	// ============================================================================
-	async createPeerConnection(toUserId: string, toDeviceId?: string, onDisconnect?: () => void): Promise<RTCPeerConnection> {
+	async createPeerConnection(
+		toUserId: string,
+		toDeviceId?: string,
+		onDisconnect?: () => void
+	): Promise<RTCPeerConnection> {
 		const pc = await this.peerConnection.createPeerConnection(
 			() => {
 				this.cleanup();
 				onDisconnect?.();
 			},
-			(stream) => { this.remoteStream = stream; }
+			(stream) => {
+				this.remoteStream = stream;
+			}
 		);
 
 		this.peerConnection.setIceCandidateCallback((candidate) => {
-			this.sendSignal(
-				toUserId,
-				'ice_candidate',
-				{ candidate: candidate.toJSON() },
-				toDeviceId
-			);
+			this.sendSignal(toUserId, 'ice_candidate', { candidate: candidate.toJSON() }, toDeviceId);
 		});
 
 		const localStream = this.media.getStream();

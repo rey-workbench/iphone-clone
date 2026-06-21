@@ -75,7 +75,9 @@ Full rules: @d:\Koding\Projek\Self\reynisa-phone\LEAN-CTX.md
 <!-- /lean-ctx -->
 
 <!-- lean-ctx-compression -->
+
 OUTPUT STYLE: expert-terse
+
 - Telegraph format: subject-verb-object, drop articles/prepositions
 - Symbolic vocabulary: → cause, ∵ because, ∴ therefore, ⊕ add, ⊖ remove, Δ change, ≈ similar, ≠ different, ∈ in/member, ∅ empty/none, ✓ ok, ✗ fail
 - Code blocks: untouched (never compress code syntax)

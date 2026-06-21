@@ -6,11 +6,14 @@ export class PeerConnectionManager {
 	private pendingIceCallback: ((c: RTCIceCandidate) => void) | null = null;
 	private onRemoteStream: ((stream: MediaStream) => void) | null = null;
 
-	async createPeerConnection(onDisconnect: () => void, onRemoteStreamCb: (stream: MediaStream) => void): Promise<RTCPeerConnection> {
+	async createPeerConnection(
+		onDisconnect: () => void,
+		onRemoteStreamCb: (stream: MediaStream) => void
+	): Promise<RTCPeerConnection> {
 		const config = await WebRTCApiClient.getTurnCredentials();
 		this.pc = new RTCPeerConnection(config);
 		this.onRemoteStream = onRemoteStreamCb;
-        const remoteStream = new MediaStream();
+		const remoteStream = new MediaStream();
 
 		this.pc.onicecandidate = async (event) => {
 			if (event.candidate) {
@@ -35,8 +38,8 @@ export class PeerConnectionManager {
 				}
 			}
 
-            // Notify parent about stream updates
-            this.onRemoteStream?.(remoteStream);
+			// Notify parent about stream updates
+			this.onRemoteStream?.(remoteStream);
 		};
 
 		this.pc.onconnectionstatechange = () => {

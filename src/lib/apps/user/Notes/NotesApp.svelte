@@ -50,8 +50,7 @@
 				<textarea
 					class="flex-1 bg-transparent border-none text-white text-[17px] outline-none resize-none leading-relaxed w-full"
 					bind:value={state.editContent}
-					placeholder="Start typing..."
-				></textarea>
+					placeholder="Start typing..."></textarea>
 			</div>
 		</div>
 	{:else}

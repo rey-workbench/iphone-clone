@@ -38,7 +38,9 @@ The workspace has the `lean-ctx` MCP server installed. You MUST prefer lean-ctx 
 - When running tests or build commands, use `mcp_lean_ctx_ctx_shell` for compressed output
 
 <!-- lean-ctx-compression -->
+
 OUTPUT STYLE: expert-terse
+
 - Telegraph format: subject-verb-object, drop articles/prepositions
 - Symbolic vocabulary: → cause, ∵ because, ∴ therefore, ⊕ add, ⊖ remove, Δ change, ≈ similar, ≠ different, ∈ in/member, ∅ empty/none, ✓ ok, ✗ fail
 - Code blocks: untouched (never compress code syntax)

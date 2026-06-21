@@ -37,8 +37,7 @@
 			style:min-height="22px"
 			style:max-height="100px"
 			style:padding-top="6px"
-			style:padding-bottom="6px"
-		></textarea>
+			style:padding-bottom="6px"></textarea>
 
 		<div class="shrink-0 flex items-center justify-center h-[30px] w-[30px] ml-1 self-end mb-0.5">
 			{#if appState.inputText}

@@ -60,7 +60,7 @@ class CallAppState extends BaseGlobalState {
 		try {
 			await webrtcGlobalState.getLocalStream(false);
 			await webrtcGlobalState.createPeerConnection(contact.id, undefined, () => this.cleanup());
-			
+
 			await webrtcGlobalState.createOffer(contact.id, {
 				from: { id: user.id, name: user.name }
 			});
@@ -120,8 +120,8 @@ class CallAppState extends BaseGlobalState {
 		try {
 			await webrtcGlobalState.getLocalStream(this.isVideo);
 			await webrtcGlobalState.createPeerConnection(
-				this.remoteContact.id, 
-				this.remoteDeviceId || undefined, 
+				this.remoteContact.id,
+				this.remoteDeviceId || undefined,
 				() => this.cleanup()
 			);
 

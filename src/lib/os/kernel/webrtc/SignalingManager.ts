@@ -9,10 +9,10 @@ export class SignalingManager {
 	setupSignaling(callbacks: ISignalCallback) {
 		const user = systemGlobalState.currentUser;
 		if (!user) {
-			// If user is not ready yet, wait and retry. 
-            // In Svelte 5, $effect.root can be used or we can just rely on the caller to guarantee user exists.
-            // But for safety, we expose this logic:
-            throw new Error('SignalingManager requires a logged in user');
+			// If user is not ready yet, wait and retry.
+			// In Svelte 5, $effect.root can be used or we can just rely on the caller to guarantee user exists.
+			// But for safety, we expose this logic:
+			throw new Error('SignalingManager requires a logged in user');
 		}
 
 		const handleIfForMe = (payload: any, cb?: (p: any) => void) => {
@@ -94,11 +94,11 @@ export class SignalingManager {
 		});
 	}
 
-    cleanup() {
-        if (this.channel) {
-            this.channel.unsubscribe();
-            this.channel = null;
-        }
-        this.isSubscribed = false;
-    }
+	cleanup() {
+		if (this.channel) {
+			this.channel.unsubscribe();
+			this.channel = null;
+		}
+		this.isSubscribed = false;
+	}
 }

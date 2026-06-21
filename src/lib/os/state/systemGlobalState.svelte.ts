@@ -38,7 +38,6 @@ class SystemGlobalState extends BaseGlobalState implements ISystemGlobalState {
 		if (typeof window !== 'undefined') {
 			this.init();
 
-
 			// Time updater
 			setInterval(() => {
 				this.currentTime = new Date();
