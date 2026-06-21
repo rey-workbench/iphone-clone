@@ -33,3 +33,10 @@ export const ChatMessageSchema = z.object({
 export const ChatRequestSchema = z.object({
     messages: z.array(ChatMessageSchema).max(50)
 });
+
+export const LoginSchema = z.object({
+    username: z.string().min(1, 'Username is required').max(100),
+    password: z.string().min(1, 'Password is required').max(100),
+    deviceId: z.string().max(100).optional(),
+    deviceName: z.string().max(255).optional()
+});
