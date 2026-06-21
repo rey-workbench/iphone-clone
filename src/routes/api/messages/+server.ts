@@ -1,20 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { MessagesService } from '$lib/backend/services/MessagesService';
-import { DevicesRepository } from '$lib/backend/repositories/DevicesRepository';
+import { isAuthorized } from '$lib/backend/security/AuthValidator';
 
 const messagesService = new MessagesService();
-const devicesRepo = new DevicesRepository();
-
-async function isAuthorized(request: Request, targetUserId: string): Promise<boolean> {
-	const authUserId = request.headers.get('x-user-id');
-	const authDeviceId = request.headers.get('x-device-id');
-
-	if (!authUserId || !authDeviceId) return false;
-	if (authUserId !== targetUserId) return false;
-
-	const devices = await devicesRepo.findByUserId(authUserId);
-	return devices.some(d => d.device_id === authDeviceId);
-}
 
 export async function GET({ url, request }) {
 	try {

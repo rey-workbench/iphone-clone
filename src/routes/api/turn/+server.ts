@@ -1,8 +1,13 @@
 import { json } from '@sveltejs/kit';
 import { ApiConfig } from '$lib/framework/api/api';
+import { isAuthorized } from '$lib/backend/security/AuthValidator';
 
-export async function GET() {
+export async function GET({ request }) {
 	try {
+        if (!(await isAuthorized(request, null))) {
+            return json({ error: 'Unauthorized access to TURN service' }, { status: 403 });
+        }
+
 		const keyId = process.env.CLOUDFLARE_TURN_KEY_ID;
 		const apiToken = process.env.CLOUDFLARE_TURN_API_TOKEN;
 
