@@ -49,11 +49,11 @@ pnpm install
 
 Copy the example environment file (if available) or create a `.env` file in the root directory. You will need to configure the following essential variables:
 
-| Variable | Description | Example |
-| -------- | ----------- | ------- |
-| `PUBLIC_SUPABASE_URL` | Your Supabase project URL | `https://xyz.supabase.co` |
-| `PUBLIC_SUPABASE_ANON_KEY` | Supabase Anonymous Key | `eyJhbGciOiJIUzI1...` |
-| `TURN_API_URL` | WebRTC TURN Server URL (if used) | `https://turn.example.com` |
+| Variable                   | Description                      | Example                    |
+| -------------------------- | -------------------------------- | -------------------------- |
+| `PUBLIC_SUPABASE_URL`      | Your Supabase project URL        | `https://xyz.supabase.co`  |
+| `PUBLIC_SUPABASE_ANON_KEY` | Supabase Anonymous Key           | `eyJhbGciOiJIUzI1...`      |
+| `TURN_API_URL`             | WebRTC TURN Server URL (if used) | `https://turn.example.com` |
 
 ### 4. Database Setup
 
@@ -63,7 +63,8 @@ Execute the provided SQL script to initialize the Supabase tables:
 # You can run this via the Supabase SQL Editor
 cat supabase_setup.sql
 ```
-*(This sets up the `messages` and `temp` tables used by the system).*
+
+_(This sets up the `messages` and `temp` tables used by the system)._
 
 ### 5. Start Development Server
 
@@ -110,7 +111,7 @@ reynisa-phone/
 
 1. **Client Interaction**: User interacts with a ReyOS app (e.g., Netflix).
 2. **API Request**: App makes an HTTP request to `/api/netflix/trending`.
-3. **API Wrapper Layer**: 
+3. **API Wrapper Layer**:
    - The request hits `src/routes/api/netflix/trending/+server.ts`.
    - The `apiWrapper` intercepts the request.
    - **Rate Limiting**: Checks if the IP is rate-limited (penalty box strategy).
@@ -121,27 +122,30 @@ reynisa-phone/
 ### Key Components
 
 **Security & API (`src/lib/backend/`)**
+
 - `apiWrapper`: A Higher-Order Function that wraps every SvelteKit API route. It completely centralizes API security, drastically reducing boilerplate and ensuring zero endpoints are left unprotected.
 - `RateLimiter`: An advanced in-memory sliding window rate limiter with a 5-minute penalty box mechanism.
 
 **Applications (`src/lib/apps/`)**
+
 - Built completely functionally. Safari relies on `@mercuryworkshop/scramjet` for handling raw proxying of web pages within an iframe, providing a realistic browsing experience inside the virtual OS.
 
 **System UI (`src/lib/sysui/`)**
+
 - Employs Svelte 5 runes (`$state`, `$derived`) for highly reactive drag-and-drop mechanics (Control Center) and gesture-based navigation (App Switcher).
 
 ---
 
 ## Available Scripts
 
-| Command | Description |
-| ------- | ----------- |
-| `pnpm run dev` | Start Vite dev server with proxy bundling |
-| `pnpm run build` | Compile the app for production (Vercel) |
-| `pnpm run preview` | Serve the production build locally |
-| `pnpm run check` | Run `svelte-check` for TypeScript validation |
-| `pnpm run lint` | Run ESLint and custom Tailwind linters |
-| `pnpm run format` | Run Prettier across the codebase |
+| Command            | Description                                  |
+| ------------------ | -------------------------------------------- |
+| `pnpm run dev`     | Start Vite dev server with proxy bundling    |
+| `pnpm run build`   | Compile the app for production (Vercel)      |
+| `pnpm run preview` | Serve the production build locally           |
+| `pnpm run check`   | Run `svelte-check` for TypeScript validation |
+| `pnpm run lint`    | Run ESLint and custom Tailwind linters       |
+| `pnpm run format`  | Run Prettier across the codebase             |
 
 ---
 
@@ -161,6 +165,7 @@ ReyOS is pre-configured to deploy seamlessly to Vercel via `@sveltejs/adapter-ve
 ## Apps & Upcoming Features
 
 ### Currently Available
+
 - [x] **Phone & Messages**: Including WebRTC-powered FaceTime/Video Call capabilities.
 - [x] **Safari**: Fully functional browser proxy using Scramjet.
 - [x] **Camera & Photos**: Functioning web camera UI and gallery view.
@@ -170,6 +175,7 @@ ReyOS is pre-configured to deploy seamlessly to Vercel via `@sveltejs/adapter-ve
 - [x] **App Store**: Visual replica of the App Store.
 
 ### Upcoming Features / TODO
+
 - [ ] **Camera to Gallery Integration**: Save photos and videos captured via the Camera app directly to the Photos (Gallery) database.
 - [ ] **Dynamic App Installation**: Make the App Store download and install custom apps dynamically on the fly.
 - [ ] **Push Notifications**: Real-time push notifications using Service Workers.

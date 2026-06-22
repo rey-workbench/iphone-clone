@@ -219,7 +219,8 @@ var $scramjetController;
 							(r.rawHeaders = e.headers),
 							r
 						);
-					} fromNativeResponse(e) {
+					}
+					fromNativeResponse(e) {
 						let t = new s(o.includes(e.status) ? void 0 : e.body, {
 							headers: e.headers,
 							status: e.status,

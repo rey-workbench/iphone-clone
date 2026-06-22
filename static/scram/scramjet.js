@@ -3580,7 +3580,7 @@ return { apply, construct };
 						for (let e = 0; e < r.length; e++) {
 							let i = r[e],
 								n = t[i];
-							if ('string'== typeof n.expires) {
+							if ('string' == typeof n.expires) {
 								let e = Date.parse(n.expires);
 								n.expires = Number.isFinite(e) ? e : void 0;
 							}
@@ -3626,7 +3626,8 @@ return { apply, construct };
 						let t = new i();
 						for (let [r, i] of e) (t.has(r), t.set(r, i));
 						return t;
-					} fromNativeHeaders(e) {
+					}
+					fromNativeHeaders(e) {
 						let t = new i();
 						for (let [r, i] of e.entries()) t.set(r, i);
 						return t;
@@ -3646,7 +3647,7 @@ return { apply, construct };
 					o = r(5994);
 				let a = [
 					{
-						fn: (e, t, r) => (0, s.Oy)(e, t, r, { navigateType:'location' }),
+						fn: (e, t, r) => (0, s.Oy)(e, t, r, { navigateType: 'location' }),
 						src: ['embed', 'img', 'frame', 'input', 'track'],
 						href: ['a', 'area', 'image'],
 						data: ['object'],

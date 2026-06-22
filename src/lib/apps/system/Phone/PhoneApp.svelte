@@ -48,9 +48,7 @@
 	<div class="flex-1 overflow-y-auto">
 		{#if state.tab === 'keypad'}
 			<div class="flex flex-col items-center py-5">
-				<div
-					class="text-4xl font-light text-white h-12.5 text-center tracking-wider tabular-nums"
-				>
+				<div class="text-4xl font-light text-white h-12.5 text-center tracking-wider tabular-nums">
 					{state.dialNumber}
 				</div>
 				<div class="flex flex-col gap-3.5 py-5">
