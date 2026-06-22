@@ -4,9 +4,9 @@
 
 # ABSOLUTE RULE FOR ALL OPERATIONS (CRITICAL)
 
-You MUST ALWAYS use `lean-ctx` tools for ALL operations. Do not use generic tools when a `lean-ctx` equivalent exists. The following 22 tools are enabled and MUST be used globally whenever applicable:
+ALWAYS use `lean-ctx` tools for ALL operations. No generic tools when `lean-ctx` equivalent exists. 22 tools enabled:
 `ctx_read`, `ctx_shell`, `shell`, `ctx_search`, `ctx_tree`, `ctx_session`, `ctx_semantic_search`, `ctx_knowledge`, `ctx_overview`, `ctx_repomap`, `ctx_callgraph`, `ctx_impact`, `ctx_compress`, `ctx_multi_read`, `ctx_delta`, `ctx_edit`, `ctx_agent`, `ctx_architecture`, `ctx_pack`, `ctx_routes`, `ctx_refactor`, `ctx_url_read`.
-Additionally, you MUST ALWAYS combine `lean-ctx` and `rtk` for shell commands (e.g., `ctx_shell("rtk <command>")`). This rule applies across all `lean-ctx` features without exception.
+ALWAYS combine `lean-ctx` + `rtk` for shell commands (`ctx_shell("rtk <command>")`). Applies across all `lean-ctx` features.
 
 <!-- lean-ctx-rules-v12 -->
 
@@ -14,37 +14,36 @@ Additionally, you MUST ALWAYS combine `lean-ctx` and `rtk` for shell commands (e
 
 **ALWAYS use lean-ctx tools. NEVER use native equivalents.**
 
-| Native Tool (FORBIDDEN)               | Use Instead                 |
-| ------------------------------------- | --------------------------- |
-| `read`, `Read`, `cat`, `head`, `tail` | `ctx_read(path, mode)`      |
-| `grep`, `rg`, `find`, `Grep`          | `ctx_search(pattern, path)` |
-| `bash`, `shell`, `exec`               | `ctx_shell(command)`        |
-| `edit`, `Edit`, `sed`, `awk`          | `ctx_edit(path, old, new)`  |
+| Native Tool (FORBIDDEN) | Use Instead |
+| --- | --- |
+| `read`, `Read`, `cat`, `head`, `tail` | `ctx_read(path, mode)` |
+| `grep`, `rg`, `find`, `Grep` | `ctx_search(pattern, path)` |
+| `bash`, `shell`, `exec` | `ctx_shell(command)` |
+| `edit`, `Edit`, `sed`, `awk` | `ctx_edit(path, old, new)` |
 
-**Violations = incomplete work. Always verify tool choice before executing.**
+**Violations = incomplete work. Verify tool choice before executing.**
 
 ## rtk — Shell Command Optimization (MANDATORY)
 
 **rtk rewrites shell commands for token efficiency. Always enabled via plugin.**
 
 When running shell commands:
+1. Use `ctx_shell(command)` — rtk plugin auto-rewrites
+2. If `ctx_shell` unavailable, use native `bash` — rtk intercepts
+3. Never bypass rtk. Check `rtk rewrite <cmd>` if unsure.
 
-1. Use `ctx_shell(command)` — rtk plugin auto-rewrites to optimized form
-2. If `ctx_shell` unavailable, use native `bash` — rtk plugin intercepts and rewrites
-3. Never bypass rtk rewriting. If command looks wrong, check `rtk rewrite <cmd>` manually
-
-rtk is the single source of truth for command optimization. Trust its output.
+rtk = single source of truth for command optimization.
 
 ## ctx_read Mode Selection
 
-| Goal                | Mode         | When                        |
-| ------------------- | ------------ | --------------------------- |
-| Edit this file      | `full`       | Before any edit             |
-| Understand API      | `signatures` | Context-only, won't edit    |
-| Re-read after edit  | `diff`       | Post-edit verification      |
-| Large file overview | `map`        | >500 lines, won't edit      |
-| Specific region     | `lines:N-M`  | Know exact location         |
-| Unsure              | `auto`       | System selects optimal mode |
+| Goal | Mode | When |
+| --- | --- | --- |
+| Edit this file | `full` | Before edit |
+| Understand API | `signatures` | Context-only, won't edit |
+| Re-read after edit | `diff` | Post-edit verification |
+| Large file overview | `map` | >500 lines, won't edit |
+| Specific region | `lines:N-M` | Know exact location |
+| Unsure | `auto` | System selects optimal mode |
 
 ## Workflow (MANDATORY ORDER)
 
@@ -57,11 +56,11 @@ rtk is the single source of truth for command optimization. Trust its output.
 
 ## Proactive (use without being asked)
 
-- `ctx_overview(task)` — at session start for orientation
-- `ctx_compress` — when context grows large (at phase boundaries)
-- `ctx_knowledge(action="wakeup")` — at session start to surface prior findings
+- `ctx_overview(task)` — session start orientation
+- `ctx_compress` — when context grows large (phase boundaries)
+- `ctx_knowledge(action="wakeup")` — session start to surface prior findings
 
-## Compression Bypass (only when compressed output hides needed detail)
+## Compression Bypass (when compressed output hides detail)
 
 `ctx_read(path, "lines:N-M")` → `ctx_read(path, "full")` → `ctx_shell(cmd, raw=true)`
 Return to compressed defaults after one expanded retrieval.
@@ -73,10 +72,10 @@ and `ctx_callgraph(action="callers")` to confirm blast radius.
 
 ## Advanced Features (v3.7.5+)
 
-- **Tool Catalog Gateway:** Use `ctx_tools` to navigate 75+ available tools.
-- **Context Graph:** Use `ctx_architecture` or `ctx_impact` for impact analysis.
-- **Resident Search:** `ctx_search` is fast via memory-resident index.
-- **Hybrid Execution:** Combine MCP and shell hooks for optimal token savings.
+- **Tool Catalog Gateway:** `ctx_tools` to navigate 75+ tools.
+- **Context Graph:** `ctx_architecture` or `ctx_impact` for impact analysis.
+- **Resident Search:** `ctx_search` fast via memory-resident index.
+- **Hybrid Execution:** Combine MCP + shell hooks for optimal token savings.
 
 ## Session
 
@@ -86,12 +85,12 @@ and `ctx_callgraph(action="callers")` to confirm blast radius.
 
 ## ❌ FORBIDDEN PATTERNS
 
-- Using native `read`/`Read` tool when `ctx_read` exists
-- Using native `grep`/`Grep` when `ctx_search` exists
-- Using native `bash`/`shell` when `ctx_shell` exists
-- Using native `edit`/`Edit` when `ctx_edit` exists
+- Native `read`/`Read` when `ctx_read` exists
+- Native `grep`/`Grep` when `ctx_search` exists
+- Native `bash`/`shell` when `ctx_shell` exists
+- Native `edit`/`Edit` when `ctx_edit` exists
 - Bypassing rtk rewriting for shell commands
 
-**If ctx\_\* tools fail, report error. Do NOT fallback to native tools.**
+**If ctx_* tools fail, report error. Do NOT fallback to native tools.**
 
 <!-- /lean-ctx -->

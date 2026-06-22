@@ -5,28 +5,28 @@
 
 ## Purpose
 
-Core application source code for the iPhone clone UI, containing layout, routes, and lib functions.
+Core app source for iPhone clone UI: layout, routes, lib functions.
 
 ## Key Files
 
-| File              | Description              |
-| ----------------- | ------------------------ |
-| `app.html`        | Base HTML template       |
-| `app.css`         | Global styles (Tailwind) |
-| `hooks.server.ts` | SvelteKit server hooks   |
+| File | Description |
+| --- | --- |
+| `app.html` | Base HTML template |
+| `app.css` | Global styles (Tailwind) |
+| `hooks.server.ts` | SvelteKit server hooks |
 
 ## Subdirectories
 
-| Directory | Purpose                                                                |
-| --------- | ---------------------------------------------------------------------- |
-| `lib/`    | Shared libraries, apps, state, and UI components (see `lib/AGENTS.md`) |
-| `routes/` | SvelteKit file-based routing (see `routes/AGENTS.md`)                  |
+| Directory | Purpose |
+| --------- | ------- |
+| `lib/` | Shared libs, apps, state, UI (see `lib/AGENTS.md`) |
+| `routes/` | SvelteKit file-based routing (see `routes/AGENTS.md`) |
 
 ## For AI Agents
 
 ### Working In This Directory
 
 - Use Svelte 5 syntax (`.svelte.ts` indicates Runes).
-- Keep server-side code out of client bundles.
+- Keep server code out of client bundles.
 
-<!-- MANUAL: Any manually added notes below this line are preserved on regeneration -->
+<!-- MANUAL: Manual notes below this line preserved on regeneration -->
