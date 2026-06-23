@@ -1,9 +1,7 @@
-import { ApiConfig } from '$lib/framework/api/api';
-import { fetchWithCache } from '$lib/framework/utils/fetchWithCache';
-
+import { ApiConfig, apiFetch } from '$lib/framework/api/api';
 export class WeatherApiClient {
 	static async getCityFromCoords(lat: number, lon: number): Promise<string> {
-		const res = await fetch(
+		const res = await apiFetch(
 			`${ApiConfig.NOMINATIM_REVERSE}?format=json&lat=${lat}&lon=${lon}&zoom=10`
 		);
 		const data = await res.json();
@@ -22,7 +20,7 @@ export class WeatherApiClient {
 		for (const url of providers) {
 			try {
 				// Refresh cache every 10 seconds (10000 ms)
-				const data = await fetchWithCache<any>(url, undefined, 10000);
+				const data = (await apiFetch(url, { useCache: true, ttlMs: 10000 })).json();
 				if (!data || data.error || data.success === false || data.status === 'fail') continue;
 
 				let lat = data.latitude !== undefined ? data.latitude : data.lat;
@@ -47,6 +45,6 @@ export class WeatherApiClient {
 		lon: number
 	): Promise<{ current: any; hourly: any; daily: any }> {
 		const url = `${ApiConfig.WEATHER_FORECAST}?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,relative_humidity_2m,surface_pressure,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto`;
-		return await fetchWithCache<any>(url);
+		return (await apiFetch(url, { useCache: true })).json();
 	}
 }

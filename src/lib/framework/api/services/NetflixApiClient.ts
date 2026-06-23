@@ -1,18 +1,18 @@
-import { ApiConfig } from '$lib/framework/api/api';
+import { ApiConfig, apiFetch } from '$lib/framework/api/api';
 
 export class NetflixApiClient {
 	static async getTrending() {
-		const res = await fetch(ApiConfig.NETFLIX_LATEST);
+		const res = await apiFetch(ApiConfig.NETFLIX_LATEST);
 		return { res, result: res.ok ? await res.json() : null };
 	}
 
 	static async search(query: string) {
-		const res = await fetch(`${ApiConfig.NETFLIX_SEARCH}?q=${encodeURIComponent(query)}`);
+		const res = await apiFetch(`${ApiConfig.NETFLIX_SEARCH}?q=${encodeURIComponent(query)}`);
 		return { res, result: res.ok ? await res.json() : null };
 	}
 
 	static async getDetails(id: number, type: string) {
-		const res = await fetch(`${ApiConfig.NETFLIX_DETAILS}?id=${id}&type=${type}`);
+		const res = await apiFetch(`${ApiConfig.NETFLIX_DETAILS}?id=${id}&type=${type}`);
 		return { res, result: await res.json() };
 	}
 

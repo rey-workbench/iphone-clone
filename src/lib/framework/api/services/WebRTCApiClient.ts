@@ -1,9 +1,9 @@
-import { ApiConfig } from '$lib/framework/api/api';
+import { ApiConfig, apiFetch } from '$lib/framework/api/api';
 
 export class WebRTCApiClient {
 	static async getTurnCredentials(): Promise<RTCConfiguration> {
 		try {
-			const response = await fetch(ApiConfig.TURN);
+			const response = await apiFetch(ApiConfig.TURN);
 
 			if (!response.ok) {
 				throw new Error(`API responded with status: ${response.status}`);

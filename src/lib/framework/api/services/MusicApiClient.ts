@@ -1,7 +1,5 @@
 import type { IMusicSearchOptions } from '$lib/framework/types';
-import { ApiConfig } from '$lib/framework/api/api';
-import { fetchWithCache } from '$lib/framework/utils/fetchWithCache';
-
+import { ApiConfig, apiFetch } from '$lib/framework/api/api';
 export class MusicApiClient {
 	static async search(options: IMusicSearchOptions): Promise<any> {
 		const params = new URLSearchParams();
@@ -14,6 +12,6 @@ export class MusicApiClient {
 
 		const queryString = params.toString();
 		const url = `${ApiConfig.MUSIC_SEARCH}${queryString ? '?' + queryString : ''}`;
-		return await fetchWithCache(url);
+		return (await apiFetch(url, { useCache: true })).json();
 	}
 }
