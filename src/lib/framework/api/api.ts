@@ -11,3 +11,29 @@ export function getAuthHeaders() {
 		'X-Device-Id': systemGlobalState.deviceId || ''
 	};
 }
+
+export async function apiFetch(
+	url: string | URL,
+	options: RequestInit & { requireAuth?: boolean } = {}
+): Promise<Response> {
+	const { requireAuth = true, ...fetchOptions } = options;
+
+	if (requireAuth) {
+		const headers = getAuthHeaders();
+		if (!headers['X-User-Id']) {
+			return new Response(
+				JSON.stringify({ success: false, error: 'Unauthorized access (client-prevented)' }),
+				{
+					status: 401,
+					headers: { 'Content-Type': 'application/json' }
+				}
+			);
+		}
+		fetchOptions.headers = {
+			...fetchOptions.headers,
+			...headers
+		};
+	}
+
+	return await fetch(url, fetchOptions);
+}

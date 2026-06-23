@@ -1,5 +1,5 @@
 import type { IUser } from '$lib/framework/types';
-import { ApiConfig, getAuthHeaders } from '$lib/framework/api/api';
+import { ApiConfig, apiFetch } from '$lib/framework/api/api';
 
 export class AuthApiClient {
 	static async login(
@@ -8,18 +8,19 @@ export class AuthApiClient {
 		deviceId: string,
 		deviceName: string
 	): Promise<{ success: boolean; user?: IUser; error?: string }> {
-		const res = await fetch(ApiConfig.AUTH_LOGIN, {
+		const res = await apiFetch(ApiConfig.AUTH_LOGIN, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ username, password, deviceId, deviceName })
+			body: JSON.stringify({ username, password, deviceId, deviceName }),
+			requireAuth: false
 		});
 		return await res.json();
 	}
 
 	static async logout(userId: string, deviceId: string): Promise<Response> {
-		return await fetch(ApiConfig.AUTH_DEVICES, {
+		return await apiFetch(ApiConfig.AUTH_DEVICES, {
 			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ userId, deviceId })
 		});
 	}

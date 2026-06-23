@@ -1,19 +1,9 @@
 import type { IChatMessage, IMessage } from '$lib/framework/types';
-import { ApiConfig } from '$lib/framework/api/api';
-import { systemGlobalState } from '$lib/os/state';
-
-function getAuthHeaders() {
-	return {
-		'X-User-Id': systemGlobalState.currentUser?.id || '',
-		'X-Device-Id': systemGlobalState.deviceId || ''
-	};
-}
+import { ApiConfig, apiFetch } from '$lib/framework/api/api';
 
 export class MessagesApiClient {
 	static async getInbox(userId: string): Promise<{ success: boolean; data?: IMessage[] }> {
-		const res = await fetch(`${ApiConfig.MESSAGES}?userId=${userId}`, {
-			headers: getAuthHeaders()
-		});
+		const res = await apiFetch(`${ApiConfig.MESSAGES}?userId=${userId}`);
 		return await res.json();
 	}
 
@@ -21,16 +11,14 @@ export class MessagesApiClient {
 		userId: string,
 		chatId: string
 	): Promise<{ success: boolean; data?: IChatMessage[] }> {
-		const res = await fetch(`${ApiConfig.MESSAGES}?userId=${userId}&chatId=${chatId}`, {
-			headers: getAuthHeaders()
-		});
+		const res = await apiFetch(`${ApiConfig.MESSAGES}?userId=${userId}&chatId=${chatId}`);
 		return await res.json();
 	}
 
 	static async sendMessage(senderId: string, receiverId: string, content: string) {
-		const res = await fetch(ApiConfig.MESSAGES, {
+		const res = await apiFetch(ApiConfig.MESSAGES, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ senderId, receiverId, content })
 		});
 		const result = await res.json();
@@ -38,9 +26,8 @@ export class MessagesApiClient {
 	}
 
 	static async deleteMessage(msgId: string, senderId: string) {
-		const res = await fetch(`${ApiConfig.MESSAGES}?msgId=${msgId}&senderId=${senderId}`, {
-			method: 'DELETE',
-			headers: getAuthHeaders()
+		const res = await apiFetch(`${ApiConfig.MESSAGES}?msgId=${msgId}&senderId=${senderId}`, {
+			method: 'DELETE'
 		});
 		const result = await res.json();
 		return { res, result };
@@ -49,7 +36,7 @@ export class MessagesApiClient {
 	static async sendAiMessage(
 		messages: { role: string; content: string }[]
 	): Promise<{ choices?: { message: { content: string } }[]; error?: string }> {
-		const res = await fetch(ApiConfig.CHAT, {
+		const res = await apiFetch(ApiConfig.CHAT, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -60,7 +47,8 @@ export class MessagesApiClient {
 				stream: false,
 				temperature: 0.5,
 				top_p: 1
-			})
+			}),
+			requireAuth: false
 		});
 		return await res.json();
 	}
