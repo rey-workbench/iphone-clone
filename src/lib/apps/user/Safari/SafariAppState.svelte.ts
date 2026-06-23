@@ -178,6 +178,11 @@ export class SafariAppState extends BaseGlobalState {
 					scramjetPath: '/api/scramjet-scripts/bundled',
 					injectPath: '/api/scramjet-scripts/inject',
 					wasmPath: '/api/scramjet-scripts/wasm'
+				},
+				scramjetConfig: {
+					flags: {
+						scramitize: false
+					}
 				}
 			});
 
