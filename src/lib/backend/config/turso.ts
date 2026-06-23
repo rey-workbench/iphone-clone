@@ -33,6 +33,16 @@ export async function setupDatabase() {
       created_at TEXT NOT NULL,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
+    CREATE TABLE IF NOT EXISTS api_keys (
+      key_hash TEXT PRIMARY KEY,
+      key_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      scopes TEXT NOT NULL,
+      is_active INTEGER DEFAULT 1,
+      expires_at TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
     INSERT OR IGNORE INTO users (id, username, password, name) VALUES 
     ('e1b74c2e-4b6c-48c9-8d76-15b561c8f1ea', 'nisa', 'nisa', 'Annisaa Putri Purnomo'),
     ('f2a5b1c3-2d5f-4a8b-9e4c-34f781d9d1bc', 'rey', 'rey', 'Reynald Silva Baktiar'),
