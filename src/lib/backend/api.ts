@@ -1,6 +1,7 @@
 import { json, type RequestEvent } from '@sveltejs/kit';
 import { isAuthorized } from '$lib/backend/security/AuthValidator';
 import { RateLimiter } from '$lib/backend/security/RateLimiter';
+import { PayloadLimiter } from '$lib/backend/security/PayloadLimiter';
 
 export class ApiError extends Error {
 	constructor(
@@ -15,10 +16,14 @@ export class ApiError extends Error {
 // Global default rate limiter: 30 requests per minute
 const globalRateLimiter = new RateLimiter(60 * 1000, 30, 5 * 60 * 1000);
 
+// Global default payload size limiter: 2MB
+const globalPayloadLimiter = new PayloadLimiter(2 * 1024 * 1024);
+
 export interface ApiHandlerOptions {
 	requireAuth?: boolean; // Default: true
 	rateLimit?: boolean; // Default: true
 	customRateLimiter?: RateLimiter;
+	customPayloadLimiter?: PayloadLimiter;
 }
 
 /**
@@ -28,10 +33,14 @@ export function apiWrapper(
 	handler: (event: RequestEvent) => Promise<unknown> | unknown,
 	options: ApiHandlerOptions = {}
 ) {
-	const { requireAuth = true, rateLimit = true, customRateLimiter } = options;
+	const { requireAuth = true, rateLimit = true, customRateLimiter, customPayloadLimiter } = options;
 
 	return async (event: RequestEvent) => {
 		try {
+			// 0. Payload Size Check (DDoS/Abuse mitigation)
+			const payloadLimiter = customPayloadLimiter || globalPayloadLimiter;
+			payloadLimiter.checkSize(event.request.headers.get('content-length'));
+
 			// 1. Rate Limiting
 			if (rateLimit) {
 				const limiter = customRateLimiter || globalRateLimiter;
