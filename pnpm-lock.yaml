@@ -44,6 +44,9 @@ importers:
       node-device-detector:
         specifier: ^2.2.5
         version: 2.2.5
+      workbox-window:
+        specifier: ^7.4.1
+        version: 7.4.1
       ytmusic-api:
         specifier: ^5.3.1
         version: 5.3.1
