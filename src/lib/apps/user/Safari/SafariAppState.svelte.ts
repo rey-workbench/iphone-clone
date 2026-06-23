@@ -146,12 +146,12 @@ export class SafariAppState extends BaseGlobalState {
 			const { Controller } = scramjetController;
 			const registrations = await navigator.serviceWorker.getRegistrations();
 			for (const r of registrations) {
-				if (r.active?.scriptURL.includes('scramjet-sw.js') && r.scope === location.origin + '/') {
+				if ((r.active?.scriptURL.includes('scramjet-sw.js') || r.active?.scriptURL.includes('safari-sw.js')) && r.scope === location.origin + '/') {
 					await r.unregister();
 				}
 			}
 
-			const reg = await navigator.serviceWorker.register('/scramjet-sw.js', {
+			const reg = await navigator.serviceWorker.register('/safari-sw.js', {
 				scope: '/scramjet/'
 			});
 

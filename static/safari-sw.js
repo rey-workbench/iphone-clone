@@ -1,4 +1,5 @@
-importScripts('/scram/controller.sw.js');
+// @ts-nocheck
+importScripts('/assets/browser-core/controller.sw.js');
 
 self.addEventListener('install', () => {
 	self.skipWaiting();

@@ -6,15 +6,15 @@ export const GET: RequestHandler = async ({ params, url, fetch }) => {
 	let contentType = 'application/javascript';
 
 	if (params.type === 'bundled') {
-		fileUrl = '/scram/scramjet_bundled.js';
+		fileUrl = '/assets/browser-core/scramjet_bundled.js';
 	} else if (params.type === 'inject') {
-		fileUrl = '/scram/controller.inject.js';
+		fileUrl = '/assets/browser-core/controller.inject.js';
 	} else if (params.type === 'api') {
-		fileUrl = '/scram/controller.api.js';
+		fileUrl = '/assets/browser-core/controller.api.js';
 	} else if (params.type === 'sw') {
-		fileUrl = '/scram/controller.sw.js';
+		fileUrl = '/assets/browser-core/controller.sw.js';
 	} else if (params.type === 'wasm') {
-		fileUrl = '/scram/scramjet.wasm';
+		fileUrl = '/assets/browser-core/scramjet.wasm';
 		contentType = 'application/wasm';
 	} else {
 		throw error(404, 'Not found');

@@ -23,7 +23,7 @@ const libcurlPath = path.join(
 	'dist'
 );
 
-const destScram = path.join(process.cwd(), 'static', 'scram');
+const destScram = path.join(process.cwd(), 'static', 'assets', 'browser-core');
 const destLibcurl = path.join(process.cwd(), 'static', 'libcurl');
 
 fs.mkdirSync(destScram, { recursive: true });
