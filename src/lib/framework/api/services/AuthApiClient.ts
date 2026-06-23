@@ -1,5 +1,5 @@
 import type { IUser } from '$lib/framework/types';
-import { ApiConfig } from '$lib/framework/api/api';
+import { ApiConfig, getAuthHeaders } from '$lib/framework/api/api';
 
 export class AuthApiClient {
 	static async login(
@@ -19,7 +19,7 @@ export class AuthApiClient {
 	static async logout(userId: string, deviceId: string): Promise<Response> {
 		return await fetch(ApiConfig.AUTH_DEVICES, {
 			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
 			body: JSON.stringify({ userId, deviceId })
 		});
 	}
