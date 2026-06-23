@@ -38,12 +38,13 @@ function copyDir(src, destination) {
 	const files = fs.readdirSync(src);
 	for (const file of files) {
 		const srcFile = path.join(src, file);
-		const destFile = path.join(destination, file);
 		if (fs.statSync(srcFile).isFile()) {
 			let content = fs.readFileSync(srcFile);
+			let targetName = file;
 
 			// Inject Mobile User-Agent and Viewport into the proxy's injected script
 			if (file === 'controller.inject.js') {
+				targetName = 'core-inject.js';
 				const mobileOverride = `
 // Inject iPhone User Agent
 Object.defineProperty(navigator, 'userAgent', {
@@ -81,7 +82,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 `;
 				content = Buffer.from(mobileOverride + '\n' + content.toString('utf8'));
+			} else if (file === 'controller.api.js') {
+				targetName = 'core-api.js';
+			} else if (file === 'controller.sw.js') {
+				targetName = 'core-sw.js';
+			} else if (file === 'scramjet_bundled.js') {
+				targetName = 'core-bundle.js';
+			} else if (file === 'scramjet.wasm') {
+				targetName = 'core.wasm';
 			}
+
+			const destFile = path.join(destination, targetName);
 			fs.writeFileSync(destFile, content);
 		}
 	}

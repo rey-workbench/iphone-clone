@@ -1,5 +1,5 @@
 // @ts-nocheck
-importScripts('/assets/browser-core/controller.sw.js');
+importScripts('/assets/browser-core/core-sw.js');
 
 self.addEventListener('install', () => {
 	self.skipWaiting();
