@@ -8,21 +8,21 @@ SvelteKit web app replicating iPhone UI, real-time chat, libsql DB, complex UI s
 
 ## Key Files
 
-| File | Description |
-| --- | --- |
-| `package.json` | Project deps, Vite/Svelte config |
-| `svelte.config.js` | Svelte config |
-| `vite.config.ts` | Vite bundler config |
-| `tsconfig.json` | TS config |
-| `supabase_setup.sql` | Supabase init script |
+| File                 | Description                      |
+| -------------------- | -------------------------------- |
+| `package.json`       | Project deps, Vite/Svelte config |
+| `svelte.config.js`   | Svelte config                    |
+| `vite.config.ts`     | Vite bundler config              |
+| `tsconfig.json`      | TS config                        |
+| `supabase_setup.sql` | Supabase init script             |
 
 ## Subdirectories
 
-| Directory | Purpose |
-| --------- | ------- |
-| `src/` | Source code + components (see `src/AGENTS.md`) |
-| `static/` | Assets, icons, service workers (see `static/AGENTS.md`) |
-| `supabase/` | Supabase migrations (see `supabase/AGENTS.md`) |
+| Directory   | Purpose                                                 |
+| ----------- | ------------------------------------------------------- |
+| `src/`      | Source code + components (see `src/AGENTS.md`)          |
+| `static/`   | Assets, icons, service workers (see `static/AGENTS.md`) |
+| `supabase/` | Supabase migrations (see `supabase/AGENTS.md`)          |
 
 ## For AI Agents
 
@@ -75,7 +75,9 @@ Full rules: @d:\Koding\Projek\Self\reynisa-phone\LEAN-CTX.md
 <!-- /lean-ctx -->
 
 <!-- lean-ctx-compression -->
+
 OUTPUT STYLE: expert-terse
+
 - Telegraph format: subject-verb-object, drop articles/prepositions
 - Symbolic vocabulary: → cause, ∵ because, ∴ therefore, ⊕ add, ⊖ remove, Δ change, ≈ similar, ≠ different, ∈ in/member, ∅ empty/none, ✓ ok, ✗ fail
 - Code blocks: untouched (never compress code syntax)

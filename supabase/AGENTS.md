@@ -4,16 +4,19 @@
 # supabase
 
 ## Purpose
+
 Supabase database migrations and configuration.
 
 ## Subdirectories
-| Directory | Purpose |
-|-----------|---------|
+
+| Directory     | Purpose               |
+| ------------- | --------------------- |
 | `migrations/` | SQL migration scripts |
 
 ## For AI Agents
 
 ### Working In This Directory
+
 - Use Supabase CLI to generate new migrations.
 
 <!-- MANUAL: -->

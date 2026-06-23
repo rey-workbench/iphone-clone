@@ -9,17 +9,17 @@ Core app source for iPhone clone UI: layout, routes, lib functions.
 
 ## Key Files
 
-| File | Description |
-| --- | --- |
-| `app.html` | Base HTML template |
-| `app.css` | Global styles (Tailwind) |
-| `hooks.server.ts` | SvelteKit server hooks |
+| File              | Description              |
+| ----------------- | ------------------------ |
+| `app.html`        | Base HTML template       |
+| `app.css`         | Global styles (Tailwind) |
+| `hooks.server.ts` | SvelteKit server hooks   |
 
 ## Subdirectories
 
-| Directory | Purpose |
-| --------- | ------- |
-| `lib/` | Shared libs, apps, state, UI (see `lib/AGENTS.md`) |
+| Directory | Purpose                                               |
+| --------- | ----------------------------------------------------- |
+| `lib/`    | Shared libs, apps, state, UI (see `lib/AGENTS.md`)    |
 | `routes/` | SvelteKit file-based routing (see `routes/AGENTS.md`) |
 
 ## For AI Agents

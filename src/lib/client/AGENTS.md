@@ -4,9 +4,11 @@
 # client
 
 ## Purpose
+
 Container directory for client-side specific scripts and utilities.
 
 ## For AI Agents
+
 - Do not import server-only code here.
 - Focus on browser APIs and client state.
 

@@ -14,12 +14,12 @@ ALWAYS combine `lean-ctx` + `rtk` for shell commands (`ctx_shell("rtk <command>"
 
 **ALWAYS use lean-ctx tools. NEVER use native equivalents.**
 
-| Native Tool (FORBIDDEN) | Use Instead |
-| --- | --- |
-| `read`, `Read`, `cat`, `head`, `tail` | `ctx_read(path, mode)` |
-| `grep`, `rg`, `find`, `Grep` | `ctx_search(pattern, path)` |
-| `bash`, `shell`, `exec` | `ctx_shell(command)` |
-| `edit`, `Edit`, `sed`, `awk` | `ctx_edit(path, old, new)` |
+| Native Tool (FORBIDDEN)               | Use Instead                 |
+| ------------------------------------- | --------------------------- |
+| `read`, `Read`, `cat`, `head`, `tail` | `ctx_read(path, mode)`      |
+| `grep`, `rg`, `find`, `Grep`          | `ctx_search(pattern, path)` |
+| `bash`, `shell`, `exec`               | `ctx_shell(command)`        |
+| `edit`, `Edit`, `sed`, `awk`          | `ctx_edit(path, old, new)`  |
 
 **Violations = incomplete work. Verify tool choice before executing.**
 
@@ -28,6 +28,7 @@ ALWAYS combine `lean-ctx` + `rtk` for shell commands (`ctx_shell("rtk <command>"
 **rtk rewrites shell commands for token efficiency. Always enabled via plugin.**
 
 When running shell commands:
+
 1. Use `ctx_shell(command)` — rtk plugin auto-rewrites
 2. If `ctx_shell` unavailable, use native `bash` — rtk intercepts
 3. Never bypass rtk. Check `rtk rewrite <cmd>` if unsure.
@@ -36,14 +37,14 @@ rtk = single source of truth for command optimization.
 
 ## ctx_read Mode Selection
 
-| Goal | Mode | When |
-| --- | --- | --- |
-| Edit this file | `full` | Before edit |
-| Understand API | `signatures` | Context-only, won't edit |
-| Re-read after edit | `diff` | Post-edit verification |
-| Large file overview | `map` | >500 lines, won't edit |
-| Specific region | `lines:N-M` | Know exact location |
-| Unsure | `auto` | System selects optimal mode |
+| Goal                | Mode         | When                        |
+| ------------------- | ------------ | --------------------------- |
+| Edit this file      | `full`       | Before edit                 |
+| Understand API      | `signatures` | Context-only, won't edit    |
+| Re-read after edit  | `diff`       | Post-edit verification      |
+| Large file overview | `map`        | >500 lines, won't edit      |
+| Specific region     | `lines:N-M`  | Know exact location         |
+| Unsure              | `auto`       | System selects optimal mode |
 
 ## Workflow (MANDATORY ORDER)
 
@@ -91,6 +92,6 @@ and `ctx_callgraph(action="callers")` to confirm blast radius.
 - Native `edit`/`Edit` when `ctx_edit` exists
 - Bypassing rtk rewriting for shell commands
 
-**If ctx_* tools fail, report error. Do NOT fallback to native tools.**
+**If ctx\_\* tools fail, report error. Do NOT fallback to native tools.**
 
 <!-- /lean-ctx -->

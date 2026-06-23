@@ -4,9 +4,11 @@
 # netflix
 
 ## Purpose
+
 API endpoints for Netflix clone app (proxy, metadata, or mock data).
 
 ## For AI Agents
+
 - Maintain isolation from core chat application backend logic.
 
 <!-- MANUAL: -->

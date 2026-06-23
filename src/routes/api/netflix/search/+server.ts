@@ -14,5 +14,5 @@ export const GET = apiWrapper(
 		const data = await netflixService.search(query);
 		return data;
 	},
-	{ customRateLimiter: netflixRateLimiter }
+	{ requireAuth: false, customRateLimiter: netflixRateLimiter }
 );

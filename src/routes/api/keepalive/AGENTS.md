@@ -4,9 +4,11 @@
 # keepalive
 
 ## Purpose
+
 Endpoints for maintaining persistent connections or preventing sleep.
 
 ## For AI Agents
+
 - Keep processing overhead minimal.
 
 <!-- MANUAL: -->

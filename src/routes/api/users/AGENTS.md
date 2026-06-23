@@ -4,9 +4,11 @@
 # users
 
 ## Purpose
+
 API endpoints for user profile fetching, updating, and search.
 
 ## For AI Agents
+
 - Ensure PII is not exposed.
 
 <!-- MANUAL: -->

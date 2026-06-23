@@ -4,9 +4,11 @@
 # scram
 
 ## Purpose
+
 Container for scramjet static assets and configuration files.
 
 ## For AI Agents
+
 - Coordinate with scramjet-sw.js.
 
 <!-- MANUAL: -->

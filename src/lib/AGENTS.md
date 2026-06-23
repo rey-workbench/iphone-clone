@@ -9,14 +9,14 @@ Reusable app logic, state defs, iPhone clone apps, utilities.
 
 ## Subdirectories
 
-| Directory | Purpose |
-| --------- | ------- |
-| `apps/` | iPhone apps (Calculator, Music, etc.) |
-| `config/` | DB + API configs (Supabase, Turso) |
-| `server/` | Server-only utilities |
+| Directory | Purpose                                   |
+| --------- | ----------------------------------------- |
+| `apps/`   | iPhone apps (Calculator, Music, etc.)     |
+| `config/` | DB + API configs (Supabase, Turso)        |
+| `server/` | Server-only utilities                     |
 | `states/` | Global Svelte Runes states (`.svelte.ts`) |
-| `types/` | TS type defs |
-| `ui/` | Shared UI components |
-| `utils/` | Utility functions + permissions |
+| `types/`  | TS type defs                              |
+| `ui/`     | Shared UI components                      |
+| `utils/`  | Utility functions + permissions           |
 
 <!-- MANUAL: Manual notes below this line preserved on regeneration -->

@@ -4,9 +4,11 @@
 # framework
 
 ## Purpose
+
 Container directory for core UI/logic framework building blocks.
 
 ## For AI Agents
+
 - Keep patterns highly generic and reusable.
 
 <!-- MANUAL: -->

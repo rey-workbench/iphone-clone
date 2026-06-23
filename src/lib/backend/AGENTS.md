@@ -4,9 +4,11 @@
 # backend
 
 ## Purpose
+
 Container directory for backend interactions, database utilities, and API helpers.
 
 ## For AI Agents
+
 - Maintain strict separation of concerns from UI components.
 - Ensure secure handling of database connections.
 

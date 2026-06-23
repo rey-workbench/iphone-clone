@@ -4,9 +4,11 @@
 # config
 
 ## Purpose
+
 Container directory for organizing shared configuration files.
 
 ## For AI Agents
+
 - Keep configurations static or env-driven where possible.
 
 <!-- MANUAL: -->

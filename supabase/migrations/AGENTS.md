@@ -4,9 +4,11 @@
 # migrations
 
 ## Purpose
+
 SQL migration scripts for Supabase.
 
 ## For AI Agents
+
 - Do not modify existing migrations; create new ones for schema changes.
 - Use `supabase db diff` to generate.
 

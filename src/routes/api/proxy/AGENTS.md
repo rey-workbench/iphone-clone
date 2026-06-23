@@ -4,9 +4,11 @@
 # proxy
 
 ## Purpose
+
 General CORS bypass or API proxy endpoints for external requests.
 
 ## For AI Agents
+
 - Enforce strict allowed-origins or rate limiting if necessary.
 
 <!-- MANUAL: -->

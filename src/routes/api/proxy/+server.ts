@@ -42,5 +42,5 @@ export const GET = apiWrapper(
 			throw new ApiError(500, 'Internal Proxy Error');
 		}
 	},
-	{ customRateLimiter: proxyRateLimiter }
+	{ requireAuth: false, customRateLimiter: proxyRateLimiter }
 );

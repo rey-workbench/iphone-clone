@@ -4,9 +4,11 @@
 # ytsearch
 
 ## Purpose
+
 API endpoints for YouTube search proxying.
 
 ## For AI Agents
+
 - Cache results if possible to avoid rate limits.
 
 <!-- MANUAL: -->

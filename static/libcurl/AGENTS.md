@@ -4,9 +4,11 @@
 # libcurl
 
 ## Purpose
+
 Container for libcurl WebAssembly build files.
 
 ## For AI Agents
+
 - Do not modify pre-compiled WASM or JS bindings here unless upgrading.
 
 <!-- MANUAL: -->

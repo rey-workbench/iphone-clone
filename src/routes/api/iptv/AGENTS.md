@@ -4,9 +4,11 @@
 # iptv
 
 ## Purpose
+
 API endpoints for fetching or parsing IPTV stream metadata.
 
 ## For AI Agents
+
 - Use robust parsing logic to handle external M3U streams.
 
 <!-- MANUAL: -->

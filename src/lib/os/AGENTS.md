@@ -4,9 +4,11 @@
 # os
 
 ## Purpose
+
 Container directory for OS-level simulations (iPhone UI logic).
 
 ## For AI Agents
+
 - Coordinate global state and system UI logic here.
 
 <!-- MANUAL: -->

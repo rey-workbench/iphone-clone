@@ -4,9 +4,11 @@
 # messages
 
 ## Purpose
+
 API endpoints for retrieving and sending text/media messages.
 
 ## For AI Agents
+
 - Ensure database interactions are indexed efficiently.
 
 <!-- MANUAL: -->

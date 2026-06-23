@@ -31,5 +31,5 @@ export const GET = apiWrapper(
 		const data = await response.json();
 		return json(data.result);
 	},
-	{ customRateLimiter: turnRateLimiter }
+	{ requireAuth: false, customRateLimiter: turnRateLimiter }
 );

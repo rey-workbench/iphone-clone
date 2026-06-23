@@ -4,9 +4,11 @@
 # notes
 
 ## Purpose
+
 API endpoints for notes application syncing and storage.
 
 ## For AI Agents
+
 - Validate note payloads carefully.
 
 <!-- MANUAL: -->

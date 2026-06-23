@@ -41,5 +41,5 @@ export const GET = apiWrapper(
 
 		throw new ApiError(400, 'Invalid request or missing query parameters');
 	},
-	{ customRateLimiter: searchRateLimiter }
+	{ requireAuth: false, customRateLimiter: searchRateLimiter }
 );
