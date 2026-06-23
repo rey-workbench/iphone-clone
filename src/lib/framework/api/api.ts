@@ -50,6 +50,20 @@ export async function apiFetch(
 
 	const response = await fetch(url, fetchOptions);
 
+	if (!response.ok) {
+		if (response.status === 401 || response.status === 403) {
+			console.warn('Unauthorized or forbidden request, logging out the user');
+			if (typeof window !== 'undefined') {
+				// Prevent loop by only clearing if currently set
+				if (systemGlobalState.currentUser) {
+					systemGlobalState.currentUser = null;
+					systemGlobalState.saveUser();
+				}
+			}
+		}
+		// throw new Error(`API error: ${response.status} ${response.statusText}`);
+	}
+
 	if (useCache && response.ok) {
 		const cloned = response.clone();
 		try {

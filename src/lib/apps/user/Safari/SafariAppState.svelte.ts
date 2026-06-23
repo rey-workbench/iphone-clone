@@ -109,8 +109,8 @@ export class SafariAppState extends BaseGlobalState {
 			win.module = undefined;
 			win.define = undefined;
 
-			await loadScript('/scram/scramjet_bundled.js');
-			await loadScript('/scram/controller.api.js');
+			await loadScript('/api/scramjet-scripts/bundled');
+			await loadScript('/api/scramjet-scripts/api');
 			await loadScript('/libcurl/index.js');
 
 			win.exports = origExports;
@@ -175,9 +175,9 @@ export class SafariAppState extends BaseGlobalState {
 				transport,
 				config: {
 					prefix: '/scramjet/',
-					scramjetPath: '/scram/scramjet_bundled.js',
-					injectPath: '/scram/controller.inject.js',
-					wasmPath: '/scram/scramjet.wasm'
+					scramjetPath: '/api/scramjet-scripts/bundled',
+					injectPath: '/api/scramjet-scripts/inject',
+					wasmPath: '/api/scramjet-scripts/wasm'
 				}
 			});
 

@@ -11,5 +11,5 @@ export const GET = apiWrapper(
 			throw new ApiError(500, error.message);
 		}
 	},
-	{ requireAuth: false }
+	{ requireAuth: true }
 );

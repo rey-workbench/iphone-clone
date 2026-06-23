@@ -13,5 +13,5 @@ export const POST = apiWrapper(
 
 		return await chatService.sendMessage(data.messages);
 	},
-	{ requireAuth: false, customRateLimiter: chatRateLimiter }
+	{ requireAuth: true, customRateLimiter: chatRateLimiter }
 );

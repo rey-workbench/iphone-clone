@@ -15,5 +15,5 @@ export const GET = apiWrapper(
 		const data = await netflixService.getDetails(id, type);
 		return data;
 	},
-	{ requireAuth: false, customRateLimiter: netflixRateLimiter }
+	{ requireAuth: true, customRateLimiter: netflixRateLimiter }
 );

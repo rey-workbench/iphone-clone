@@ -13,5 +13,5 @@ export const GET = apiWrapper(
 
 		return await safariSearchService.search(query);
 	},
-	{ requireAuth: false, customRateLimiter: searchRateLimiter }
+	{ requireAuth: true, customRateLimiter: searchRateLimiter }
 );

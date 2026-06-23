@@ -20,7 +20,7 @@ export class WeatherApiClient {
 		for (const url of providers) {
 			try {
 				// Refresh cache every 10 seconds (10000 ms)
-				const data = (await apiFetch(url, { useCache: true, ttlMs: 10000 })).json();
+				const data = await (await apiFetch(url, { useCache: true, ttlMs: 10000 })).json();
 				if (!data || data.error || data.success === false || data.status === 'fail') continue;
 
 				let lat = data.latitude !== undefined ? data.latitude : data.lat;
